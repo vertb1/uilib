@@ -23,22 +23,6 @@ library.theme = {
     titlesize = 18,
     font = Enum.Font.Code,
     background = "rbxassetid://5553946656",
-    backgrounds = {
-        ["Default"] = "rbxassetid://5553946656",
-        ["Hearts"] = "rbxassetid://6073763717",
-        ["Abstract"] = "rbxassetid://6073743871",
-        ["Hexagon"] = "rbxassetid://6073628839",
-        ["Circles"] = "rbxassetid://6071579801",
-        ["Lace"] = "rbxassetid://6071575925",
-        ["Floral"] = "rbxassetid://5553946656",
-        ["Waves"] = "rbxassetid://6087537285",
-        ["Geometric"] = "rbxassetid://7651304323",
-        ["Diamonds"] = "rbxassetid://6071579801",
-        ["Stars"] = "rbxassetid://6071575925",
-        ["Nebula"] = "rbxassetid://159454286",
-        ["Circuit"] = "rbxassetid://6071798044",
-        ["Space"] = "rbxassetid://6071570953"
-    },
     tilesize = 90,
     cursor = true,
     cursorimg = "https://t0.rbxcdn.com/42f66da98c40252ee151326a82aab51f",
@@ -418,17 +402,11 @@ function library:CreateWindow(name, size, hidebutton)
     window.BackgroundImage.ScaleType = Enum.ScaleType.Tile
     window.BackgroundImage.Position = window.BlackLine.Position + UDim2.fromOffset(0, 1)
     window.BackgroundImage.Size = UDim2.fromOffset(window.size.X.Offset, window.size.Y.Offset - window.TopBar.AbsoluteSize.Y - 1)
-    window.BackgroundImage.Image = window.theme.background
-    window.BackgroundImage.ImageTransparency = 0.8 -- Slightly transparent
-    window.BackgroundImage.ImageColor3 = Color3.new()
+    window.BackgroundImage.Image = window.theme.background or ""
+    window.BackgroundImage.ImageTransparency = window.BackgroundImage.Image ~= "" and 0 or 1
+    window.BackgroundImage.ImageColor3 = Color3.new() 
     window.BackgroundImage.BackgroundColor3 = window.theme.backgroundcolor
     window.BackgroundImage.TileSize = UDim2.new(0, window.theme.tilesize, 0, window.theme.tilesize)
-
-    -- Add background properties
-    window.BackgroundImage.ResampleMode = Enum.ResamplerMode.Pixelated
-    window.BackgroundImage.SliceScale = 1
-    window.BackgroundImage.SliceCenter = Rect.new(0, 0, 100, 100)
-
     updateevent.Event:Connect(function(theme)
         window.BackgroundImage.Image = theme.background or ""
         window.BackgroundImage.ImageTransparency = window.BackgroundImage.Image ~= "" and 0 or 1
@@ -3419,6 +3397,135 @@ function library:CreateWindow(name, size, hidebutton)
             return sector
         end
 
+        function tab:CreateConfigSystem(side)
+            local configSystem = { }
+
+            configSystem.configFolder = window.name .. "/" .. tostring(game.PlaceId)
+            if (not isfolder(configSystem.configFolder)) then
+                makefolder(configSystem.configFolder)
+            end
+
+            configSystem.sector = tab:CreateSector("Configs", side or "left")
+
+            local ConfigName = configSystem.sector:AddTextbox("Config Name", "", ConfigName, function() end, "")
+            local default = tostring(listfiles(configSystem.configFolder)[1] or ""):gsub(configSystem.configFolder .. "\\", ""):gsub(".txt", "")
+            local Config = configSystem.sector:AddDropdown("Configs", {}, default, false, function() end, "")
+            for i,v in pairs(listfiles(configSystem.configFolder)) do
+                if v:find(".txt") then
+                    Config:Add(tostring(v):gsub(configSystem.configFolder .. "\\", ""):gsub(".txt", ""))
+                end
+            end
+
+            configSystem.Create = configSystem.sector:AddButton("Create", function()
+                for i,v in pairs(listfiles(configSystem.configFolder)) do
+                    Config:Remove(tostring(v):gsub(configSystem.configFolder .. "\\", ""):gsub(".txt", ""))
+                end
+
+                if ConfigName:Get() and ConfigName:Get() ~= "" then
+                    local config = {}
+    
+                    for i,v in pairs(library.flags) do
+                        if (v ~= nil and v ~= "") then
+                            if (typeof(v) == "Color3") then
+                                config[i] = { v.R, v.G, v.B }
+                            elseif (tostring(v):find("Enum.KeyCode")) then
+                                config[i] = v.Name
+                            elseif (typeof(v) == "table") then
+                                config[i] = { v }
+                            else
+                                config[i] = v
+                            end
+                        end
+                    end
+    
+                    writefile(configSystem.configFolder .. "/" .. ConfigName:Get() .. ".txt", httpservice:JSONEncode(config))
+    
+                    for i,v in pairs(listfiles(configSystem.configFolder)) do
+                        if v:find(".txt") then
+                            Config:Add(tostring(v):gsub(configSystem.configFolder .. "\\", ""):gsub(".txt", ""))
+                        end
+                    end
+                end
+            end)
+
+            configSystem.Save = configSystem.sector:AddButton("Save", function()
+                local config = {}
+                if Config:Get() and Config:Get() ~= "" then
+                    for i,v in pairs(library.flags) do
+                        if (v ~= nil and v ~= "") then
+                            if (typeof(v) == "Color3") then
+                                config[i] = { v.R, v.G, v.B }
+                            elseif (tostring(v):find("Enum.KeyCode")) then
+                                config[i] = "Enum.KeyCode." .. v.Name
+                            elseif (typeof(v) == "table") then
+                                config[i] = { v }
+                            else
+                                config[i] = v
+                            end
+                        end
+                    end
+    
+                    writefile(configSystem.configFolder .. "/" .. Config:Get() .. ".txt", httpservice:JSONEncode(config))
+                end
+            end)
+
+            configSystem.Load = configSystem.sector:AddButton("Load", function()
+                local Success = pcall(readfile, configSystem.configFolder .. "/" .. Config:Get() .. ".txt")
+                if (Success) then
+                    pcall(function() 
+                        local ReadConfig = httpservice:JSONDecode(readfile(configSystem.configFolder .. "/" .. Config:Get() .. ".txt"))
+                        local NewConfig = {}
+    
+                        for i,v in pairs(ReadConfig) do
+                            if (typeof(v) == "table") then
+                                if (typeof(v[1]) == "number") then
+                                    NewConfig[i] = Color3.new(v[1], v[2], v[3])
+                                elseif (typeof(v[1]) == "table") then
+                                    NewConfig[i] = v[1]
+                                end
+                            elseif (tostring(v):find("Enum.KeyCode.")) then
+                                NewConfig[i] = Enum.KeyCode[tostring(v):gsub("Enum.KeyCode.", "")]
+                            else
+                                NewConfig[i] = v
+                            end
+                        end
+    
+                        library.flags = NewConfig
+    
+                        for i,v in pairs(library.flags) do
+                            for i2,v2 in pairs(library.items) do
+                                if (i ~= nil and i ~= "" and i ~= "Configs_Name" and i ~= "Configs" and v2.flag ~= nil) then
+                                    if (v2.flag == i) then
+                                        pcall(function() 
+                                            v2:Set(v)
+                                        end)
+                                    end
+                                end
+                            end
+                        end
+                    end)
+                end
+            end)
+
+            configSystem.Delete = configSystem.sector:AddButton("Delete", function()
+                for i,v in pairs(listfiles(configSystem.configFolder)) do
+                    Config:Remove(tostring(v):gsub(configSystem.configFolder .. "\\", ""):gsub(".txt", ""))
+                end
+
+                if (not Config:Get() or Config:Get() == "") then return end
+                if (not isfile(configSystem.configFolder .. "/" .. Config:Get() .. ".txt")) then return end
+                delfile(configSystem.configFolder .. "/" .. Config:Get() .. ".txt")
+
+                for i,v in pairs(listfiles(configSystem.configFolder)) do
+                    if v:find(".txt") then
+                        Config:Add(tostring(v):gsub(configSystem.configFolder .. "\\", ""):gsub(".txt", ""))
+                    end
+                end
+            end)
+
+            return configSystem
+        end
+
         --[[ not finished lol
         function tab:CreatePlayerlist(name)
             local list = { }
@@ -3543,21 +3650,6 @@ function library:CreateWindow(name, size, hidebutton)
     end
 
     return window
-end
-
--- Add error handling for theme loading
-function library:UpdateTheme(theme)
-    if not theme then return end
-    
-    pcall(function()
-        library.theme = theme
-        -- Update theme for all UI elements
-        for _, element in pairs(library.items) do
-            if element.UpdateTheme then
-                element:UpdateTheme(theme)
-            end
-        end
-    end)
 end
 
 return library
