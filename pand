@@ -1,4 +1,4 @@
--- modified by vert
+-- made by portal
 -- example at bottom
 local Library = {};
 do
@@ -71,8 +71,6 @@ do
 		Connections = {};
 		UIFont = Font.fromEnum(Enum.Font.GothamBold);
 		FontSize = 12;
-		MinSize = Vector2.new(580, 442); -- Default/minimum window size
-		Resizing = false
 	}
 
 	-- // Ignores
@@ -323,48 +321,6 @@ do
 				return true;
 			end;
 		end;
-		--
-		function Library:MakeResizable(Instance)
-			local ResizeHandle = Instance.new("TextButton")
-			ResizeHandle.Name = "ResizeHandle" 
-			ResizeHandle.Size = UDim2.new(0, 10, 0, 10)
-			ResizeHandle.Position = UDim2.new(1, -10, 1, -10)
-			ResizeHandle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-			ResizeHandle.BorderSizePixel = 0
-			ResizeHandle.Text = ""
-			ResizeHandle.Parent = Instance
-			
-			ResizeHandle.MouseButton1Down:Connect(function()
-				Library.Resizing = true
-				local StartSize = Instance.Size
-				local StartPos = game:GetService("UserInputService"):GetMouseLocation()
-				
-				while Library.Resizing do
-					local Delta = game:GetService("UserInputService"):GetMouseLocation() - StartPos
-					local NewSize = UDim2.new(
-						StartSize.X.Scale,
-						math.max(Library.MinSize.X, StartSize.X.Offset + Delta.X),
-						StartSize.Y.Scale,
-						math.max(Library.MinSize.Y, StartSize.Y.Offset + Delta.Y)
-					)
-					Instance.Size = NewSize
-					
-					-- Resize internal elements
-					local Inline = Instance:FindFirstChild("Inline")
-					if Inline then
-						Inline.Size = UDim2.new(1, -4, 1, -4)
-					end
-					
-					game:GetService("RunService").RenderStepped:Wait()
-				end
-			end)
-			
-			game:GetService("UserInputService").InputEnded:Connect(function(input)
-				if input.UserInputType == Enum.UserInputType.MouseButton1 then
-					Library.Resizing = false
-				end
-			end)
-		end
 	end
 
 	-- // Colorpicker Element
@@ -588,139 +544,189 @@ do
 				Sections = {};
 				Elements = {};
 				Dragging = { false, UDim2.new(0, 0, 0, 0) };
-				Title = Options.Name or "new ui";
+				Title = Options.Name or Options.Name or Options.Name or "new ui";
 			};
 
-			-- Create ScreenGui first
-			local ScreenGui = Instance.new("ScreenGui")
-			ScreenGui.Name = "UILibrary"
-			ScreenGui.DisplayOrder = 2
-			ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-			
-			-- Set parent based on environment
-			if syn and syn.protect_gui then
-				syn.protect_gui(ScreenGui)
-				ScreenGui.Parent = game.CoreGui
-			elseif game:GetService("RunService"):IsStudio() then
-				ScreenGui.Parent = game.Players.LocalPlayer.PlayerGui
-			else
-				ScreenGui.Parent = game.CoreGui
+			-- // Instances
+			local ScreenGui = Instance.new('ScreenGui', game:GetService("RunService"):IsStudio() and game.Players.LocalPlayer.PlayerGui or game.CoreGui)
+			local Main = Instance.new('Frame', ScreenGui)
+			local Inline = Instance.new('Frame', Main)
+			local Middle = Instance.new('Frame', Inline)
+			local Line = Instance.new('Frame', Middle)
+			local Line2 = Instance.new('Frame', Middle)
+			local Gradient = Instance.new('Frame', Middle)
+			local UIGradient = Instance.new('UIGradient', Gradient)
+			local Top = Instance.new('TextButton', Inline)
+			local Title = Instance.new('TextLabel', Top)
+			local Bottom = Instance.new('Frame', Inline)
+			local Sections = Instance.new('Frame', Middle)
+			local Pages = Instance.new('Frame', Top)
+			local UIListLayout = Instance.new('UIListLayout', Pages)
+			local version = Instance.new('TextLabel', Bottom)
+			local corner1 = Instance.new('UICorner', Main)
+			local corner2 = Instance.new('UICorner', Inline)
+			local stroke1 = Instance.new('UIStroke', Main)
+			local stroke2 = Instance.new('UIStroke', Inline)
+			--
+			do -- Inserts
+				table.insert(Library.Instances, Main)
+				table.insert(Library.Instances, Inline)
+				table.insert(Library.Instances, Middle)
+				table.insert(Library.Instances, Line)
+				table.insert(Library.Instances, Line2)
+				table.insert(Library.Instances, Gradient)
+				table.insert(Library.Instances, Title)
+				table.insert(Library.Instances, Sections)
+				table.insert(Library.Instances, version)
+				--
+				table.insert(Library.ThemeObjects, Title)
+				table.insert(Library.ThemeObjects, version)
 			end
-
-			-- Create main frame
-			local Main = Instance.new("Frame")
+			--
+			ScreenGui.DisplayOrder = 2
+			--
 			Main.Name = "Main"
-			Main.Position = UDim2.new(0.5, 0, 0.5, 0)
-			Main.Size = UDim2.new(0, 580, 0, 442)
-			Main.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
-			Main.BorderSizePixel = 0
-			Main.AnchorPoint = Vector2.new(0.5, 0.5)
-			Main.Parent = ScreenGui
+			Main.Position = UDim2.new(0.5,0,0.5,0)
+			Main.Size = UDim2.new(0,580,0,442)
+			Main.BackgroundColor3 = Color3.new(0.1098,0.1098,0.1098)
+			Main.BorderColor3 = Color3.new(0,0,0)
+			Main.AnchorPoint = Vector2.new(0.5,0.5)
 			Library.Holder = Main
-
-			-- Make the window resizable
-			Library:MakeResizable(Main)
-
-			-- Create Inline frame
-			local Inline = Instance.new("Frame")
+			--
 			Inline.Name = "Inline"
-			Inline.Position = UDim2.new(0, 2, 0, 2)
-			Inline.Size = UDim2.new(1, -4, 1, -4)
-			Inline.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
-			Inline.BorderSizePixel = 0
-			Inline.Parent = Main
-
-			-- Create Middle frame
-			local Middle = Instance.new("Frame")
+			Inline.Position = UDim2.new(0,2,0,2)
+			Inline.Size = UDim2.new(1,-4,1,-4)
+			Inline.BackgroundColor3 = Color3.new(0.0314,0.0314,0.0314)
+			Inline.BorderColor3 = Color3.new(0,0,0)
+			--
 			Middle.Name = "Middle"
-			Middle.Position = UDim2.new(0, -1, 0, 22)
-			Middle.Size = UDim2.new(1, 2, 1, -44)
-			Middle.BackgroundColor3 = Color3.fromRGB(11, 11, 11)
-			Middle.BorderSizePixel = 0
-			Middle.Parent = Inline
-
-			-- Create other UI elements
-			local Line = Instance.new("Frame")
+			Middle.Position = UDim2.new(0,-1,0,22)
+			Middle.Size = UDim2.new(1,2,1,-44)
+			Middle.BackgroundColor3 = Color3.new(0.0431,0.0431,0.0431)
+			Middle.BorderColor3 = Color3.new(0,0,0)
+			Middle.BorderMode = Enum.BorderMode.Inset
+			--
 			Line.Name = "Line"
-			Line.Position = UDim2.new(0, -1, 0, 0)
-			Line.Size = UDim2.new(1, 2, 0, 1)
-			Line.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+			Line.Position = UDim2.new(0,-1,0,0)
+			Line.Size = UDim2.new(1,2,0,1)
+			Line.BackgroundColor3 = Color3.new(0.1098,0.1098,0.1098)
 			Line.BorderSizePixel = 0
-			Line.Parent = Middle
-
-			local Line2 = Instance.new("Frame")
+			Line.BorderColor3 = Color3.new(0,0,0)
+			--
 			Line2.Name = "Line2"
-			Line2.Position = UDim2.new(0, -1, 1, -1)
-			Line2.Size = UDim2.new(1, 2, 0, 1)
-			Line2.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+			Line2.Position = UDim2.new(0,-1,1,-1)
+			Line2.Size = UDim2.new(1,2,0,1)
+			Line2.BackgroundColor3 = Color3.new(0.1098,0.1098,0.1098)
 			Line2.BorderSizePixel = 0
-			Line2.Parent = Middle
-
-			local Top = Instance.new("TextButton")
+			Line2.BorderColor3 = Color3.new(0,0,0)
+			--
+			Gradient.Name = "Gradient"
+			Gradient.Position = UDim2.new(0.5,0,0,2)
+			Gradient.Size = UDim2.new(0.5,0,0,1)
+			Gradient.BackgroundColor3 = Color3.new(1,1,1)
+			Gradient.BorderSizePixel = 0
+			Gradient.BorderColor3 = Color3.new(0,0,0)
+			Library.Gradient = Gradient
+			UIGradient.Color = ColorSequence.new{ColorSequenceKeypoint.new(0,Library.Accent	),ColorSequenceKeypoint.new(1,Color3.new(0.04313725605607033, 0.04313725605607033, 0.04313725605607033)	)}
+			UIGradient.Rotation = 180
+			Library.UIGradient = UIGradient
+			--
 			Top.Name = "Top"
-			Top.Size = UDim2.new(1, 0, 0, 22)
+			Top.Size = UDim2.new(1,0,0,22)
+			Top.BackgroundColor3 = Color3.new(1,1,1)
 			Top.BackgroundTransparency = 1
+			Top.BorderSizePixel = 0
+			Top.BorderColor3 = Color3.new(0,0,0)
+			Top.AutoButtonColor = false
 			Top.Text = ""
-			Top.Parent = Inline
-
-			local Title = Instance.new("TextLabel")
+			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0, 4, 0, 0)
-			Title.Size = UDim2.new(1, -4, 1, 0)
+			Title.Position = UDim2.new(0,4,0,0)
+			Title.Size = UDim2.new(1,-4,1,0)
+			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
+			Title.BorderSizePixel = 0
+			Title.BorderColor3 = Color3.new(0,0,0)
 			Title.Text = Base.Title
 			Title.TextColor3 = Library.Accent
 			Title.FontFace = Library.UIFont
 			Title.TextSize = Library.FontSize
 			Title.TextXAlignment = Enum.TextXAlignment.Left
-			Title.Parent = Top
-
-			local Bottom = Instance.new("Frame")
+			Title.RichText = true
+			--
 			Bottom.Name = "Bottom"
-			Bottom.Position = UDim2.new(0, 0, 1, -22)
-			Bottom.Size = UDim2.new(1, 0, 0, 22)
+			Bottom.Position = UDim2.new(0,0,1,-22)
+			Bottom.Size = UDim2.new(1,0,0,22)
+			Bottom.BackgroundColor3 = Color3.new(1,1,1)
 			Bottom.BackgroundTransparency = 1
-			Bottom.Parent = Inline
-
-			local version = Instance.new("TextLabel")
+			Bottom.BorderSizePixel = 0
+			Bottom.BorderColor3 = Color3.new(0,0,0)
+			--
+			Sections.Name = "Sections"
+			Sections.Position = UDim2.new(0,10,0,13)
+			Sections.Size = UDim2.new(0,110,1,-26)
+			Sections.BackgroundColor3 = Color3.new(0.0314,0.0314,0.0314)
+			Sections.BorderColor3 = Color3.new(0.1098,0.1098,0.1098)
+			--
+			Pages.Name = "Pages"
+			Pages.Position = UDim2.new(0,60,0,0)
+			Pages.Size = UDim2.new(1,-60,1,0)
+			Pages.BackgroundColor3 = Color3.new(1,1,1)
+			Pages.BackgroundTransparency = 1
+			Pages.BorderSizePixel = 0
+			Pages.BorderColor3 = Color3.new(0,0,0)
+			Pages.ZIndex = 52
+			Library.PageHolder = Pages
+			UIListLayout.FillDirection = Enum.FillDirection.Horizontal
+			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout.Padding = UDim.new(0,6)
+			--
 			version.Name = "version"
-			version.Position = UDim2.new(0, 4, 0, 0)
-			version.Size = UDim2.new(1, -4, 1, 0)
+			version.Position = UDim2.new(0,4,0,0)
+			version.Size = UDim2.new(1,-4,1,0)
+			version.BackgroundColor3 = Color3.new(1,1,1)
 			version.BackgroundTransparency = 1
+			version.BorderSizePixel = 0
+			version.BorderColor3 = Color3.new(0,0,0)
 			version.Text = "<font color=\"#4e4e4e\">version: </font> live"
 			version.TextColor3 = Library.Accent
 			version.FontFace = Library.UIFont
 			version.TextSize = Library.FontSize
 			version.TextXAlignment = Enum.TextXAlignment.Left
 			version.RichText = true
-			version.Parent = Bottom
+			--
+			corner1.CornerRadius = UDim.new(0,2)
+			corner2.CornerRadius = UDim.new(0,2)
 
-			-- Add corners and strokes
-			local corner1 = Instance.new("UICorner")
-			corner1.CornerRadius = UDim.new(0, 2)
-			corner1.Parent = Main
+			-- // Dragging
+			Library:Connection(Top.MouseButton1Down, function()
+				local Location = game:GetService("UserInputService"):GetMouseLocation()
+				Base.Dragging[1] = true
+				Base.Dragging[2] =
+					UDim2.new(0, Location.X - Main.AbsolutePosition.X, 0, Location.Y - Main.AbsolutePosition.Y)
+			end)
+			Library:Connection(Top.MouseButton1Up, function()
+				Base.Dragging[1] = false
+				Base.Dragging[2] = UDim2.new(0, 0, 0, 0)
+			end)
+			Library:Connection(game:GetService("UserInputService").InputChanged, function(Input)
+				local Location = game:GetService("UserInputService"):GetMouseLocation()
+				local ActualLocation = nil
 
-			local corner2 = Instance.new("UICorner")
-			corner2.CornerRadius = UDim.new(0, 2)
-			corner2.Parent = Inline
+				-- Dragging
+				if Base.Dragging[1] then
+					Main.Position = UDim2.new(
+						0,
+						Location.X - Base.Dragging[2].X.Offset + (Main.Size.X.Offset * Main.AnchorPoint.X),
+						0,
+						Location.Y - Base.Dragging[2].Y.Offset + (Main.Size.Y.Offset * Main.AnchorPoint.Y)
+					)
+				end
+			end)
 
-			local stroke1 = Instance.new("UIStroke")
-			stroke1.Parent = Main
-
-			local stroke2 = Instance.new("UIStroke")
-			stroke2.Parent = Inline
-
-			-- Add to instances table
-			table.insert(Library.Instances, Main)
-			table.insert(Library.Instances, Inline)
-			table.insert(Library.Instances, Middle)
-			table.insert(Library.Instances, Line)
-			table.insert(Library.Instances, Line2)
-			table.insert(Library.ThemeObjects, Title)
-			table.insert(Library.ThemeObjects, version)
-
-			-- Return the window object
-			return Base
+			-- // Return
+			Base.Elements = {Main = Main, Title = Title, Middle = Middle, PageHolder = Pages, SectionHolder = Sections};
+			return setmetatable(Base, Library);
 		end
 		--
 		function Library:Page(Options)
