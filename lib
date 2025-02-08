@@ -611,6 +611,7 @@ do
 			ResizeHandle.AnchorPoint = Vector2.new(1, 1)
 			ResizeHandle.Text = ""
 			ResizeHandle.BackgroundTransparency = 1
+			ResizeHandle.ZIndex = 105
 
 			-- Dragging functionality
 			Library:Connection(Top.MouseButton1Down, function()
