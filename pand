@@ -771,6 +771,18 @@ do
 			-- Add resize functionality
 			Library:MakeResizable(Main)
 
+			-- Find and modify/remove the Pages frame
+			local Pages = Top:FindFirstChild("Pages")
+			if Pages then
+				Pages.Visible = false  -- Or Pages:Destroy() if you want to completely remove it
+			end
+
+			-- Adjust the Title position since we don't need space for tabs
+			local Title = Top:FindFirstChild("Title")
+			if Title then
+				Title.Size = UDim2.new(1, -8, 1, 0)  -- Give it full width minus small padding
+			end
+
 			-- // Return
 			Base.Elements = {Main = Main, Title = Title, Middle = Middle, PageHolder = Pages, SectionHolder = Sections};
 			return setmetatable(Base, Library);
