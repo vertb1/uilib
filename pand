@@ -540,11 +540,11 @@ do
 		--
 		function Library:Window(Options)
 			local Base = {
-				Pages = {};
 				Sections = {};
 				Elements = {};
 				Dragging = { false, UDim2.new(0, 0, 0, 0) };
 				Resizing = false;
+				
 				Title = Options.Name or "new ui";
 			};
 
@@ -560,13 +560,52 @@ do
 			local Top = Instance.new('TextButton', Inline)
 			local Bottom = Instance.new('Frame', Inline)
 			local Sections = Instance.new('Frame', Middle)
+			local LeftHolder = Instance.new('Frame', Sections)
+			local RightHolder = Instance.new('Frame', Sections)
 			local version = Instance.new('TextLabel', Bottom)
 			local corner1 = Instance.new('UICorner', Main)
 			local corner2 = Instance.new('UICorner', Inline)
-			local stroke1 = Instance.new('UIStroke', Main)
-			local stroke2 = Instance.new('UIStroke', Inline)
 			
-			-- Resize handle
+			-- // Setup UI properties
+			ScreenGui.Name = "UILibrary"
+			ScreenGui.DisplayOrder = 2
+			
+			Main.Name = "Main"
+			Main.Position = UDim2.new(0.5, 0, 0.5, 0)
+			Main.Size = UDim2.new(0, 580, 0, 442)
+			Main.BackgroundColor3 = Color3.new(0.1098, 0.1098, 0.1098)
+			Main.BorderColor3 = Color3.new(0, 0, 0)
+			Main.AnchorPoint = Vector2.new(0.5, 0.5)
+			Library.Holder = Main
+			
+			Inline.Name = "Inline"
+			Inline.Position = UDim2.new(0, 2, 0, 2)
+			Inline.Size = UDim2.new(1, -4, 1, -4)
+			Inline.BackgroundColor3 = Color3.new(0.0314, 0.0314, 0.0314)
+			Inline.BorderColor3 = Color3.new(0, 0, 0)
+			
+			Middle.Name = "Middle"
+			Middle.Position = UDim2.new(0, -1, 0, 22)
+			Middle.Size = UDim2.new(1, 2, 1, -44)
+			Middle.BackgroundColor3 = Color3.new(0.0431, 0.0431, 0.0431)
+			Middle.BorderColor3 = Color3.new(0, 0, 0)
+			
+			Sections.Name = "Sections"
+			Sections.Position = UDim2.new(0, 10, 0, 10)
+			Sections.Size = UDim2.new(1, -20, 1, -20)
+			Sections.BackgroundTransparency = 1
+			
+			LeftHolder.Name = "LeftHolder"
+			LeftHolder.Position = UDim2.new(0, 0, 0, 0)
+			LeftHolder.Size = UDim2.new(0.5, -5, 1, 0)
+			LeftHolder.BackgroundTransparency = 1
+			
+			RightHolder.Name = "RightHolder"
+			RightHolder.Position = UDim2.new(0.5, 5, 0, 0)
+			RightHolder.Size = UDim2.new(0.5, -5, 1, 0)
+			RightHolder.BackgroundTransparency = 1
+
+			-- Add resize handle
 			local ResizeHandle = Instance.new('TextButton', Main)
 			ResizeHandle.Name = "ResizeHandle"
 			ResizeHandle.Size = UDim2.new(0, 10, 0, 10)
@@ -574,8 +613,8 @@ do
 			ResizeHandle.AnchorPoint = Vector2.new(1, 1)
 			ResizeHandle.Text = ""
 			ResizeHandle.BackgroundTransparency = 1
-			
-			-- Add resize functionality
+
+			-- Resize functionality
 			ResizeHandle.MouseButton1Down:Connect(function()
 				Base.Resizing = true
 				local startPos = game:GetService("UserInputService"):GetMouseLocation()
@@ -591,9 +630,9 @@ do
 					local delta = game:GetService("UserInputService"):GetMouseLocation() - startPos
 					local newSize = UDim2.new(
 						0,
-						math.clamp(startSize.X.Offset + delta.X, 400, 800), -- Min and max width
+						math.clamp(startSize.X.Offset + delta.X, 400, 800),
 						0,
-						math.clamp(startSize.Y.Offset + delta.Y, 300, 600)  -- Min and max height
+						math.clamp(startSize.Y.Offset + delta.Y, 300, 600)
 					)
 					Main.Size = newSize
 				end)
@@ -605,21 +644,76 @@ do
 				end
 			end)
 
-			-- Rest of your existing window setup code...
-			-- ... (keeping all the other properties and settings)
+			-- Dragging functionality
+			Library:Connection(Top.MouseButton1Down, function()
+				local Location = game:GetService("UserInputService"):GetMouseLocation()
+				Base.Dragging[1] = true
+				Base.Dragging[2] = UDim2.new(0, Location.X - Main.AbsolutePosition.X, 0, Location.Y - Main.AbsolutePosition.Y)
+			end)
 
-			-- Remove the Pages frame since we don't need top tabs
-			Pages = nil
-			UIListLayout = nil
+			Library:Connection(Top.MouseButton1Up, function()
+				Base.Dragging[1] = false
+				Base.Dragging[2] = UDim2.new(0, 0, 0, 0)
+			end)
 
-			-- Return
+			Library:Connection(game:GetService("UserInputService").InputChanged, function(Input)
+				if Base.Dragging[1] then
+					local Location = game:GetService("UserInputService"):GetMouseLocation()
+					Main.Position = UDim2.new(
+						0,
+						Location.X - Base.Dragging[2].X.Offset + (Main.Size.X.Offset * Main.AnchorPoint.X),
+						0,
+						Location.Y - Base.Dragging[2].Y.Offset + (Main.Size.Y.Offset * Main.AnchorPoint.Y)
+					)
+				end
+			end)
+
+			-- Section creation function
+			function Base:Section(Options)
+				local SectionInstance = {
+					Window = self,
+					Elements = {}
+				}
+
+				local Holder = Instance.new('Frame', Options.Side == "Left" and LeftHolder or RightHolder)
+				Holder.Name = Options.Name or "Section"
+				Holder.Size = UDim2.new(1, 0, 0, 0)
+				Holder.AutomaticSize = Enum.AutomaticSize.Y
+				Holder.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+				Holder.BorderSizePixel = 1
+				Holder.BorderColor3 = Color3.new(0, 0, 0)
+
+				local Title = Instance.new('TextLabel', Holder)
+				Title.Text = Options.Name or "Section"
+				Title.Size = UDim2.new(1, 0, 0, 20)
+				Title.BackgroundTransparency = 1
+				Title.TextColor3 = Color3.new(1, 1, 1)
+				Title.TextSize = 14
+				Title.Font = Enum.Font.SourceSansBold
+
+				local Container = Instance.new('Frame', Holder)
+				Container.Name = "Container"
+				Container.Position = UDim2.new(0, 0, 0, 20)
+				Container.Size = UDim2.new(1, 0, 1, -20)
+				Container.BackgroundTransparency = 1
+				Container.AutomaticSize = Enum.AutomaticSize.Y
+
+				local UIListLayout = Instance.new('UIListLayout', Container)
+				UIListLayout.Padding = UDim.new(0, 5)
+				UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+				SectionInstance.Elements = Container
+				return setmetatable(SectionInstance, Library.Sections)
+			end
+
 			Base.Elements = {
-				Main = Main, 
-				Middle = Middle, 
-				SectionHolder = Sections
-			};
-			
-			return setmetatable(Base, Library);
+				Main = Main,
+				Middle = Middle,
+				LeftHolder = LeftHolder,
+				RightHolder = RightHolder
+			}
+
+			return setmetatable(Base, Library)
 		end
 		--
 		function Library:Page(Options)
@@ -811,9 +905,9 @@ do
 		--
 		function Pages:Section(Options)
 			local Section = {
-				Window = self.Window,
-				Page = self,
-				Open = false,
+				Window = self;
+				Page = self;
+				Open = false;
 				Elements = {};
 				Title = Options.Name or Options.Name or Options.Name or "aimbot";
 				LeftName = Options.LeftTitle or Options.lefttitle or "general";
