@@ -588,15 +588,40 @@ do
 				Sections = {};
 				Elements = {};
 				Dragging = { false, UDim2.new(0, 0, 0, 0) };
-				Title = Options.Name or Options.Name or Options.Name or "new ui";
+				Title = Options.Name or "new ui";
 			};
 
-			-- // Instances
-			local ScreenGui = Instance.new('ScreenGui')
-			ScreenGui.Parent = game:GetService("RunService"):IsStudio() and game.Players.LocalPlayer.PlayerGui or game.CoreGui
+			-- Create ScreenGui first
+			local ScreenGui = Instance.new("ScreenGui")
+			ScreenGui.Name = "UILibrary"
+			ScreenGui.DisplayOrder = 2
+			ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 			
-			local Main = Instance.new('Frame')
+			-- Set parent based on environment
+			if syn and syn.protect_gui then
+				syn.protect_gui(ScreenGui)
+				ScreenGui.Parent = game.CoreGui
+			elseif game:GetService("RunService"):IsStudio() then
+				ScreenGui.Parent = game.Players.LocalPlayer.PlayerGui
+			else
+				ScreenGui.Parent = game.CoreGui
+			end
+
+			-- Create main frame
+			local Main = Instance.new("Frame")
+			Main.Name = "Main"
+			Main.Position = UDim2.new(0.5, 0, 0.5, 0)
+			Main.Size = UDim2.new(0, 580, 0, 442)
+			Main.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+			Main.BorderSizePixel = 0
+			Main.AnchorPoint = Vector2.new(0.5, 0.5)
 			Main.Parent = ScreenGui
+			Library.Holder = Main
+
+			-- Make the window resizable
+			Library:MakeResizable(Main)
+
+			-- // Instances
 			local Inline = Instance.new('Frame')
 			Inline.Parent = Main
 			local Middle = Instance.new('Frame')
