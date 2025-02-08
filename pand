@@ -1,4 +1,4 @@
--- made by portal
+-- modified by vert
 -- example at bottom
 local Library = {};
 do
@@ -592,25 +592,45 @@ do
 			};
 
 			-- // Instances
-			local ScreenGui = Instance.new('ScreenGui', game:GetService("RunService"):IsStudio() and game.Players.LocalPlayer.PlayerGui or game.CoreGui)
-			local Main = Instance.new('Frame', ScreenGui)
-			local Inline = Instance.new('Frame', Main)
-			local Middle = Instance.new('Frame', Inline)
-			local Line = Instance.new('Frame', Middle)
-			local Line2 = Instance.new('Frame', Middle)
-			local Gradient = Instance.new('Frame', Middle)
-			local UIGradient = Instance.new('UIGradient', Gradient)
-			local Top = Instance.new('TextButton', Inline)
-			local Title = Instance.new('TextLabel', Top)
-			local Bottom = Instance.new('Frame', Inline)
-			local Sections = Instance.new('Frame', Middle)
-			local Pages = Instance.new('Frame', Top)
-			local UIListLayout = Instance.new('UIListLayout', Pages)
-			local version = Instance.new('TextLabel', Bottom)
-			local corner1 = Instance.new('UICorner', Main)
-			local corner2 = Instance.new('UICorner', Inline)
-			local stroke1 = Instance.new('UIStroke', Main)
-			local stroke2 = Instance.new('UIStroke', Inline)
+			local ScreenGui = Instance.new('ScreenGui')
+			ScreenGui.Parent = game:GetService("RunService"):IsStudio() and game.Players.LocalPlayer.PlayerGui or game.CoreGui
+			
+			local Main = Instance.new('Frame')
+			Main.Parent = ScreenGui
+			local Inline = Instance.new('Frame')
+			Inline.Parent = Main
+			local Middle = Instance.new('Frame')
+			Middle.Parent = Inline
+			local Line = Instance.new('Frame')
+			Line.Parent = Middle
+			local Line2 = Instance.new('Frame')
+			Line2.Parent = Middle
+			local Gradient = Instance.new('Frame')
+			Gradient.Parent = Middle
+			local UIGradient = Instance.new('UIGradient')
+			UIGradient.Parent = Gradient
+			local Top = Instance.new('TextButton')
+			Top.Parent = Inline
+			local Title = Instance.new('TextLabel')
+			Title.Parent = Top
+			local Bottom = Instance.new('Frame')
+			Bottom.Parent = Inline
+			local Sections = Instance.new('Frame')
+			Sections.Parent = Middle
+			local Pages = Instance.new('Frame')
+			Pages.Parent = Top
+			local UIListLayout = Instance.new('UIListLayout')
+			UIListLayout.Parent = Pages
+			local version = Instance.new('TextLabel')
+			version.Parent = Bottom
+			local corner1 = Instance.new('UICorner')
+			corner1.Parent = Main
+			local corner2 = Instance.new('UICorner')
+			corner2.Parent = Inline
+			local stroke1 = Instance.new('UIStroke')
+			stroke1.Parent = Main
+			local stroke2 = Instance.new('UIStroke')
+			stroke2.Parent = Inline
 			--
 			do -- Inserts
 				table.insert(Library.Instances, Main)
