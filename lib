@@ -11,6 +11,7 @@ local Library = {
 	PageHolder = nil;
 	Gradient = nil;
 	UIGradient = nil;
+	Accent = Color3.fromRGB(76, 162, 252);  -- Add default accent color
 	Keys = {
 		[Enum.KeyCode.LeftShift] = "LS",
 		[Enum.KeyCode.RightShift] = "RS",
@@ -548,7 +549,7 @@ do
 		local Sections = Instance.new('Frame', Middle)
 		local LeftHolder = Instance.new('Frame', Sections)
 		local RightHolder = Instance.new('Frame', Sections)
-		local Top = Instance.new('TextButton', Inline)  -- Added missing Top button
+		local Top = Instance.new('TextButton', Inline)
 		
 		-- // Setup UI properties
 		ScreenGui.Name = "UILibrary"
@@ -557,22 +558,22 @@ do
 		Main.Name = "Main"
 		Main.Position = UDim2.new(0.5, 0, 0.5, 0)
 		Main.Size = UDim2.new(0, 580, 0, 442)
-		Main.BackgroundColor3 = Color3.new(0.1098, 0.1098, 0.1098)
-		Main.BorderColor3 = Color3.new(0, 0, 0)
+		Main.BackgroundColor3 = Color3.fromRGB(28, 28, 28)
+		Main.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		Main.AnchorPoint = Vector2.new(0.5, 0.5)
 		Library.Holder = Main
 		
 		Inline.Name = "Inline"
 		Inline.Position = UDim2.new(0, 2, 0, 2)
 		Inline.Size = UDim2.new(1, -4, 1, -4)
-		Inline.BackgroundColor3 = Color3.new(0.0314, 0.0314, 0.0314)
-		Inline.BorderColor3 = Color3.new(0, 0, 0)
+		Inline.BackgroundColor3 = Color3.fromRGB(8, 8, 8)
+		Inline.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		
 		Middle.Name = "Middle"
 		Middle.Position = UDim2.new(0, -1, 0, 22)
 		Middle.Size = UDim2.new(1, 2, 1, -44)
-		Middle.BackgroundColor3 = Color3.new(0.0431, 0.0431, 0.0431)
-		Middle.BorderColor3 = Color3.new(0, 0, 0)
+		Middle.BackgroundColor3 = Color3.fromRGB(11, 11, 11)
+		Middle.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		
 		Sections.Name = "Sections"
 		Sections.Position = UDim2.new(0, 10, 0, 10)
@@ -592,9 +593,12 @@ do
 		-- Add Top button for dragging
 		Top.Name = "Top"
 		Top.Size = UDim2.new(1, 0, 0, 22)
-		Top.BackgroundTransparency = 1
-		Top.Text = ""
-		Top.AutoButtonColor = false
+		Top.BackgroundColor3 = Color3.fromRGB(11, 11, 11)
+		Top.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		Top.Text = Base.Title
+		Top.TextColor3 = Color3.fromRGB(255, 255, 255)
+		Top.Font = Enum.Font.SourceSans
+		Top.TextSize = 14
 
 		-- Add resize handle
 		local ResizeHandle = Instance.new('TextButton', Main)
@@ -603,7 +607,9 @@ do
 		ResizeHandle.Position = UDim2.new(1, -5, 1, -5)
 		ResizeHandle.AnchorPoint = Vector2.new(1, 1)
 		ResizeHandle.Text = ""
-		ResizeHandle.BackgroundTransparency = 1
+		ResizeHandle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+		ResizeHandle.BackgroundTransparency = 0.8
+		ResizeHandle.BorderSizePixel = 0
 		ResizeHandle.ZIndex = 105
 
 		-- Dragging functionality
