@@ -555,7 +555,7 @@ do
 			local Sections = Instance.new('Frame', Middle)
 			local LeftHolder = Instance.new('Frame', Sections)
 			local RightHolder = Instance.new('Frame', Sections)
-			local ResizeHandle = Instance.new('TextButton', Main)
+			local Top = Instance.new('TextButton', Inline)  -- Added missing Top button
 			
 			-- // Setup UI properties
 			ScreenGui.Name = "UILibrary"
@@ -596,13 +596,33 @@ do
 			RightHolder.Size = UDim2.new(0.5, -5, 1, 0)
 			RightHolder.BackgroundTransparency = 1
 
+			-- Add Top button for dragging
+			Top.Name = "Top"
+			Top.Size = UDim2.new(1, 0, 0, 22)
+			Top.BackgroundTransparency = 1
+			Top.Text = ""
+			Top.AutoButtonColor = false
+
 			-- Add resize handle
+			local ResizeHandle = Instance.new('TextButton', Main)
 			ResizeHandle.Name = "ResizeHandle"
 			ResizeHandle.Size = UDim2.new(0, 10, 0, 10)
 			ResizeHandle.Position = UDim2.new(1, -5, 1, -5)
 			ResizeHandle.AnchorPoint = Vector2.new(1, 1)
 			ResizeHandle.Text = ""
 			ResizeHandle.BackgroundTransparency = 1
+
+			-- Dragging functionality
+			Library:Connection(Top.MouseButton1Down, function()
+				local Location = game:GetService("UserInputService"):GetMouseLocation()
+				Base.Dragging[1] = true
+				Base.Dragging[2] = UDim2.new(0, Location.X - Main.AbsolutePosition.X, 0, Location.Y - Main.AbsolutePosition.Y)
+			end)
+
+			Library:Connection(Top.MouseButton1Up, function()
+				Base.Dragging[1] = false
+				Base.Dragging[2] = UDim2.new(0, 0, 0, 0)
+			end)
 
 			-- Resize functionality
 			ResizeHandle.MouseButton1Down:Connect(function()
@@ -632,18 +652,6 @@ do
 				if input.UserInputType == Enum.UserInputType.MouseButton1 then
 					Base.Resizing = false
 				end
-			end)
-
-			-- Dragging functionality
-			Library:Connection(Top.MouseButton1Down, function()
-				local Location = game:GetService("UserInputService"):GetMouseLocation()
-				Base.Dragging[1] = true
-				Base.Dragging[2] = UDim2.new(0, Location.X - Main.AbsolutePosition.X, 0, Location.Y - Main.AbsolutePosition.Y)
-			end)
-
-			Library:Connection(Top.MouseButton1Up, function()
-				Base.Dragging[1] = false
-				Base.Dragging[2] = UDim2.new(0, 0, 0, 0)
 			end)
 
 			Library:Connection(game:GetService("UserInputService").InputChanged, function(Input)
