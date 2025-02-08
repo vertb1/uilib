@@ -71,6 +71,8 @@ do
 		Connections = {};
 		UIFont = Font.fromEnum(Enum.Font.GothamBold);
 		FontSize = 12;
+		MinSize = Vector2.new(580, 442); -- Default/minimum window size
+		Resizing = false
 	}
 
 	-- // Ignores
@@ -321,6 +323,48 @@ do
 				return true;
 			end;
 		end;
+		--
+		function Library:MakeResizable(Instance)
+			local ResizeHandle = Instance.new("TextButton")
+			ResizeHandle.Name = "ResizeHandle" 
+			ResizeHandle.Size = UDim2.new(0, 10, 0, 10)
+			ResizeHandle.Position = UDim2.new(1, -10, 1, -10)
+			ResizeHandle.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+			ResizeHandle.BorderSizePixel = 0
+			ResizeHandle.Text = ""
+			ResizeHandle.Parent = Instance
+			
+			ResizeHandle.MouseButton1Down:Connect(function()
+				Library.Resizing = true
+				local StartSize = Instance.Size
+				local StartPos = game:GetService("UserInputService"):GetMouseLocation()
+				
+				while Library.Resizing do
+					local Delta = game:GetService("UserInputService"):GetMouseLocation() - StartPos
+					local NewSize = UDim2.new(
+						StartSize.X.Scale,
+						math.max(Library.MinSize.X, StartSize.X.Offset + Delta.X),
+						StartSize.Y.Scale,
+						math.max(Library.MinSize.Y, StartSize.Y.Offset + Delta.Y)
+					)
+					Instance.Size = NewSize
+					
+					-- Resize internal elements
+					local Inline = Instance:FindFirstChild("Inline")
+					if Inline then
+						Inline.Size = UDim2.new(1, -4, 1, -4)
+					end
+					
+					game:GetService("RunService").RenderStepped:Wait()
+				end
+			end)
+			
+			game:GetService("UserInputService").InputEnded:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					Library.Resizing = false
+				end
+			end)
+		end
 	end
 
 	-- // Colorpicker Element
@@ -723,6 +767,9 @@ do
 					)
 				end
 			end)
+
+			-- Add resize functionality
+			Library:MakeResizable(Main)
 
 			-- // Return
 			Base.Elements = {Main = Main, Title = Title, Middle = Middle, PageHolder = Pages, SectionHolder = Sections};
