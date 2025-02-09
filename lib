@@ -1219,7 +1219,7 @@ Library.Sections.__index = Library.Sections;
 			local Inline = Instance.new('Frame', Outline)
 			local Accent = Instance.new('Frame', Inline)
 			
-			-- Create simple top bar
+			-- Create simple top bar with centered text
 			local TopBar = Instance.new("Frame", Inline)
 			TopBar.Name = "TopBar"
 			TopBar.Size = UDim2.new(1, 0, 0, 20)
@@ -1228,7 +1228,7 @@ Library.Sections.__index = Library.Sections;
 			TopBar.BorderSizePixel = 0
 			TopBar.ZIndex = 2
 
-			-- Date and title text
+			-- Date text (left)
 			local DateText = Instance.new("TextLabel", TopBar)
 			DateText.Name = "DateText"
 			DateText.Size = UDim2.new(0, 60, 1, 0)
@@ -1242,16 +1242,16 @@ Library.Sections.__index = Library.Sections;
 			DateText.TextStrokeTransparency = 0
 			DateText.ZIndex = 2
 
+			-- Title text (centered)
 			local TitleText = Instance.new("TextLabel", TopBar)
 			TitleText.Name = "TitleText"
-			TitleText.Size = UDim2.new(1, -70, 1, 0)
-			TitleText.Position = UDim2.new(0, 70, 0, 0)
+			TitleText.Size = UDim2.new(1, 0, 1, 0)
 			TitleText.BackgroundTransparency = 1
 			TitleText.Text = Window.Name .. " | " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
 			TitleText.TextColor3 = Window.Color
 			TitleText.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			TitleText.TextSize = Library.FontSize
-			TitleText.TextXAlignment = Enum.TextXAlignment.Left
+			TitleText.TextXAlignment = Enum.TextXAlignment.Center
 			TitleText.TextStrokeTransparency = 0
 			TitleText.ZIndex = 2
 
@@ -3479,3 +3479,52 @@ Library.Sections.__index = Library.Sections;
 			self.ScreenGUI:Destroy()
 		end
 	end
+
+    -- Add Section method to Pages
+    function Library.Pages:Section(Properties)
+        local Properties = Properties or {}
+        local Section = {
+            Name = Properties.Name or "Section",
+            Side = (Properties.Side or Properties.side or "left"):lower(),
+            Size = Properties.Size or 100,
+            Page = self,
+            Elements = {}
+        }
+
+        -- Create section elements
+        local SectionOutline = Instance.new("Frame")
+        local SectionInline = Instance.new("Frame")
+        local Container = Instance.new("Frame")
+        local UIListLayout = Instance.new("UIListLayout")
+
+        -- Set parent based on side
+        SectionOutline.Parent = Section.Side == "left" and self.Elements.Left or self.Elements.Right
+
+        -- Configure section
+        SectionOutline.Name = "SectionOutline"
+        SectionOutline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        SectionOutline.BorderColor3 = Color3.fromRGB(10, 10, 10)
+        SectionOutline.Size = UDim2.new(1, 0, 0, Section.Size)
+
+        SectionInline.Name = "SectionInline"
+        SectionInline.Parent = SectionOutline
+        SectionInline.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+        SectionInline.BorderColor3 = Color3.fromRGB(0, 0, 0)
+        SectionInline.Position = UDim2.new(0, 1, 0, 1)
+        SectionInline.Size = UDim2.new(1, -2, 1, -2)
+
+        Container.Name = "Container"
+        Container.Parent = SectionInline
+        Container.BackgroundTransparency = 1
+        Container.Position = UDim2.new(0, 5, 0, 5)
+        Container.Size = UDim2.new(1, -10, 1, -10)
+
+        UIListLayout.Parent = Container
+        UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        UIListLayout.Padding = UDim.new(0, 5)
+
+        Section.Elements.Outline = SectionOutline
+        Section.Elements.Container = Container
+
+        return setmetatable(Section, Library)
+    end
