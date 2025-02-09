@@ -1,73 +1,44 @@
--- Initialize Font system first
-getsynasset = getcustomasset or getsynasset
-
--- Create Library table with all existing properties
-local Library = {
-    Open = true,
-    Folders = {
-        main = "test",
-        configs = "test/Configs"
-    },
-    Accent = Color3.fromRGB(132, 108, 188),
-    Pages = {},
-    Sections = {},
-    Flags = {},
-    UnNamedFlags = 0,
-    ThemeObjects = {},
-    Instances = {},
-    Connections = {},
-    Font = Enum.Font.Ubuntu,
-    FontSize = 12,
-    Notifs = {}
-}
-
--- Initialize Font system
+ 
 if isfile("menu_plex.font") then
-    delfile("menu_plex.font")
+	delfile("menu_plex.font")
 end
 
 writefile("ProggyClean.ttf", game:HttpGet("https://github.com/f1nobe7650/other/raw/main/ProggyClean.ttf"))
 
--- Create Font table before using it
-Font = {}
-
--- Improved Font Registration System
+-- // Custom Font
 do
-	local function registerFont(name, weight, style, assetId, fontData)
-		if not isfile(name .. ".font") then
-			if not isfile(assetId) then
-				writefile(assetId, fontData or "")
-			end
-			
-			local fontConfig = {
-				name = name,
+	getsynasset = getcustomasset or getsynasset
+	Font = setreadonly(Font, false);
+	function Font:Register(Name, Weight, Style, Asset)
+		if not isfile(Name .. ".font") then
+			if not isfile(Asset.Id) then
+				writefile(Asset.Id, Asset.Font);
+			end;
+			--
+			local Data = {
+				name = Name,
 				faces = {{
 					name = "Regular",
-					weight = weight,
-					style = style,
-					assetId = getsynasset(assetId)
+					weight = Weight,
+					style = Style,
+					assetId = getsynasset(Asset.Id);
 				}}
-			}
-			
-			writefile(name .. ".font", game:GetService("HttpService"):JSONEncode(fontConfig))
-			return getsynasset(name .. ".font")
+			};
+			--
+			writefile(Name .. ".font", game:GetService("HttpService"):JSONEncode(Data));
+			return getsynasset(Name .. ".font");
 		else 
-			warn("Font already registered: " .. name)
-			return getsynasset(name .. ".font")
-		end
-	end
-	
-	-- Make Font table read-only after setup
-	Font = setmetatable({
-		Register = registerFont,
-		GetRegistry = function(self, name)
-			return isfile(name .. ".font") and getsynasset(name .. ".font")
-		end
-	}, {
-		__newindex = function()
-			warn("Font table is read-only")
-		end
-	})
+			warn("Font already registered");
+		end;
+	end;
+	--
+	function Font:GetRegistry(Name)
+		if isfile(Name .. ".font") then
+			return getsynasset(Name .. ".font");
+		end;
+	end;
+
+	Font:Register("menu_plex", 400, "normal", {Id = "ProggyClean.ttf", Font = ""});
 end
 
 if not LPH_OBFUSCATED then
@@ -75,25 +46,26 @@ if not LPH_OBFUSCATED then
 end
 
 local font = Enum.Font.Ubuntu;
+local Library = {};
 local Library = {
-	Open = true,
+	Open = true;
 	Folders = {
-		main = "test",
-		configs = "test/Configs"
-	},
-	Accent = Color3.fromRGB(132, 108, 188),
-	Pages = {},
-	Sections = {},
-	Flags = {},
-	UnNamedFlags = 0,
-	ThemeObjects = {},
-	Instances = {},
-	Holder = nil,
-	PageHolder = nil,
-	Gradient = nil,
-	UIGradient = nil,
-	CopiedColor = Color3.new(1,1,1),
-	CopiedAlpha = 0,
+		main = "test";
+		configs = "test/Configs";
+	};
+	Accent = Color3.fromRGB(132,108,188);
+	Pages = {};
+	Sections = {};
+	Flags = {};
+	UnNamedFlags = 0;
+	ThemeObjects = {};
+	Instances = {};
+	Holder = nil;
+	PageHolder = nil;
+	Gradient = nil;
+	UIGradient = nil;
+	CopiedColor = Color3.new(1,1,1);
+	CopiedAlpha = 0;
 	AllowedCharacters = {
 		[1] = ' ',
 		[2] = '!',
@@ -190,7 +162,7 @@ local Library = {
 		[93] = '|',
 		[94] = '}',
 		[95] = '~'
-	},
+	};
 	ShiftCharacters = {
 		["1"] = "!",
 		["2"] = "@",
@@ -212,7 +184,7 @@ local Library = {
 		["."] = ">",
 		["/"] = "?",
 		["`"] = "~"
-	},
+	};
 	Keys = {
 		[Enum.KeyCode.LeftShift] = "LShift",
 		[Enum.KeyCode.RightShift] = "RShift",
@@ -261,22 +233,14 @@ local Library = {
 		[Enum.UserInputType.MouseButton1] = "MB1",
 		[Enum.UserInputType.MouseButton2] = "MB2",
 		[Enum.UserInputType.MouseButton3] = "MB3"
-	},
-	Connections = {},
-	Font = Enum.Font.Ubuntu,
-	FontSize = 12,
-	Notifs = {},
-	KeyList = nil,
-	UIKey = Enum.KeyCode.End,
-	ScreenGUI = nil,
-	Config = {
-		Save = function(name)
-			-- Implementation for saving config
-		end,
-		Load = function(name) 
-			-- Implementation for loading config
-		end
-	}
+	};
+	Connections = {};
+	Font = Enum.Font.Ubuntu;
+	FontSize = 12;
+	Notifs = {};
+	KeyList = nil;
+	UIKey = Enum.KeyCode.End;
+	ScreenGUI = nil;
 }
 
 local InputService = game:GetService("UserInputService");
@@ -434,22 +398,6 @@ Library.Sections.__index = Library.Sections;
 -- // Functions
 	-- // Library Functions
 	do
-		local function safeConnect(signal, callback)
-			local success, connection = pcall(function()
-				return signal:Connect(callback)
-			end)
-			
-			if not success then
-				warn("Failed to connect signal:", connection)
-				return nil
-			end
-			
-			return connection
-		end
-
-		-- Use in the library
-		Library.Connection = safeConnect
-
 		function Library:Connection(Signal, Callback)
 			local Con = Signal:Connect(Callback)
 			return Con
@@ -822,31 +770,424 @@ Library.Sections.__index = Library.Sections;
 	-- // Color Picker Functions
 	do
 		function Library:NewPicker(name, default, defaultalpha, parent, count, flag, callback)
-			assert(name, "Picker requires a name")
-			assert(parent, "Picker requires a parent")
-			
-			-- Add error checking for parameters
-			local picker = {
-				Name = name,
-				Default = default or Color3.new(1,1,1),
-				DefaultAlpha = defaultalpha or 1,
-				Parent = parent,
-				Count = count or 0,
-				Flag = flag,
-				Callback = callback or function() end
-			}
-			
-			-- Add error handling for UI creation
-			local success, result = pcall(function()
-				-- UI creation code here
+			-- // Instances
+			local Icon = Instance.new('TextButton', parent)
+			local IconInline = Instance.new('Frame', Icon)
+			local ColorWindow = Instance.new('Frame', parent)
+			local WindowInline = Instance.new('Frame', ColorWindow)
+			local Color = Instance.new('TextButton', WindowInline)
+			local Sat = Instance.new('ImageLabel', Color)
+			local Val = Instance.new('ImageLabel', Color)
+			local Pointer = Instance.new('Frame', Color)
+			local Container = Instance.new('Frame', Color)
+			local ColorOutline = Instance.new('Frame', Color)
+			local UIStroke = Instance.new('UIStroke', ColorOutline)
+			local Hue = Instance.new('ImageButton', Color)
+			local HueOutline = Instance.new('Frame', Hue)
+			local UIStroke2 = Instance.new('UIStroke', HueOutline)
+			local Alpha = Instance.new('ImageButton', Color)
+			local AlphaOutline = Instance.new('Frame', Alpha)
+			local UIStroke3 = Instance.new('UIStroke', AlphaOutline)
+			local HueSlide = Instance.new('Frame', Hue)
+			local AlphaSlide = Instance.new('Frame', Alpha)
+			local ModeOutline = Instance.new('Frame', parent)
+			local ModeInline = Instance.new('Frame', ModeOutline)
+			local UIListLayout = Instance.new('UIListLayout', ModeInline)
+			local Hold = Instance.new('TextButton', ModeInline)
+			local Toggle = Instance.new('TextButton', ModeInline)
+			--
+			Icon.Name = "Icon"
+			Icon.Position = UDim2.new(1, - (count * 20) - (count * 6),0.5,0)
+			Icon.Size = UDim2.new(0,20,0,10)
+			Icon.BackgroundColor3 = Color3.fromRGB(45,45,45)
+			Icon.BorderColor3 = Color3.fromRGB(10,10,10)
+			Icon.AnchorPoint = NewVector2(1,0.5)
+			Icon.AutoButtonColor = false
+			Icon.Text = ""
+			--
+			IconInline.Name = "IconInline"
+			IconInline.Position = UDim2.new(0,1,0,1)
+			IconInline.Size = UDim2.new(1,-2,1,-2)
+			IconInline.BackgroundColor3 = default
+			IconInline.BorderSizePixel = 0
+			--
+			ColorWindow.Name = "ColorWindow"
+			ColorWindow.Position = UDim2.new(1,-2,1,2)
+			ColorWindow.Size = UDim2.new(0,206,0,170)
+			ColorWindow.BackgroundColor3 = Color3.fromRGB(45,45,45)
+			ColorWindow.BorderColor3 = Color3.fromRGB(10,10,10)
+			ColorWindow.AnchorPoint = NewVector2(1,0)
+			ColorWindow.ZIndex = 100
+			ColorWindow.Visible = false
+			--
+			WindowInline.Name = "WindowInline"
+			WindowInline.Position = UDim2.new(0,1,0,1)
+			WindowInline.Size = UDim2.new(1,-2,1,-2)
+			WindowInline.BackgroundColor3 = Color3.fromRGB(20,20,20)
+			WindowInline.BorderSizePixel = 0;
+			WindowInline.ZIndex = 100
+			--
+			Color.Name = "Color"
+			Color.Position = UDim2.new(0,8,0,10)
+			Color.Size = UDim2.new(0,150,0,150)
+			Color.BackgroundColor3 = default
+			Color.BorderColor3 = Color3.new(0,0,0)
+			Color.Text = ""
+			Color.TextColor3 = Color3.new(0,0,0)
+			Color.AutoButtonColor = false
+			Color.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			Color.TextSize = 14
+			Color.ZIndex = 100
+			--
+			Sat.Name = "Sat"
+			Sat.Size = UDim2.new(1,0,1,0)
+			Sat.BackgroundColor3 = Color3.new(1,1,1)
+			Sat.BackgroundTransparency = 1
+			Sat.BorderSizePixel = 0
+			Sat.BorderColor3 = Color3.new(0,0,0)
+			Sat.Image = "http://www.roblox.com/asset/?id=14684562507"
+			Sat.ZIndex = 100
+			--
+			Val.Name = "Val"
+			Val.Size = UDim2.new(1,0,1,0)
+			Val.BackgroundColor3 = Color3.new(1,1,1)
+			Val.BackgroundTransparency = 1
+			Val.BorderSizePixel = 0
+			Val.BorderColor3 = Color3.new(0,0,0)
+			Val.Image = "http://www.roblox.com/asset/?id=14684563800"
+			Val.ZIndex = 100
+			--
+			Pointer.Name = "Pointer"
+			Pointer.Position = UDim2.new(1,0,1,0)
+			Pointer.Size = UDim2.new(0,1,0,1)
+			Pointer.BackgroundColor3 = Color3.new(1,1,1)
+			Pointer.BorderColor3 = Color3.new(0,0,0)
+			Pointer.ZIndex = 100
+			--
+			Container.Name = "Container"
+			Container.Position = UDim2.new(0,-2,1,5)
+			Container.Size = UDim2.new(0,189,0,55)
+			Container.BackgroundColor3 = Color3.new(1,1,1)
+			Container.BackgroundTransparency = 1
+			Container.BorderColor3 = Color3.new(0,0,0)
+			Container.ZIndex = 100
+			--
+			ColorOutline.Name = "ColorOutline"
+			ColorOutline.Position = UDim2.new(0,-1,0,-1)
+			ColorOutline.Size = UDim2.new(1,2,1,2)
+			ColorOutline.BackgroundColor3 = Color3.new(1,1,1)
+			ColorOutline.BackgroundTransparency = 1
+			ColorOutline.BorderSizePixel = 0
+			ColorOutline.BorderColor3 = Color3.new(0,0,0)
+			ColorOutline.ZIndex = 100
+			--
+			UIStroke.Color = Color3.fromRGB(45,45,45)
+			--
+			Hue.Name = "Hue"
+			Hue.Position = UDim2.new(1,10,0,0)
+			Hue.Size = UDim2.new(0,10,1,0)
+			Hue.BackgroundColor3 = Color3.new(1,1,1)
+			Hue.BorderColor3 = Color3.new(0,0,0)
+			Hue.Image = "http://www.roblox.com/asset/?id=14684557999"
+			Hue.AutoButtonColor = false
+			Hue.ZIndex = 100
+			--
+			HueOutline.Name = "HueOutline"
+			HueOutline.Position = UDim2.new(0,-1,0,-1)
+			HueOutline.Size = UDim2.new(1,2,1,2)
+			HueOutline.BackgroundColor3 = Color3.new(1,1,1)
+			HueOutline.BackgroundTransparency = 1
+			HueOutline.BorderSizePixel = 0
+			HueOutline.BorderColor3 = Color3.new(0,0,0)
+			HueOutline.ZIndex = 100
+			--
+			UIStroke2.Color = Color3.fromRGB(45,45,45)
+			--
+			Alpha.Name = "Alpha"
+			Alpha.Position = UDim2.new(1,30,0,0)
+			Alpha.Size = UDim2.new(0,10,1,0)
+			Alpha.BackgroundColor3 = Color3.new(1,1,1)
+			Alpha.BorderColor3 = Color3.new(0,0,0)
+			Alpha.Image = "http://www.roblox.com/asset/?id=14684560169"
+			Alpha.AutoButtonColor = false
+			Alpha.ZIndex = 100
+			--
+			AlphaOutline.Name = "AlphaOutline"
+			AlphaOutline.Position = UDim2.new(0,-1,0,-1)
+			AlphaOutline.Size = UDim2.new(1,2,1,2)
+			AlphaOutline.BackgroundColor3 = Color3.new(1,1,1)
+			AlphaOutline.BackgroundTransparency = 1
+			AlphaOutline.BorderSizePixel = 0
+			AlphaOutline.BorderColor3 = Color3.new(0,0,0)
+			AlphaOutline.ZIndex = 100
+			--
+			UIStroke3.Color = Color3.fromRGB(45,45,45)
+			--
+			HueSlide.Name = "HueSlide"
+			HueSlide.Size = UDim2.new(1,0,0,3)
+			HueSlide.BackgroundColor3 = Color3.new(1,1,1)
+			HueSlide.BorderColor3 = Color3.new(0,0,0)
+			--
+			AlphaSlide.Name = "AlphaSlide"
+			AlphaSlide.Size = UDim2.new(1,0,0,3)
+			AlphaSlide.BackgroundColor3 = Color3.new(1,1,1)
+			AlphaSlide.BorderColor3 = Color3.new(0,0,0)
+			AlphaSlide.ZIndex = 100
+			--
+			ModeOutline.Name = "ModeOutline"
+			ModeOutline.Position = UDim2.new(1,65,0.5,0)
+			ModeOutline.Size = UDim2.new(0,60,0,12)
+			ModeOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
+			ModeOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
+			ModeOutline.AnchorPoint = NewVector2(1,0.5)
+			ModeOutline.AutomaticSize = Enum.AutomaticSize.Y
+			ModeOutline.Visible = false
+			ModeOutline.ZIndex = 1020000010
+			--
+			ModeInline.Name = "ModeInline"
+			ModeInline.Position = UDim2.new(0,1,0,1)
+			ModeInline.Size = UDim2.new(1,-2,1,-2)
+			ModeInline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
+			ModeInline.BorderSizePixel = 0
+			ModeInline.BorderColor3 = Color3.new(0,0,0)
+			ModeInline.ZIndex = 100
+			--
+			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			--
+			Hold.Name = "Hold"
+			Hold.Size = UDim2.new(1,0,0,15)
+			Hold.BackgroundColor3 = Color3.new(1,1,1)
+			Hold.BackgroundTransparency = 1
+			Hold.BorderSizePixel = 0
+			Hold.BorderColor3 = Color3.new(0,0,0)
+			Hold.Text = "Copy"
+			Hold.TextColor3 = Color3.fromRGB(145,145,145)
+			Hold.AutoButtonColor = false
+			Hold.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			Hold.TextSize = Library.FontSize
+			Hold.TextStrokeTransparency = 0
+			Hold.ZIndex = 100
+			--
+			Toggle.Name = "Toggle"
+			Toggle.Size = UDim2.new(1,0,0,15)
+			Toggle.BackgroundColor3 = Color3.new(1,1,1)
+			Toggle.BackgroundTransparency = 1
+			Toggle.BorderSizePixel = 0
+			Toggle.BorderColor3 = Color3.new(0,0,0)
+			Toggle.Text = "Paste"
+			Toggle.TextColor3 = Color3.fromRGB(145,145,145)
+			Toggle.AutoButtonColor = false
+			Toggle.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			Toggle.TextSize = Library.FontSize
+			Toggle.TextStrokeTransparency = 0
+			Toggle.ZIndex = 100
+
+			Library:Connection(Icon.MouseEnter, function()
+				Icon.BorderColor3 = Library.Accent
+			end)
+			--
+			Library:Connection(Icon.MouseLeave, function()
+				Icon.BorderColor3 = Color3.fromRGB(10,10,10)
+			end)
+
+			-- // Connections
+			local mouseover = false
+			local hue, sat, val = default:ToHSV()
+			local hsv = default:ToHSV()
+			local alpha = defaultalpha
+			local oldcolor = hsv
+			local slidingsaturation = false
+			local slidinghue = false
+			local slidingalpha = false
+
+			local function update()
+				local real_pos = game:GetService("UserInputService"):GetMouseLocation()
+				local mouse_position = NewVector2(real_pos.X, real_pos.Y - 40)
+				local relative_palette = (mouse_position - Color.AbsolutePosition)
+				local relative_hue     = (mouse_position - Hue.AbsolutePosition)
+				local relative_opacity = (mouse_position - Alpha.AbsolutePosition)
+				--
+				if slidingsaturation then
+					sat = math.clamp(1 - relative_palette.X / Color.AbsoluteSize.X, 0, 1)
+					val = math.clamp(1 - relative_palette.Y / Color.AbsoluteSize.Y, 0, 1)
+				end 
+				--  
+				if slidinghue then
+					hue = math.clamp(relative_hue.Y / Hue.AbsoluteSize.Y, 0, 1)
+				end  
+				-- 
+				if slidingalpha then
+					alpha = math.clamp(relative_opacity.Y / Alpha.AbsoluteSize.Y, 0, 1)
+				end
+				-- edited by finobe (yes these fucking alphas crash on roexec? nice executor for $8 a week :[ )
+				hsv = Color3.fromHSV(hue, sat, val)
+				Pointer.Position = UDim2.new(math.clamp(1 - sat, 0.005, 0.995), 0, math.clamp(1 - val, 0.005, 0.995), 0)
+				Color.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
+				Alpha.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
+				IconInline.BackgroundColor3 = hsv
+
+				HueSlide.Position = UDim2.new(0,0,math.clamp(hue, 0.005, 0.995),0)
+				AlphaSlide.Position = UDim2.new(0,0,math.clamp(alpha, 0.005, 0.995),0)
+
+				if flag then
+					Library.Flags[flag] = {} 
+					Library.Flags[flag]["Color"] = Color3.fromRGB(hsv.r * 255, hsv.g * 255, hsv.b * 255)
+					Library.Flags[flag]["Transparency"] = alpha
+				end
+
+				callback(Color3.fromRGB(hsv.r * 255, hsv.g * 255, hsv.b * 255), alpha)
+			end
+
+			local function set(color, a)
+				if type(color) == "table" then
+					a = color[4]
+					color = Color3.fromHSV(color[1], color[2], color[3])
+				end
+				if type(color) == "string" then
+					color = Color3.fromHex(color)
+				end
+
+				local oldcolor = hsv
+				local oldalpha = alpha
+
+				hue, sat, val = color:ToHSV()
+				alpha = a or 1
+				hsv = Color3.fromHSV(hue, sat, val)
+
+				if hsv ~= oldcolor then
+					IconInline.BackgroundColor3 = hsv
+					Color.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
+					Pointer.Position = UDim2.new(math.clamp(1 - sat, 0.005, 0.995), 0, math.clamp(1 - val, 0.005, 0.995), 0)
+					Alpha.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
+					HueSlide.Position = UDim2.new(0,0,math.clamp(hue, 0.005, 0.995),0)
+					AlphaSlide.Position = UDim2.new(0,0,math.clamp(alpha, 0.005, 0.995),0)
+
+					if flag then
+						Library.Flags[flag] = {} 
+						Library.Flags[flag]["Color"] = Color3.fromRGB(hsv.r * 255, hsv.g * 255, hsv.b * 255)
+						Library.Flags[flag]["Transparency"] = alpha
+					end
+
+					callback(Color3.fromRGB(hsv.r * 255, hsv.g * 255, hsv.b * 255), alpha)
+				end
+			end
+
+			Flags[flag] = set
+
+			set(default, defaultalpha)
+
+			Sat.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					slidingsaturation = true
+					update()
+				end
+			end)
+
+			Sat.InputEnded:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					slidingsaturation = false
+					update()
+				end
+			end)
+
+			Hue.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					slidinghue = true
+					update()
+				end
+			end)
+
+			Hue.InputEnded:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					slidinghue = false
+					update()
+				end
+			end)
+
+			Alpha.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					slidingalpha = true
+					update()
+				end
+			end)
+
+			Alpha.InputEnded:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					slidingalpha = false
+					update()
+				end
+			end)
+
+			Library:Connection(game:GetService("UserInputService").InputChanged, function(input)
+				if input.UserInputType == Enum.UserInputType.MouseMovement then
+					if slidingalpha then
+						update()
+					end
+
+					if slidinghue then
+						update()
+					end
+
+					if slidingsaturation then
+						update()
+					end
+				end
+			end)
+
+			Icon.MouseButton1Down:Connect(function()
+				ColorWindow.Visible = not ColorWindow.Visible
+				parent.ZIndex = ColorWindow.Visible and 5 or 1
+
+				if slidinghue then
+					slidinghue = false
+				end
+
+				if slidingsaturation then
+					slidingsaturation = false
+				end
+
+				if slidingalpha then
+					slidingalpha = false
+				end
 			end)
 			
-			if not success then
-				warn("Failed to create picker:", result)
-				return nil
+			Library:Connection(Icon.MouseButton2Down, function()
+				ModeOutline.Visible = not ModeOutline.Visible
+			end)
+			--
+			Library:Connection(Hold.MouseButton1Down, function()
+				Library.CopiedColor = hsv
+				Library.CopiedAlpha = alpha
+			end)
+			--
+			Library:Connection(Toggle.MouseButton1Down, function()
+				set(Library.CopiedColor or Color3.new(1,1,1), Library.CopiedAlpha or 0)
+			end)
+			--
+			Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
+				if ModeOutline.Visible and Input.UserInputType == Enum.UserInputType.MouseButton1 then
+					if not Library:IsMouseOverFrame(Icon) then
+						ModeOutline.Visible = false
+					end
+				end
+			end)
+
+			local colorpickertypes = {}
+
+			function colorpickertypes:Set(color, newalpha)
+				set(color, newalpha)
 			end
-			
-			return result
+
+			Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
+				if ColorWindow.Visible and Input.UserInputType == Enum.UserInputType.MouseButton1 then
+					if not Library:IsMouseOverFrame(ColorWindow) and not Library:IsMouseOverFrame(Icon) then
+						ColorWindow.Visible = false
+						parent.ZIndex = 1
+					end
+				end
+			end)
+
+			return colorpickertypes, ColorWindow
 		end
 	end
 	-- // Doc Functions
@@ -1571,12 +1912,11 @@ Library.Sections.__index = Library.Sections;
 				Hold.BorderSizePixel = 0
 				Hold.BorderColor3 = Color3.new(0,0,0)
 				Hold.Text = "Hold"
-				Hold.TextColor3 = Color3.fromRGB(145,145,145)
+				Hold.TextColor3 = Keybind.Mode == "Hold" and Color3.new(1,1,1) or Color3.new(0.5686,0.5686,0.5686)
 				Hold.AutoButtonColor = false
 				Hold.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 				Hold.TextSize = Library.FontSize
 				Hold.TextStrokeTransparency = 0
-				Hold.ZIndex = 100
 				--
 				Toggle.Name = "Toggle"
 				Toggle.Size = UDim2.new(1,0,0,15)
@@ -1585,220 +1925,271 @@ Library.Sections.__index = Library.Sections;
 				Toggle.BorderSizePixel = 0
 				Toggle.BorderColor3 = Color3.new(0,0,0)
 				Toggle.Text = "Toggle"
-				Toggle.TextColor3 = Color3.fromRGB(145,145,145)
+				Toggle.TextColor3 = Keybind.Mode == "Toggle" and Color3.new(1,1,1) or Color3.new(0.5686,0.5686,0.5686)
 				Toggle.AutoButtonColor = false
 				Toggle.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 				Toggle.TextSize = Library.FontSize
 				Toggle.TextStrokeTransparency = 0
-				Toggle.ZIndex = 100
+				--
+				Always.Name = "Always"
+				Always.Size = UDim2.new(1,0,0,15)
+				Always.BackgroundColor3 = Color3.new(1,1,1)
+				Always.BackgroundTransparency = 1
+				Always.BorderSizePixel = 0
+				Always.BorderColor3 = Color3.new(0,0,0)
+				Always.Text = "Always"
+				Always.TextColor3 = Keybind.Mode == "Always" and Color3.new(1,1,1) or Color3.new(0.5686,0.5686,0.5686)
+				Always.AutoButtonColor = false
+				Always.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+				Always.TextSize = Library.FontSize
+				Always.TextStrokeTransparency = 0
 
-				Library:Connection(Icon.MouseEnter, function()
-					Icon.BorderColor3 = Library.Accent
+				-- // Functions
+				local function set(newkey)
+					if string.find(tostring(newkey), "Enum") then
+						if c then
+							c:Disconnect()
+							if Keybind.Flag then
+								Library.Flags[Keybind.Flag] = false
+							end
+							Keybind.Callback(false)
+						end
+						if tostring(newkey):find("Enum.KeyCode.") then
+							newkey = Enum.KeyCode[tostring(newkey):gsub("Enum.KeyCode.", "")]
+						elseif tostring(newkey):find("Enum.UserInputType.") then
+							newkey = Enum.UserInputType[tostring(newkey):gsub("Enum.UserInputType.", "")]
+						end
+						if newkey == Enum.KeyCode.Backspace then
+							Key = nil
+
+							local text = "None"
+
+							Value.Text = text
+							ListValue:Update(text, Keybind.Name, Keybind.Mode)
+						elseif newkey ~= nil then
+							Key = newkey
+
+							local text = (Library.Keys[newkey] or tostring(newkey):gsub("Enum.KeyCode.", ""))
+
+							Value.Text = text
+							ListValue:Update(text, Keybind.Name, Keybind.Mode)
+						end
+
+						Library.Flags[Keybind.Flag .. "_KEY"] = newkey
+					elseif table.find({ "Always", "Toggle", "Hold" }, newkey) then
+						Library.Flags[Keybind.Flag .. "_KEY STATE"] = newkey
+						Keybind.Mode = newkey
+						ListValue:Update((Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", "")), Keybind.Name, Keybind.Mode)
+						if Keybind.Mode == "Always" then
+							State = true
+							if Keybind.Flag then
+								Library.Flags[Keybind.Flag] = State
+							end
+							Keybind.Callback(true)
+							ListValue:SetVisible(true)
+						end
+					else
+						State = newkey
+						if Keybind.Flag then
+							Library.Flags[Keybind.Flag] = newkey
+						end
+						Keybind.Callback(newkey)
+					end
+				end
+				--
+				set(Keybind.State)
+				set(Keybind.Mode)
+				Outline.MouseButton1Click:Connect(function()
+					if not Keybind.Binding then
+
+						Value.Text = "..."
+
+						Keybind.Binding = Library:Connection(
+							game:GetService("UserInputService").InputBegan,
+							function(input, gpe)
+								set(
+									input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode
+										or input.UserInputType
+								)
+								Library:Disconnect(Keybind.Binding)
+								task.wait()
+								Keybind.Binding = nil
+							end
+						)
+					end
 				end)
 				--
-				Library:Connection(Icon.MouseLeave, function()
-					Icon.BorderColor3 = Color3.fromRGB(10,10,10)
-				end)
+				local HoldLoop; 
+				Library:Connection(game:GetService("UserInputService").InputBegan, function(inp, Typing)
+					if Typing then return end 
 
-				-- // Connections
-				local mouseover = false
-				local hue, sat, val = default:ToHSV()
-				local hsv = default:ToHSV()
-				local alpha = defaultalpha
-				local oldcolor = hsv
-				local slidingsaturation = false
-				local slidinghue = false
-				local slidingalpha = false
-
-				local function update()
-					local real_pos = game:GetService("UserInputService"):GetMouseLocation()
-					local mouse_position = NewVector2(real_pos.X, real_pos.Y - 40)
-					local relative_palette = (mouse_position - Color.AbsolutePosition)
-					local relative_hue     = (mouse_position - Hue.AbsolutePosition)
-					local relative_opacity = (mouse_position - Alpha.AbsolutePosition)
-					--
-					if slidingsaturation then
-						sat = math.clamp(1 - relative_palette.X / Color.AbsoluteSize.X, 0, 1)
-						val = math.clamp(1 - relative_palette.Y / Color.AbsoluteSize.Y, 0, 1)
+					if HoldLoop then 
+						HoldLoop:Disconnect() 
 					end 
-					--  
-					if slidinghue then
-						hue = math.clamp(relative_hue.Y / Hue.AbsoluteSize.Y, 0, 1)
-					end  
 					-- 
-					if slidingalpha then
-						alpha = math.clamp(relative_opacity.Y / Alpha.AbsoluteSize.Y, 0, 1)
-					end
-					-- edited by finobe (yes these fucking alphas crash on roexec? nice executor for $8 a week :[ )
-					hsv = Color3.fromHSV(hue, sat, val)
-					Pointer.Position = UDim2.new(math.clamp(1 - sat, 0.005, 0.995), 0, math.clamp(1 - val, 0.005, 0.995), 0)
-					Color.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
-					Alpha.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
-					IconInline.BackgroundColor3 = hsv
-
-					HueSlide.Position = UDim2.new(0,0,math.clamp(hue, 0.005, 0.995),0)
-					AlphaSlide.Position = UDim2.new(0,0,math.clamp(alpha, 0.005, 0.995),0)
-
-					if flag then
-						Library.Flags[flag] = {} 
-						Library.Flags[flag]["Color"] = Color3.fromRGB(hsv.r * 255, hsv.g * 255, hsv.b * 255)
-						Library.Flags[flag]["Transparency"] = alpha
-					end
-
-					callback(Color3.fromRGB(hsv.r * 255, hsv.g * 255, hsv.b * 255), alpha)
-				end
-
-				local function set(color, a)
-					if type(color) == "table" then
-						a = color[4]
-						color = Color3.fromHSV(color[1], color[2], color[3])
-					end
-					if type(color) == "string" then
-						color = Color3.fromHex(color)
-					end
-
-					local oldcolor = hsv
-					local oldalpha = alpha
-
-					hue, sat, val = color:ToHSV()
-					alpha = a or 1
-					hsv = Color3.fromHSV(hue, sat, val)
-
-					if hsv ~= oldcolor then
-						IconInline.BackgroundColor3 = hsv
-						Color.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
-						Pointer.Position = UDim2.new(math.clamp(1 - sat, 0.005, 0.995), 0, math.clamp(1 - val, 0.005, 0.995), 0)
-						Alpha.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
-						HueSlide.Position = UDim2.new(0,0,math.clamp(hue, 0.005, 0.995),0)
-						AlphaSlide.Position = UDim2.new(0,0,math.clamp(alpha, 0.005, 0.995),0)
-
-						if flag then
-							Library.Flags[flag] = {} 
-							Library.Flags[flag]["Color"] = Color3.fromRGB(hsv.r * 255, hsv.g * 255, hsv.b * 255)
-							Library.Flags[flag]["Transparency"] = alpha
-						end
-
-						callback(Color3.fromRGB(hsv.r * 255, hsv.g * 255, hsv.b * 255), alpha)
-					end
-				end
-
-				Flags[flag] = set
-
-				set(default, defaultalpha)
-
-				Sat.InputBegan:Connect(function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						slidingsaturation = true
-						update()
-					end
-				end)
-
-				Sat.InputEnded:Connect(function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						slidingsaturation = false
-						update()
-					end
-				end)
-
-				Hue.InputBegan:Connect(function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						slidinghue = true
-						update()
-					end
-				end)
-
-				Hue.InputEnded:Connect(function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						slidinghue = false
-						update()
-					end
-				end)
-
-				Alpha.InputBegan:Connect(function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						slidingalpha = true
-						update()
-					end
-				end)
-
-				Alpha.InputEnded:Connect(function(input)
-					if input.UserInputType == Enum.UserInputType.MouseButton1 then
-						slidingalpha = false
-						update()
-					end
-				end)
-
-				Library:Connection(game:GetService("UserInputService").InputChanged, function(input)
-					if input.UserInputType == Enum.UserInputType.MouseMovement then
-						if slidingalpha then
-							update()
-						end
-
-						if slidinghue then
-							update()
-						end
-
-						if slidingsaturation then
-							update()
+					if (inp.KeyCode == Key or inp.UserInputType == Key) and not Keybind.Binding then
+						if Keybind.Mode == "Hold" then
+							if Keybind.Flag then
+								Library.Flags[Keybind.Flag] = true
+							end
+							HoldLoop = Library:Connection(game:GetService("RunService").RenderStepped, function()
+								if Keybind.Callback then
+									Keybind.Callback(true)
+								end
+							end)
+							ListValue:SetVisible(true)
+						elseif Keybind.Mode == "Toggle" then
+							State = not State
+							if Keybind.Flag then
+								Library.Flags[Keybind.Flag] = State
+							end
+							Keybind.Callback(State)
+							ListValue:SetVisible(State)
 						end
 					end
 				end)
-
-				Icon.MouseButton1Down:Connect(function()
-					ColorWindow.Visible = not ColorWindow.Visible
-					parent.ZIndex = ColorWindow.Visible and 5 or 1
-
-					if slidinghue then
-						slidinghue = false
-					end
-
-					if slidingsaturation then
-						slidingsaturation = false
-					end
-
-					if slidingalpha then
-						slidingalpha = false
+				--
+				Library:Connection(game:GetService("UserInputService").InputEnded, function(inp, Typing)
+					if Typing then return end 
+					if Keybind.Mode == "Hold" then
+						if Key ~= "" or Key ~= nil then
+							if inp.KeyCode == Key or inp.UserInputType == Key then
+								if c then
+									c:Disconnect()
+									if Keybind.Flag then
+										Library.Flags[Keybind.Flag] = false
+									end
+									if Keybind.Callback then
+										Keybind.Callback(false)
+									end
+									ListValue:SetVisible(false)
+								end
+							end
+						end
 					end
 				end)
-				
-				Library:Connection(Icon.MouseButton2Down, function()
+				Library:Connection(Outline.MouseEnter, function()
+					Outline.BorderColor3 = Library.Accent
+				end)
+				--
+				Library:Connection(Outline.MouseLeave, function()
+					Outline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
+				end)
+				--
+				Library:Connection(Outline.MouseButton2Down, function()
 					ModeOutline.Visible = not ModeOutline.Visible
 				end)
 				--
 				Library:Connection(Hold.MouseButton1Down, function()
-					Library.CopiedColor = hsv
-					Library.CopiedAlpha = alpha
+					set("Hold")
+					Hold.TextColor3 = Color3.new(1,1,1)
+					Toggle.TextColor3 = Color3.fromRGB(145,145,145)
+					Always.TextColor3 = Color3.fromRGB(145,145,145)
 				end)
 				--
 				Library:Connection(Toggle.MouseButton1Down, function()
-					set(Library.CopiedColor or Color3.new(1,1,1), Library.CopiedAlpha or 0)
+					set("Toggle")
+					Hold.TextColor3 = Color3.fromRGB(145,145,145)
+					Toggle.TextColor3 = Color3.new(1,1,1)
+					Always.TextColor3 = Color3.fromRGB(145,145,145)
+				end)
+				--
+				Library:Connection(Always.MouseButton1Down, function()
+					set("Always")
+					Hold.TextColor3 = Color3.fromRGB(145,145,145)
+					Toggle.TextColor3 = Color3.fromRGB(145,145,145)
+					Always.TextColor3 = Color3.new(1,1,1)
 				end)
 				--
 				Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
 					if ModeOutline.Visible and Input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if not Library:IsMouseOverFrame(Icon) then
+						if not Library:IsMouseOverFrame(ModeOutline) then
 							ModeOutline.Visible = false
 						end
 					end
 				end)
-
-				local colorpickertypes = {}
-
-				function colorpickertypes:Set(color, newalpha)
-					set(color, newalpha)
+				--
+				Library.Flags[Keybind.Flag .. "_KEY"] = Keybind.State
+				Library.Flags[Keybind.Flag .. "_KEY STATE"] = Keybind.Mode
+				Flags[Keybind.Flag] = set
+				Flags[Keybind.Flag .. "_KEY"] = set
+				Flags[Keybind.Flag .. "_KEY STATE"] = set
+				--
+				function Keybind:Set(key)
+					set(key)
 				end
 
-				Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
-					if ColorWindow.Visible and Input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if not Library:IsMouseOverFrame(ColorWindow) and not Library:IsMouseOverFrame(Icon) then
-							ColorWindow.Visible = false
-							parent.ZIndex = 1
-						end
-					end
-				end)
-
-				return colorpickertypes, ColorWindow
+				-- // Returning
+				return Keybind
 			end
+			
+			function Toggle:Colorpicker(Properties)
+				local Properties = Properties or {}
+				local Colorpicker = {
+					State = (
+						Properties.state
+							or Properties.State
+							or Properties.def
+							or Properties.Def
+							or Properties.default
+							or Properties.Default
+							or Color3.fromRGB(255, 0, 0)
+					),
+					Alpha = (
+						Properties.alpha
+							or Properties.Alpha
+							or Properties.transparency
+							or Properties.Transparency
+							or 1
+					),
+					Callback = (
+						Properties.callback
+							or Properties.Callback
+							or Properties.callBack
+							or Properties.CallBack
+							or function() end
+					),
+					Flag = (
+						Properties.flag
+							or Properties.Flag
+							or Properties.pointer
+							or Properties.Pointer
+							or Library.NextFlag()
+					),
+				}
+				-- // Functions
+				Toggle.Colorpickers = Toggle.Colorpickers + 1
+				local colorpickertypes = Library:NewPicker(
+					"",
+					Colorpicker.State,
+					Colorpicker.Alpha,
+					NewToggle,
+					Toggle.Colorpickers - 1,
+					Colorpicker.Flag,
+					Colorpicker.Callback
+				)
+
+				function Colorpicker:Set(color)
+					colorpickertypes:set(color)
+				end
+
+				-- // Returning
+				return Colorpicker
+			end
+			
+			-- // Misc Functions
+			function Toggle.Set(bool)
+				bool = type(bool) == "boolean" and bool or false
+				if Toggle.Toggled ~= bool then
+					SetState()
+				end
+			end
+			Toggle.Set(Toggle.State)
+			Library.Flags[Toggle.Flag] = Toggle.State
+			Flags[Toggle.Flag] = Toggle.Set
+
+			-- // Returning
+			return Toggle
 		end
 		--
 		function Sections:Slider(Properties)
@@ -2601,7 +2992,7 @@ Library.Sections.__index = Library.Sections;
 					if not Keybind.UseKey then
 						Library.Flags[Keybind.Flag .. "_KEY STATE"] = newkey
 						Keybind.Mode = newkey
-						ListValue:Update((Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", "")), Keybind.Name, Keybind.Mode)
+						ListValue:Update((Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", "")), Toggle.Name, Keybind.Mode)
 						if Keybind.Mode == "Always" then
 							State = true
 							if Keybind.Flag then
@@ -2642,53 +3033,50 @@ Library.Sections.__index = Library.Sections;
 				end
 			end)
 			--
-			Library:Connection(game:GetService("UserInputService").InputBegan, function(inp, Typing)
-				if Typing then return end 
-
-				if HoldLoop then 
-					HoldLoop:Disconnect() 
-				end 
-				-- 
-				if (inp.KeyCode == Key or inp.UserInputType == Key) and not Keybind.Binding then
-					if Keybind.Mode == "Hold" then
-						if Keybind.Flag then
-							Library.Flags[Keybind.Flag] = true
-						end
-						HoldLoop = Library:Connection(game:GetService("RunService").RenderStepped, function()
-							if Keybind.Callback then
-								Keybind.Callback(true)
+			Library:Connection(game:GetService("UserInputService").InputBegan, function(inp, Chatting)
+				if not Chatting then 
+					if (inp.KeyCode == Key or inp.UserInputType == Key) and not Keybind.Binding and not Keybind.UseKey then
+						if Keybind.Mode == "Hold" then
+							if Keybind.Flag then
+								Library.Flags[Keybind.Flag] = true
 							end
-						end)
-						ListValue:SetVisible(true)
-					elseif Keybind.Mode == "Toggle" then
-						State = not State
-						if Keybind.Flag then
-							Library.Flags[Keybind.Flag] = State
+							c = Library:Connection(game:GetService("RunService").RenderStepped, function()
+								if Keybind.Callback then
+									Keybind.Callback(true)
+								end
+							end)
+							ListValue:SetVisible(true)
+						elseif Keybind.Mode == "Toggle" then
+							State = not State
+							if Keybind.Flag then
+								Library.Flags[Keybind.Flag] = State
+							end
+							Keybind.Callback(State)
+							ListValue:SetVisible(State)
 						end
-						Keybind.Callback(State)
-						ListValue:SetVisible(State)
-					end
-				end
+					end 
+				end 
 			end)
 			--
-			Library:Connection(game:GetService("UserInputService").InputEnded, function(inp, Typing)
-				if Typing then return end 
-				if Keybind.Mode == "Hold" then
-					if Key ~= "" or Key ~= nil then
-						if inp.KeyCode == Key or inp.UserInputType == Key then
-							if c then
-								c:Disconnect()
-								if Keybind.Flag then
-									Library.Flags[Keybind.Flag] = false
+			Library:Connection(game:GetService("UserInputService").InputEnded, function(inp, Chatting)
+				if not Chatting then 
+					if Keybind.Mode == "Hold" and not Keybind.UseKey then
+						if Key ~= "" or Key ~= nil then
+							if inp.KeyCode == Key or inp.UserInputType == Key then
+								if c then
+									c:Disconnect()
+									if Keybind.Flag then
+										Library.Flags[Keybind.Flag] = false
+									end
+									if Keybind.Callback then
+										Keybind.Callback(false)
+									end
+									ListValue:SetVisible(false)
 								end
-								if Keybind.Callback then
-									Keybind.Callback(false)
-								end
-								ListValue:SetVisible(false)
 							end
 						end
 					end
-				end
+				end 
 			end)
 			Library:Connection(Outline.MouseEnter, function()
 				Outline.BorderColor3 = Library.Accent
@@ -2700,6 +3088,16 @@ Library.Sections.__index = Library.Sections;
 			--
 			Library:Connection(Outline.MouseButton2Down, function()
 				ModeOutline.Visible = not ModeOutline.Visible
+			end)
+			--
+			Library:Connection(NewKey.MouseEnter, function()
+				table.insert(Library.ThemeObjects, Title)
+				Title.TextColor3 = Library.Accent
+			end)
+			--
+			Library:Connection(NewKey.MouseLeave, function()
+				table.remove(Library.ThemeObjects, table.find(Library.ThemeObjects, Title))
+				Title.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
 			end)
 			--
 			Library:Connection(Hold.MouseButton1Down, function()
@@ -2723,7 +3121,7 @@ Library.Sections.__index = Library.Sections;
 				Always.TextColor3 = Color3.new(1,1,1)
 			end)
 			--
-			Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
+			Library:Connection(game:GetService("UserInputService").InputBegan, function(Input, Chatting)
 				if ModeOutline.Visible and Input.UserInputType == Enum.UserInputType.MouseButton1 then
 					if not Library:IsMouseOverFrame(ModeOutline) then
 						ModeOutline.Visible = false
