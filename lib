@@ -1222,23 +1222,38 @@ Library.Sections.__index = Library.Sections;
 			-- Create simple top bar
 			local TopBar = Instance.new("Frame", Inline)
 			TopBar.Name = "TopBar"
-			TopBar.Size = UDim2.new(1, 0, 0, 20) -- Made slightly smaller
+			TopBar.Size = UDim2.new(1, 0, 0, 20)
 			TopBar.Position = UDim2.new(0, 0, 0, 0)
-			TopBar.BackgroundColor3 = Color3.fromRGB(15, 15, 15) -- Darker background
+			TopBar.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 			TopBar.BorderSizePixel = 0
+			TopBar.ZIndex = 2
 
-			-- Simple title text
+			-- Date and title text
+			local DateText = Instance.new("TextLabel", TopBar)
+			DateText.Name = "DateText"
+			DateText.Size = UDim2.new(0, 60, 1, 0)
+			DateText.Position = UDim2.new(0, 5, 0, 0)
+			DateText.BackgroundTransparency = 1
+			DateText.Text = os.date("%d/%m/%y")
+			DateText.TextColor3 = Window.Color
+			DateText.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			DateText.TextSize = Library.FontSize
+			DateText.TextXAlignment = Enum.TextXAlignment.Left
+			DateText.TextStrokeTransparency = 0
+			DateText.ZIndex = 2
+
 			local TitleText = Instance.new("TextLabel", TopBar)
 			TitleText.Name = "TitleText"
-			TitleText.Size = UDim2.new(1, -10, 1, 0)
-			TitleText.Position = UDim2.new(0, 5, 0, 0)
+			TitleText.Size = UDim2.new(1, -70, 1, 0)
+			TitleText.Position = UDim2.new(0, 70, 0, 0)
 			TitleText.BackgroundTransparency = 1
-			TitleText.Text = Window.Name
-			TitleText.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
+			TitleText.Text = Window.Name .. " | " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+			TitleText.TextColor3 = Window.Color
 			TitleText.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			TitleText.TextSize = Library.FontSize
 			TitleText.TextXAlignment = Enum.TextXAlignment.Left
 			TitleText.TextStrokeTransparency = 0
+			TitleText.ZIndex = 2
 
 			-- Rest of original window setup
 			local HolderOutline = Instance.new('Frame', Inline)
@@ -1249,14 +1264,44 @@ Library.Sections.__index = Library.Sections;
 
 			-- Adjust positions to account for top bar
 			HolderOutline.Position = UDim2.new(0, 0, 0, 20)
+			HolderOutline.Size = UDim2.new(1, 0, 1, -20)
 			
-			-- Original window properties and methods
+			-- Set up window properties
 			Window.Holder = Outline
 			Window.Elements = {
 				TabHolder = Tabs,
 				Holder = HolderInline
 			}
 
+			-- Original window setup
+			Outline.Name = "Outline"
+			Outline.Position = Window.Position
+			Outline.Size = Window.Size
+			Outline.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
+			Outline.BorderColor3 = Color3.new(0,0,0)
+			Outline.Active = true
+			Outline.Draggable = true
+
+			Inline.Name = "Inline"
+			Inline.Position = UDim2.new(0, 1, 0, 1)
+			Inline.Size = UDim2.new(1, -2, 1, -2)
+			Inline.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
+			Inline.BorderColor3 = Color3.new(0,0,0)
+
+			HolderInline.Name = "HolderInline"
+			HolderInline.Position = UDim2.new(0, 1, 0, 1)
+			HolderInline.Size = UDim2.new(1, -2, 1, -2)
+			HolderInline.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
+			HolderInline.BorderColor3 = Color3.new(0,0,0)
+
+			Tabs.Name = "Tabs"
+			Tabs.Size = UDim2.new(1, 0, 0, 22)
+			Tabs.BackgroundTransparency = 1
+
+			UIListLayout.FillDirection = Enum.FillDirection.Horizontal
+			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+			-- Keep original methods
 			function Window:Page(Properties)
 				local Properties = Properties or {}
 				local Page = {
@@ -1273,15 +1318,6 @@ Library.Sections.__index = Library.Sections;
 					v.Tab.Position = UDim2.new((i-1)/#self.Pages,0,0,0)
 				end
 			end
-
-			-- Original window setup
-			Outline.Name = "Outline"
-			Outline.Position = Window.Position
-			Outline.Size = Window.Size
-			Outline.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
-			Outline.BorderColor3 = Color3.new(0,0,0)
-
-			-- ... (rest of original window setup code)
 
 			return setmetatable(Window, Library)
 		end
