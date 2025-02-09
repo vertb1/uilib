@@ -1427,11 +1427,12 @@ Library.Sections.__index = Library.Sections;
 			end
 
 			-- Create glow effects that follow the window
-			local GlowHolder = Instance.new("Frame", ScreenGui)
+			local GlowHolder = Instance.new("Frame", Outline)  -- Changed parent to Outline
 			GlowHolder.Name = "GlowHolder"
 			GlowHolder.BackgroundTransparency = 1
-			GlowHolder.Size = Outline.Size + UDim2.new(0, 50, 0, 50)
-			GlowHolder.Position = Outline.Position - UDim2.new(0, 25, 0, 25)
+			GlowHolder.Size = UDim2.new(1, 50, 1, 50)
+			GlowHolder.Position = UDim2.new(0, -25, 0, -25)
+			GlowHolder.ZIndex = -1
 
 			local Glow = Instance.new("ImageLabel", GlowHolder)
 			Glow.Name = "Glow"
@@ -1441,7 +1442,7 @@ Library.Sections.__index = Library.Sections;
 			Glow.Image = "rbxassetid://5028857084"
 			Glow.ImageColor3 = Color3.fromRGB(255, 170, 0)
 			Glow.ImageTransparency = 0.6
-			Glow.ZIndex = 0
+			Glow.ZIndex = -1
 
 			local InnerGlow = Instance.new("ImageLabel", GlowHolder)
 			InnerGlow.Name = "InnerGlow"
@@ -1451,7 +1452,7 @@ Library.Sections.__index = Library.Sections;
 			InnerGlow.Image = "rbxassetid://5028857084"
 			InnerGlow.ImageColor3 = Color3.fromRGB(255, 170, 0)
 			InnerGlow.ImageTransparency = 0.8
-			InnerGlow.ZIndex = 0
+			InnerGlow.ZIndex = -1
 
 			-- Add dragging functionality that updates glow position
 			local UserInputService = game:GetService("UserInputService")
