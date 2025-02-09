@@ -111,16 +111,54 @@ KeyBindVisualizer.__index = KeyBindVisualizer
 
 function KeyBindVisualizer.new()
     local self = setmetatable({}, KeyBindVisualizer)
-    -- Add implementation as needed
+    
+    self.container = Instance.new("ScreenGui")
+    self.container.Name = "KeybindVisualizer"
+    self.container.Parent = game:GetService("CoreGui")
+    
+    self.list = Instance.new("Frame")
+    self.list.Name = "List"
+    self.list.Size = UDim2.new(0, 200, 0, 0)
+    self.list.Position = UDim2.new(1, -220, 0, 20)
+    self.list.BackgroundTransparency = 1
+    self.list.Parent = self.container
+    
+    local layout = Instance.new("UIListLayout")
+    layout.Padding = UDim.new(0, 5)
+    layout.Parent = self.list
+    
+    self.binds = {}
     return self
 end
 
-function KeyBindVisualizer:Remove()
-    -- Add implementation as needed
+function KeyBindVisualizer:AddText(text)
+    if self.binds[text] then return end
+    
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 0, 20)
+    label.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    label.BorderColor3 = Color3.new(0, 0, 0)
+    label.Text = text
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.TextSize = 14
+    label.Font = Enum.Font.Code
+    label.Parent = self.list
+    
+    self.binds[text] = label
 end
 
-function KeyBindVisualizer.init()
-    -- Add implementation as needed
+function KeyBindVisualizer:RemoveText(text)
+    if not self.binds[text] then return end
+    self.binds[text]:Destroy()
+    self.binds[text] = nil
+end
+
+function KeyBindVisualizer:Remove()
+    self.container:Destroy()
+end
+
+function KeyBindVisualizer.init(library)
+    -- Nothing needed for basic implementation
 end
 
 -- Simple toCamelCase implementation
