@@ -1216,16 +1216,28 @@ Library.Sections.__index = Library.Sections;
 			-- Create window elements
 			local ScreenGui = Instance.new('ScreenGui', game.CoreGui)
 			
-			-- Add glow effect
+			-- Create better glow effect
 			local Glow = Instance.new("ImageLabel", ScreenGui)
 			Glow.Name = "Glow"
 			Glow.BackgroundTransparency = 1
-			Glow.Position = UDim2.new(0.5, -Window.Size.X.Offset/2 - 15, 0.5, -Window.Size.Y.Offset/2 - 15)
-			Glow.Size = UDim2.new(0, Window.Size.X.Offset + 30, 0, Window.Size.Y.Offset + 30)
-			Glow.Image = "rbxassetid://4996891970" -- Glow image
-			Glow.ImageColor3 = Window.Color
-			Glow.ImageTransparency = 0.9
-			
+			Glow.Position = UDim2.new(0.5, -Window.Size.X.Offset/2 - 25, 0.5, -Window.Size.Y.Offset/2 - 25)
+			Glow.Size = UDim2.new(0, Window.Size.X.Offset + 50, 0, Window.Size.Y.Offset + 50)
+			Glow.Image = "rbxassetid://5028857084" -- Proper glow texture
+			Glow.ImageColor3 = Color3.fromRGB(255, 170, 0) -- Orange glow
+			Glow.ImageTransparency = 0.6
+			Glow.ZIndex = 0
+
+			-- Add second glow for better effect
+			local InnerGlow = Instance.new("ImageLabel", ScreenGui)
+			InnerGlow.Name = "InnerGlow"
+			InnerGlow.BackgroundTransparency = 1
+			InnerGlow.Position = UDim2.new(0.5, -Window.Size.X.Offset/2 - 15, 0.5, -Window.Size.Y.Offset/2 - 15)
+			InnerGlow.Size = UDim2.new(0, Window.Size.X.Offset + 30, 0, Window.Size.Y.Offset + 30)
+			InnerGlow.Image = "rbxassetid://5028857084"
+			InnerGlow.ImageColor3 = Color3.fromRGB(255, 170, 0)
+			InnerGlow.ImageTransparency = 0.8
+			InnerGlow.ZIndex = 0
+
 			local Outline = Instance.new('Frame', ScreenGui)
 			local Inline = Instance.new('Frame', Outline)
 			
@@ -1304,20 +1316,33 @@ Library.Sections.__index = Library.Sections;
 				local Properties = Properties or {}
 				local Page = {
 						Window = self,
-						Name = Properties.Name or Properties.name or "Page",
+						Name = Properties.Name or "Page",
 						Sections = {}
 					}
 
-				-- Create page elements
-				local TabButton = Instance.new("TextButton", self.Elements.TabHolder)
+				-- Create tab button with underline
+				local TabButton = Instance.new("Frame", self.Elements.TabHolder)
 				TabButton.Size = UDim2.new(0, 100, 1, 0)
-				TabButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-				TabButton.BorderColor3 = Color3.new(0, 0, 0)
-				TabButton.Text = Page.Name
-				TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-				TabButton.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-				TabButton.TextSize = Library.FontSize
-				TabButton.AutoButtonColor = false
+				TabButton.BackgroundTransparency = 1
+
+				local TabText = Instance.new("TextButton", TabButton)
+				TabText.Size = UDim2.new(1, 0, 1, -2)
+				TabText.Position = UDim2.new(0, 0, 0, 0)
+				TabText.BackgroundTransparency = 1
+				TabText.Text = Page.Name
+				TabText.TextColor3 = Color3.fromRGB(255, 255, 255)
+				TabText.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+				TabText.TextSize = Library.FontSize
+				TabText.AutoButtonColor = false
+
+				-- Add underline
+				local Underline = Instance.new("Frame", TabButton)
+				Underline.Name = "Underline"
+				Underline.Size = UDim2.new(1, 0, 0, 2)
+				Underline.Position = UDim2.new(0, 0, 1, -2)
+				Underline.BackgroundColor3 = Window.Color
+				Underline.BorderSizePixel = 0
+				Underline.Visible = false
 
 				-- Create page container
 				local Container = Instance.new("Frame", self.Elements.Holder)
@@ -1326,17 +1351,15 @@ Library.Sections.__index = Library.Sections;
 				Container.BackgroundTransparency = 1
 				Container.Visible = #self.Pages == 0
 
-				-- Create left and right columns
-				local Left = Instance.new("Frame", Container)
-				Left.Name = "Left"
-				Left.Size = UDim2.new(0.5, -2, 1, 0)
-				Left.BackgroundTransparency = 1
-
-				local Right = Instance.new("Frame", Container)
-				Right.Name = "Right"
-				Right.Size = UDim2.new(0.5, -2, 1, 0)
-				Right.Position = UDim2.new(0.5, 2, 0, 0)
-				Right.BackgroundTransparency = 1
+				-- Add tab click functionality
+				TabText.MouseButton1Click:Connect(function()
+					for _, page in pairs(self.Pages) do
+						page.Container.Visible = false
+						page.Tab.Underline.Visible = false
+					end
+					Container.Visible = true
+					Underline.Visible = true
+				end)
 
 				-- Set up page elements
 				Page.Tab = TabButton
@@ -1346,25 +1369,46 @@ Library.Sections.__index = Library.Sections;
 					Right = Right
 				}
 
-				-- Add Section method
+				-- Add Section method with proper UI elements
 				function Page:Section(Properties)
-					local Properties = Properties or {}
 					local Section = {
 						Name = Properties.Name or "Section",
 						Side = (Properties.Side or "left"):lower(),
 						Size = Properties.Size or 100,
-						Page = self,
-						Elements = {}
+						Page = self
 					}
 
-					-- Create section elements
-					local SectionFrame = Instance.new("Frame")
-					SectionFrame.Parent = self.Elements[Section.Side == "left" and "Left" or "Right"]
-					SectionFrame.Size = UDim2.new(1, 0, 0, Section.Size)
-					SectionFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-					SectionFrame.BorderColor3 = Color3.new(0, 0, 0)
+					-- Create section container
+					local Container = Instance.new("Frame")
+					Container.Parent = self.Elements[Section.Side == "left" and "Left" or "Right"]
+					Container.Size = UDim2.new(1, 0, 0, Section.Size)
+					Container.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+					Container.BorderColor3 = Color3.new(0, 0, 0)
 
-					Section.Container = SectionFrame
+					-- Add section title
+					local Title = Instance.new("TextLabel", Container)
+					Title.Size = UDim2.new(1, -10, 0, 20)
+					Title.Position = UDim2.new(0, 5, 0, 5)
+					Title.BackgroundTransparency = 1
+					Title.Text = Section.Name
+					Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+					Title.TextXAlignment = Enum.TextXAlignment.Left
+					Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+					Title.TextSize = Library.FontSize
+
+					-- Add elements container
+					local Elements = Instance.new("Frame", Container)
+					Elements.Position = UDim2.new(0, 5, 0, 25)
+					Elements.Size = UDim2.new(1, -10, 1, -30)
+					Elements.BackgroundTransparency = 1
+
+					local UIListLayout = Instance.new("UIListLayout", Elements)
+					UIListLayout.Padding = UDim.new(0, 5)
+					UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+					Section.Container = Container
+					Section.Elements = Elements
+
 					return setmetatable(Section, Library)
 				end
 
