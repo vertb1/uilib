@@ -1211,6 +1211,34 @@ Library.Sections.__index = Library.Sections;
 				Holder = nil
 			}
 
+			-- Create window elements
+			local ScreenGui = Instance.new('ScreenGui', game.CoreGui)
+			local Outline = Instance.new('Frame', ScreenGui)
+			local Inline = Instance.new('Frame', Outline)
+			local Accent = Instance.new('Frame', Inline)
+			local HolderOutline = Instance.new('Frame', Inline)
+			local HolderInline = Instance.new('Frame', HolderOutline)
+			
+			-- Add title text above tabs
+			local TitleText = Instance.new("TextLabel", HolderInline)
+			TitleText.Name = "TitleText"
+			TitleText.Size = UDim2.new(1, 0, 0, 20) -- Height for title
+			TitleText.Position = UDim2.new(0, 0, 0, 0)
+			TitleText.BackgroundTransparency = 1
+			TitleText.Text = Window.Name
+			TitleText.TextColor3 = Window.Color
+			TitleText.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			TitleText.TextSize = Library.FontSize
+			TitleText.TextXAlignment = Enum.TextXAlignment.Center
+			TitleText.TextStrokeTransparency = 0
+			
+			-- Adjust tabs position to account for title
+			local Tabs = Instance.new('Frame', HolderInline)
+			Tabs.Name = "Tabs"
+			Tabs.Position = UDim2.new(0, 0, 0, 20) -- Position below title
+			Tabs.Size = UDim2.new(1, 0, 0, 22)
+			Tabs.BackgroundTransparency = 1
+			
 			-- Create window title
 			local TitleBar = Instance.new("Frame", Window.Holder)
 			TitleBar.Name = "TitleBar"
@@ -1245,27 +1273,6 @@ Library.Sections.__index = Library.Sections;
 				end
 			end
 
-			--
-			local ScreenGui = Instance.new('ScreenGui', game.CoreGui)
-			local Outline = Instance.new('Frame', ScreenGui)
-			local Inline = Instance.new('Frame', Outline)
-			local Accent = Instance.new('Frame', Inline)
-			local HolderOutline = Instance.new('Frame', Inline)
-			local HolderInline = Instance.new('Frame', HolderOutline)
-			local Tabs = Instance.new('Frame', HolderInline)
-			local UIListLayout = Instance.new('UIListLayout', Tabs)
-			local DragButton = Instance.new('TextButton', Outline)
-			local KeybindList = Library:KeybindList()
-			--
-			ScreenGui.DisplayOrder = 2
-			--
-			Outline.Name = "Outline"
-			Outline.Position = UDim2.new(0.5,0,0.5,0)
-			Outline.Size = Window.Size
-			Outline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
-			Outline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
-			Outline.AnchorPoint = Vector2.new(0.5,0.5)
-			Library.Holder = Outline
 			--
 			Inline.Name = "Inline"
 			Inline.Position = UDim2.new(0,1,0,1)
