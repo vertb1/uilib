@@ -1426,8 +1426,13 @@ Library.Sections.__index = Library.Sections;
 				end
 			end
 
+			-- Inside the Window function, replace the glow setup with:
+			local function UpdateGlow()
+				GlowHolder.Position = UDim2.new(0, -25, 0, -25)
+			end
+
 			-- Create glow effects that follow the window
-			local GlowHolder = Instance.new("Frame", Outline)  -- Changed parent to Outline
+			local GlowHolder = Instance.new("Frame", Outline)
 			GlowHolder.Name = "GlowHolder"
 			GlowHolder.BackgroundTransparency = 1
 			GlowHolder.Size = UDim2.new(1, 50, 1, 50)
@@ -1437,22 +1442,18 @@ Library.Sections.__index = Library.Sections;
 			local Glow = Instance.new("ImageLabel", GlowHolder)
 			Glow.Name = "Glow"
 			Glow.BackgroundTransparency = 1
-			Glow.Position = UDim2.new(0, 0, 0, 0)
 			Glow.Size = UDim2.new(1, 0, 1, 0)
 			Glow.Image = "rbxassetid://5028857084"
 			Glow.ImageColor3 = Color3.fromRGB(255, 170, 0)
 			Glow.ImageTransparency = 0.6
 			Glow.ZIndex = -1
 
-			local InnerGlow = Instance.new("ImageLabel", GlowHolder)
-			InnerGlow.Name = "InnerGlow"
-			InnerGlow.BackgroundTransparency = 1
-			InnerGlow.Position = UDim2.new(0, 10, 0, 10)
-			InnerGlow.Size = UDim2.new(1, -20, 1, -20)
-			InnerGlow.Image = "rbxassetid://5028857084"
-			InnerGlow.ImageColor3 = Color3.fromRGB(255, 170, 0)
-			InnerGlow.ImageTransparency = 0.8
-			InnerGlow.ZIndex = -1
+			-- Add this to the dragging code
+			Outline.Changed:Connect(function(prop)
+				if prop == "Position" then
+					UpdateGlow()
+				end
+			end)
 
 			-- Add dragging functionality that updates glow position
 			local UserInputService = game:GetService("UserInputService")
