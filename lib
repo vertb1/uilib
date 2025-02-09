@@ -1215,11 +1215,21 @@ Library.Sections.__index = Library.Sections;
 
 			-- Create window elements
 			local ScreenGui = Instance.new('ScreenGui', game.CoreGui)
+			
+			-- Add glow effect
+			local Glow = Instance.new("ImageLabel", ScreenGui)
+			Glow.Name = "Glow"
+			Glow.BackgroundTransparency = 1
+			Glow.Position = UDim2.new(0.5, -Window.Size.X.Offset/2 - 15, 0.5, -Window.Size.Y.Offset/2 - 15)
+			Glow.Size = UDim2.new(0, Window.Size.X.Offset + 30, 0, Window.Size.Y.Offset + 30)
+			Glow.Image = "rbxassetid://4996891970" -- Glow image
+			Glow.ImageColor3 = Window.Color
+			Glow.ImageTransparency = 0.9
+			
 			local Outline = Instance.new('Frame', ScreenGui)
 			local Inline = Instance.new('Frame', Outline)
-			local Accent = Instance.new('Frame', Inline)
 			
-			-- Create simple top bar with centered text
+			-- Create top bar
 			local TopBar = Instance.new("Frame", Inline)
 			TopBar.Name = "TopBar"
 			TopBar.Size = UDim2.new(1, 0, 0, 20)
@@ -1228,26 +1238,12 @@ Library.Sections.__index = Library.Sections;
 			TopBar.BorderSizePixel = 0
 			TopBar.ZIndex = 2
 
-			-- Date text (left)
-			local DateText = Instance.new("TextLabel", TopBar)
-			DateText.Name = "DateText"
-			DateText.Size = UDim2.new(0, 60, 1, 0)
-			DateText.Position = UDim2.new(0, 5, 0, 0)
-			DateText.BackgroundTransparency = 1
-			DateText.Text = os.date("%d/%m/%y")
-			DateText.TextColor3 = Window.Color
-			DateText.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-			DateText.TextSize = Library.FontSize
-			DateText.TextXAlignment = Enum.TextXAlignment.Left
-			DateText.TextStrokeTransparency = 0
-			DateText.ZIndex = 2
-
-			-- Title text (centered)
+			-- Combined date and title in center
 			local TitleText = Instance.new("TextLabel", TopBar)
 			TitleText.Name = "TitleText"
 			TitleText.Size = UDim2.new(1, 0, 1, 0)
 			TitleText.BackgroundTransparency = 1
-			TitleText.Text = Window.Name .. " | " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+			TitleText.Text = os.date("%d/%m/%y") .. "    " .. Window.Name .. " | " .. game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
 			TitleText.TextColor3 = Window.Color
 			TitleText.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			TitleText.TextSize = Library.FontSize
@@ -1255,67 +1251,134 @@ Library.Sections.__index = Library.Sections;
 			TitleText.TextStrokeTransparency = 0
 			TitleText.ZIndex = 2
 
-			-- Rest of original window setup
+			-- Create main content area
 			local HolderOutline = Instance.new('Frame', Inline)
 			local HolderInline = Instance.new('Frame', HolderOutline)
-			local Tabs = Instance.new('Frame', HolderInline)
-			local UIListLayout = Instance.new('UIListLayout', Tabs)
-			local DragButton = Instance.new('TextButton', Inline)
+			local TabHolder = Instance.new('Frame', HolderInline)
+			local TabList = Instance.new('UIListLayout', TabHolder)
 
-			-- Adjust positions to account for top bar
-			HolderOutline.Position = UDim2.new(0, 0, 0, 20)
-			HolderOutline.Size = UDim2.new(1, 0, 1, -20)
-			
-			-- Set up window properties
+			-- Set up window elements
 			Window.Holder = Outline
 			Window.Elements = {
-				TabHolder = Tabs,
+				TabHolder = TabHolder,
 				Holder = HolderInline
 			}
 
-			-- Original window setup
+			-- Configure main elements
 			Outline.Name = "Outline"
 			Outline.Position = Window.Position
 			Outline.Size = Window.Size
-			Outline.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
-			Outline.BorderColor3 = Color3.new(0,0,0)
+			Outline.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+			Outline.BorderColor3 = Color3.new(0, 0, 0)
 			Outline.Active = true
 			Outline.Draggable = true
 
 			Inline.Name = "Inline"
 			Inline.Position = UDim2.new(0, 1, 0, 1)
 			Inline.Size = UDim2.new(1, -2, 1, -2)
-			Inline.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
-			Inline.BorderColor3 = Color3.new(0,0,0)
+			Inline.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+			Inline.BorderColor3 = Color3.new(0, 0, 0)
+
+			HolderOutline.Name = "HolderOutline"
+			HolderOutline.Position = UDim2.new(0, 0, 0, 20)
+			HolderOutline.Size = UDim2.new(1, 0, 1, -20)
+			HolderOutline.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+			HolderOutline.BorderColor3 = Color3.new(0, 0, 0)
 
 			HolderInline.Name = "HolderInline"
 			HolderInline.Position = UDim2.new(0, 1, 0, 1)
 			HolderInline.Size = UDim2.new(1, -2, 1, -2)
-			HolderInline.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
-			HolderInline.BorderColor3 = Color3.new(0,0,0)
+			HolderInline.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+			HolderInline.BorderColor3 = Color3.new(0, 0, 0)
 
-			Tabs.Name = "Tabs"
-			Tabs.Size = UDim2.new(1, 0, 0, 22)
-			Tabs.BackgroundTransparency = 1
+			TabHolder.Name = "TabHolder"
+			TabHolder.Size = UDim2.new(1, 0, 0, 25)
+			TabHolder.BackgroundTransparency = 1
 
-			UIListLayout.FillDirection = Enum.FillDirection.Horizontal
-			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			TabList.FillDirection = Enum.FillDirection.Horizontal
+			TabList.SortOrder = Enum.SortOrder.LayoutOrder
+			TabList.Padding = UDim.new(0, 2)
 
-			-- Keep original methods
+			-- Add Page method
 			function Window:Page(Properties)
 				local Properties = Properties or {}
 				local Page = {
-					Window = self,
-					Name = Properties.Name or Properties.name or "Page",
-					Sections = {},
+						Window = self,
+						Name = Properties.Name or Properties.name or "Page",
+						Sections = {}
+					}
+
+				-- Create page elements
+				local TabButton = Instance.new("TextButton", self.Elements.TabHolder)
+				TabButton.Size = UDim2.new(0, 100, 1, 0)
+				TabButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+				TabButton.BorderColor3 = Color3.new(0, 0, 0)
+				TabButton.Text = Page.Name
+				TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+				TabButton.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+				TabButton.TextSize = Library.FontSize
+				TabButton.AutoButtonColor = false
+
+				-- Create page container
+				local Container = Instance.new("Frame", self.Elements.Holder)
+				Container.Size = UDim2.new(1, 0, 1, -25)
+				Container.Position = UDim2.new(0, 0, 0, 25)
+				Container.BackgroundTransparency = 1
+				Container.Visible = #self.Pages == 0
+
+				-- Create left and right columns
+				local Left = Instance.new("Frame", Container)
+				Left.Name = "Left"
+				Left.Size = UDim2.new(0.5, -2, 1, 0)
+				Left.BackgroundTransparency = 1
+
+				local Right = Instance.new("Frame", Container)
+				Right.Name = "Right"
+				Right.Size = UDim2.new(0.5, -2, 1, 0)
+				Right.Position = UDim2.new(0.5, 2, 0, 0)
+				Right.BackgroundTransparency = 1
+
+				-- Set up page elements
+				Page.Tab = TabButton
+				Page.Container = Container
+				Page.Elements = {
+					Left = Left,
+					Right = Right
 				}
+
+				-- Add Section method
+				function Page:Section(Properties)
+					local Properties = Properties or {}
+					local Section = {
+						Name = Properties.Name or "Section",
+						Side = (Properties.Side or "left"):lower(),
+						Size = Properties.Size or 100,
+						Page = self,
+						Elements = {}
+					}
+
+					-- Create section elements
+					local SectionFrame = Instance.new("Frame")
+					SectionFrame.Parent = self.Elements[Section.Side == "left" and "Left" or "Right"]
+					SectionFrame.Size = UDim2.new(1, 0, 0, Section.Size)
+					SectionFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+					SectionFrame.BorderColor3 = Color3.new(0, 0, 0)
+
+					Section.Container = SectionFrame
+					return setmetatable(Section, Library)
+				end
+
+				table.insert(self.Pages, Page)
+				self:UpdateTabs()
+				
 				return setmetatable(Page, Library)
 			end
 
+			-- Update tabs method
 			function Window:UpdateTabs()
-				for i,v in pairs(self.Pages) do
-					v.Tab.Size = UDim2.new(1/#self.Pages,0,1,0)
-					v.Tab.Position = UDim2.new((i-1)/#self.Pages,0,0,0)
+				for i, Page in pairs(self.Pages) do
+					Page.Tab.Size = UDim2.new(1/#self.Pages, 0, 1, 0)
+					Page.Tab.Position = UDim2.new((i-1)/#self.Pages, 0, 0, 0)
 				end
 			end
 
