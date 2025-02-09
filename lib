@@ -45,7 +45,17 @@ if not LPH_OBFUSCATED then
 end
 
 local font = Enum.Font.Ubuntu;
-local Library = {};
+local Library = {
+	Flags = {},
+	Theme = {
+		Accent = Color3.fromRGB(255, 170, 0),  -- Default accent color
+		FontSize = 13,
+		Font = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+	},
+	NextFlag = function()
+		return "Flag_" .. tostring(#Library.Flags + 1)
+	end
+};
 local Library = {
 	Open = true;
 	Folders = {
@@ -55,7 +65,6 @@ local Library = {
 	Accent = Color3.fromRGB(132,108,188);
 	Pages = {};
 	Sections = {};
-	Flags = {};
 	UnNamedFlags = 0;
 	ThemeObjects = {};
 	Instances = {};
