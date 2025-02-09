@@ -1,4 +1,3 @@
- 
 if isfile("menu_plex.font") then
 	delfile("menu_plex.font")
 end
@@ -640,11 +639,15 @@ Library.Sections.__index = Library.Sections;
 		end
 		--
 		function Library:SetOpen(bool)
-			if typeof(bool) == 'boolean' then
-				Library.Open = bool;
-				Library.Holder.Visible = bool;
+			if typeof(bool) ~= 'boolean' then
+				error("SetOpen requires a boolean value")
 			end
-		end;
+			
+			pcall(function()
+				Library.Open = bool
+				Library.Holder.Visible = bool
+			end)
+		end
 		--
 		function Library:ChangeAccent(Color)
 			Library.Accent = Color
@@ -769,7 +772,11 @@ Library.Sections.__index = Library.Sections;
 	end
 	-- // Color Picker Functions
 	do
+		-- // Add type checking for function parameters
 		function Library:NewPicker(name, default, defaultalpha, parent, count, flag, callback)
+			assert(type(name) == "string", "Name must be a string")
+			assert(typeof(default) == "Color3", "Default must be a Color3 value") 
+			assert(type(defaultalpha) == "number", "Default alpha must be a number")
 			-- // Instances
 			local Icon = Instance.new('TextButton', parent)
 			local IconInline = Instance.new('Frame', Icon)
@@ -1194,14 +1201,50 @@ Library.Sections.__index = Library.Sections;
 	do
 		local Pages = Library.Pages;
 		local Sections = Library.Sections;
-		function Library:Window(Options)
+		function Library:Window(Properties)
+			local Properties = Properties or {}
 			local Window = {
-				Pages = {};
-				Sections = {};
-				Elements = {};
-				Dragging = { false, UDim2.new(0, 0, 0, 0) };
-				Size = Options.Size or Options.size or UDim2.new(0, 550,0, 600);
-			};
+				Name = Properties.Name or Properties.name or "Window",
+				Color = Properties.Color or Properties.color or Color3.fromRGB(255, 255, 255),
+				Size = Properties.Size or Properties.size or UDim2.new(0, 550, 0, 600),
+				Position = Properties.Position or Properties.position or UDim2.new(0.5, -275, 0.5, -300),
+				Holder = nil
+			}
+
+			-- Create window title
+			local TitleBar = Instance.new("Frame", Window.Holder)
+			TitleBar.Name = "TitleBar"
+			TitleBar.Size = UDim2.new(1, 0, 0, 25) -- Height for title bar
+			TitleBar.Position = UDim2.new(0, 0, 0, 0)
+			TitleBar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+			TitleBar.BorderSizePixel = 0
+
+			local TitleText = Instance.new("TextLabel", TitleBar)
+			TitleText.Name = "TitleText" 
+			TitleText.Size = UDim2.new(1, 0, 1, 0)
+			TitleText.BackgroundTransparency = 1
+			TitleText.Text = Window.Name
+			TitleText.TextColor3 = Window.Color
+			TitleText.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			TitleText.TextSize = Library.FontSize
+			TitleText.TextXAlignment = Enum.TextXAlignment.Center
+			TitleText.TextStrokeTransparency = 0
+
+			-- Adjust main window position to account for title bar
+			local MainContent = Instance.new("Frame", Window.Holder)
+			MainContent.Name = "MainContent"
+			MainContent.Size = UDim2.new(1, 0, 1, -25) -- Subtract title height
+			MainContent.Position = UDim2.new(0, 0, 0, 25) -- Position below title
+			MainContent.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+			MainContent.BorderSizePixel = 0
+
+			-- Move existing window content into MainContent
+			for _, child in pairs(Window.Holder:GetChildren()) do
+				if child ~= TitleBar and child ~= MainContent then
+					child.Parent = MainContent
+				end
+			end
+
 			--
 			local ScreenGui = Instance.new('ScreenGui', game.CoreGui)
 			local Outline = Instance.new('Frame', ScreenGui)
@@ -3465,4 +3508,22 @@ Library.Sections.__index = Library.Sections;
 			NewButton.TextStrokeColor3 = Color3.new(0,0,0)
 		end
         return Library
+	end
+
+	-- // Add cleanup on destroy
+	function Library:Destroy()
+		-- Disconnect all connections
+		for _, connection in pairs(self.Connections) do
+			connection:Disconnect() 
+		end
+		
+		-- Clear references
+		self.Flags = {}
+		self.Pages = {}
+		self.Sections = {}
+		
+		-- Remove UI
+		if self.ScreenGUI then
+			self.ScreenGUI:Destroy()
+		end
 	end
