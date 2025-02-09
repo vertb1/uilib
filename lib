@@ -1,9 +1,29 @@
 -- Initialize Font system first
 getsynasset = getcustomasset or getsynasset
 
--- Improve font registration at the start
+-- Create Library table with all existing properties
+local Library = {
+    Open = true,
+    Folders = {
+        main = "test",
+        configs = "test/Configs"
+    },
+    Accent = Color3.fromRGB(132, 108, 188),
+    Pages = {},
+    Sections = {},
+    Flags = {},
+    UnNamedFlags = 0,
+    ThemeObjects = {},
+    Instances = {},
+    Connections = {},
+    Font = Enum.Font.Ubuntu,
+    FontSize = 12,
+    Notifs = {}
+}
+
+-- Initialize Font system
 if isfile("menu_plex.font") then
-	delfile("menu_plex.font")
+    delfile("menu_plex.font")
 end
 
 writefile("ProggyClean.ttf", game:HttpGet("https://github.com/f1nobe7650/other/raw/main/ProggyClean.ttf"))
