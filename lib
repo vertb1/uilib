@@ -1219,38 +1219,26 @@ Library.Sections.__index = Library.Sections;
 			local Inline = Instance.new('Frame', Outline)
 			local Accent = Instance.new('Frame', Inline)
 			
-			-- Create top bar with title and date
+			-- Create simple top bar
 			local TopBar = Instance.new("Frame", Inline)
 			TopBar.Name = "TopBar"
-			
-			TopBar.Size = UDim2.new(1, 0, 0, 25)
+			TopBar.Size = UDim2.new(1, 0, 0, 20) -- Made slightly smaller
 			TopBar.Position = UDim2.new(0, 0, 0, 0)
-			TopBar.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+			TopBar.BackgroundColor3 = Color3.fromRGB(15, 15, 15) -- Darker background
 			TopBar.BorderSizePixel = 0
 
+			-- Simple title text
 			local TitleText = Instance.new("TextLabel", TopBar)
 			TitleText.Name = "TitleText"
-			TitleText.Size = UDim2.new(0.7, 0, 1, 0)
-			TitleText.Position = UDim2.new(0, 10, 0, 0)
+			TitleText.Size = UDim2.new(1, -10, 1, 0)
+			TitleText.Position = UDim2.new(0, 5, 0, 0)
 			TitleText.BackgroundTransparency = 1
-			TitleText.Text = Window.Name .. " | " .. game:GetService("Players").LocalPlayer.Name
-			TitleText.TextColor3 = Window.Color
+			TitleText.Text = Window.Name
+			TitleText.TextColor3 = Color3.fromRGB(255, 255, 255) -- White text
 			TitleText.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			TitleText.TextSize = Library.FontSize
 			TitleText.TextXAlignment = Enum.TextXAlignment.Left
 			TitleText.TextStrokeTransparency = 0
-
-			local DateText = Instance.new("TextLabel", TopBar)
-			DateText.Name = "DateText"
-			DateText.Size = UDim2.new(0.3, -10, 1, 0)
-			DateText.Position = UDim2.new(0.7, 0, 0, 0)
-			DateText.BackgroundTransparency = 1
-			DateText.Text = os.date("%y/%m/%d")
-			DateText.TextColor3 = Window.Color
-			DateText.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-			DateText.TextSize = Library.FontSize
-			DateText.TextXAlignment = Enum.TextXAlignment.Right
-			DateText.TextStrokeTransparency = 0
 
 			-- Rest of original window setup
 			local HolderOutline = Instance.new('Frame', Inline)
@@ -1260,16 +1248,15 @@ Library.Sections.__index = Library.Sections;
 			local DragButton = Instance.new('TextButton', Inline)
 
 			-- Adjust positions to account for top bar
-			HolderOutline.Position = UDim2.new(0, 0, 0, 25)
+			HolderOutline.Position = UDim2.new(0, 0, 0, 20)
 			
-			-- Original window properties
+			-- Original window properties and methods
 			Window.Holder = Outline
 			Window.Elements = {
 				TabHolder = Tabs,
 				Holder = HolderInline
 			}
 
-			-- Original window methods
 			function Window:Page(Properties)
 				local Properties = Properties or {}
 				local Page = {
@@ -1277,7 +1264,6 @@ Library.Sections.__index = Library.Sections;
 					Name = Properties.Name or Properties.name or "Page",
 					Sections = {},
 				}
-				
 				return setmetatable(Page, Library)
 			end
 
@@ -1288,7 +1274,7 @@ Library.Sections.__index = Library.Sections;
 				end
 			end
 
-			-- Set up original window properties
+			-- Original window setup
 			Outline.Name = "Outline"
 			Outline.Position = Window.Position
 			Outline.Size = Window.Size
