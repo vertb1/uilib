@@ -1528,7 +1528,7 @@ Library.Sections.__index = Library.Sections;
             WeaponOutline.Name = "WeaponOutline"
             WeaponOutline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
             WeaponOutline.BorderColor3 = Color3.fromRGB(10, 10, 10)
-            WeaponOutline.Position = UDim2.new(0, 5, 0, 25)
+            WeaponOutline.Position = UDim2.new(0, 5, 0, 35)
             WeaponOutline.Size = UDim2.new(1, -10, 0, 40)
             WeaponOutline.Visible = false
             
@@ -1639,8 +1639,8 @@ Library.Sections.__index = Library.Sections;
             New.ScaleType = Enum.ScaleType.Fit
 			--
 			Left.Name = "Left"
-			Left.Position = UDim2.new(0,5,0,75)
-			Left.Size = UDim2.new(0.485,-3,1, -80)
+			Left.Position = UDim2.new(0,5,0,85)
+			Left.Size = UDim2.new(0.485,-3,1, -90)
 			Left.BackgroundColor3 = Color3.new(1,1,1)
 			Left.BorderSizePixel = 0
 			Left.BackgroundTransparency = 1
@@ -1649,8 +1649,8 @@ Library.Sections.__index = Library.Sections;
 			Left.ZIndex = 3
 			--
 			Right.Name = "Right"
-			Right.Position = UDim2.new(1,-5,0,75)
-			Right.Size = UDim2.new(0.485,-3,1, -80)
+			Right.Position = UDim2.new(1,-5,0,85)
+			Right.Size = UDim2.new(0.485,-3,1, -90)
 			Right.BackgroundColor3 = Color3.new(1,1,1)
 			Right.BorderSizePixel = 0
 			Right.BorderColor3 = Color3.new(0,0,0)
