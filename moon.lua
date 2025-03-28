@@ -1596,8 +1596,8 @@ Library.Sections.__index = Library.Sections;
             local WeaponOutline = Instance.new("Frame", Page.Window.Elements.Holder)
             local WeaponInline = Instance.new("Frame", WeaponOutline)
             local UIListLayout3 = Instance.new("UIListLayout", WeaponInline)
-            local Left = Instance.new('Frame', Page.Window.Elements.Holder)
-            local Right = Instance.new('Frame', Page.Window.Elements.Holder)
+            local Left = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
+            local Right = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
             local UIListLayout = Instance.new('UIListLayout', Left)
             local UIListLayout_2 = Instance.new('UIListLayout', Right)
             Left.Name = "Left"
@@ -1609,6 +1609,9 @@ Library.Sections.__index = Library.Sections;
             Left.BorderColor3 = Color3.new(0,0,0)
             Left.Visible = false
             Left.ZIndex = 3
+            Left.ClipsDescendants = true
+            Left.ScrollingEnabled = true
+            Left.ScrollBarThickness = 0
             --
             Right.Name = "Right"
             Right.Position = UDim2.new(1,-5,0,75)
@@ -1619,6 +1622,9 @@ Library.Sections.__index = Library.Sections;
             Right.AnchorPoint = Vector2.new(1,0)
             Right.Visible = false
             Right.BackgroundTransparency = 1
+            Right.ClipsDescendants = true
+            Right.ScrollingEnabled = true
+            Right.ScrollBarThickness = 0
             --
             UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
             UIListLayout.Padding = UDim.new(0,16)
@@ -1752,8 +1758,8 @@ Library.Sections.__index = Library.Sections;
 			--
             --Weapon.Window.Elements.WeaponOutline.Visible = true
 
-			local Left = Instance.new('Frame', Weapon.Window.Window.Elements.Holder)
-			local Right = Instance.new('Frame', Weapon.Window.Window.Elements.Holder)
+			local Left = Instance.new('ScrollingFrame', Weapon.Window.Window.Elements.Holder)
+			local Right = Instance.new('ScrollingFrame', Weapon.Window.Window.Elements.Holder)
 			local UIListLayout = Instance.new('UIListLayout', Left)
 			local UIListLayout_2 = Instance.new('UIListLayout', Right)
             local New = Instance.new("ImageButton")
