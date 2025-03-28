@@ -1357,8 +1357,8 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, Accent)
             --
             TitleLabel.Name = "TitleLabel"
-            TitleLabel.Position = UDim2.new(0,10,0,2)
-            TitleLabel.Size = UDim2.new(1,-20,0,16)
+            TitleLabel.Position = UDim2.new(0,10,0,1)
+            TitleLabel.Size = UDim2.new(1,-20,0,14)
             TitleLabel.BackgroundColor3 = Color3.new(1,1,1)
             TitleLabel.BackgroundTransparency = 1
             TitleLabel.BorderSizePixel = 0
@@ -1366,13 +1366,13 @@ Library.Sections.__index = Library.Sections;
             TitleLabel.Text = Window.Title
             TitleLabel.TextColor3 = Color3.new(1,1,1)
             TitleLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-            TitleLabel.TextSize = Library.FontSize + 2
+            TitleLabel.TextSize = Library.FontSize
             TitleLabel.TextXAlignment = Enum.TextXAlignment.Center
             TitleLabel.TextStrokeTransparency = 0
 			--
 			HolderOutline.Name = "HolderOutline"
-			HolderOutline.Position = UDim2.new(0,7,0,20)
-			HolderOutline.Size = UDim2.new(1,-14,1,-27)
+			HolderOutline.Position = UDim2.new(0,7,0,16)
+			HolderOutline.Size = UDim2.new(1,-14,1,-23)
 			HolderOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			HolderOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			--
@@ -1549,7 +1549,7 @@ Library.Sections.__index = Library.Sections;
             WeaponOutline.Name = "WeaponOutline"
             WeaponOutline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
             WeaponOutline.BorderColor3 = Color3.fromRGB(10, 10, 10)
-            WeaponOutline.Position = UDim2.new(0, 5, 0, 20)
+            WeaponOutline.Position = UDim2.new(0, 5, 0, 16)
             WeaponOutline.Size = UDim2.new(1, -10, 0, 40)
             WeaponOutline.Visible = false
             
