@@ -794,12 +794,17 @@ Library.Sections.__index = Library.Sections;
 		end;
 		--
 		function Library:EnableScrolling(scrollFrame)
-			self:Connection(scrollFrame.InputBegan, function(input)
-				if input.UserInputType == Enum.UserInputType.MouseWheel then
-					local scrollAmount = input.Position.Z > 0 and -30 or 30
-					scrollFrame.CanvasPosition = Vector2.new(0, math.max(0, scrollFrame.CanvasPosition.Y + scrollAmount))
-				end
-			end)
+			-- Only proceed if this is definitely a ScrollingFrame
+			if scrollFrame and typeof(scrollFrame) == "Instance" and scrollFrame.ClassName == "ScrollingFrame" then
+				pcall(function()
+					self:Connection(scrollFrame.InputBegan, function(input)
+						if input.UserInputType == Enum.UserInputType.MouseWheel then
+							local scrollAmount = input.Position.Z > 0 and -30 or 30
+							scrollFrame.CanvasPosition = Vector2.new(0, math.max(0, scrollFrame.CanvasPosition.Y + scrollAmount))
+						end
+					end)
+				end)
+			end
 		end;
 		--
 		function Library:ChangeAccent(Color)
@@ -1632,10 +1637,10 @@ Library.Sections.__index = Library.Sections;
 			Right.AnchorPoint = Vector2.new(1,0)
 			Right.Visible = false
 			Right.BackgroundTransparency = 1
-            Right.ScrollBarThickness = 0
-            Right.CanvasSize = UDim2.new(0, 0, 0, 0)
-            Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
-            Right.ElasticBehavior = Enum.ElasticBehavior.Always
+            -- Right.ScrollBarThickness = 0
+            -- Right.CanvasSize = UDim2.new(0, 0, 0, 0)
+            -- Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
+            -- Right.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
             UIListLayout.Padding = UDim.new(0,16)
@@ -1749,11 +1754,37 @@ Library.Sections.__index = Library.Sections;
 			Library:EnableScrolling(Left)
 			Library:EnableScrolling(Right)
 
+            -- Make sure Right in Weapon doesn't have these properties
+            local function removeScrollingProps(frame)
+                local success, err = pcall(function()
+                    if frame:IsA("Frame") then
+                        local metatable = getmetatable(frame)
+                        if metatable then
+                            local mt = {}
+                            mt.__index = function(t, k)
+                                if k == "ScrollBarThickness" or k == "CanvasSize" or k == "CanvasPosition" or k == "AutomaticCanvasSize" or k == "ElasticBehavior" then
+                                    return nil
+                                end
+                                return metatable.__index(t, k)
+                            end
+                            mt.__newindex = function(t, k, v)
+                                if k == "ScrollBarThickness" or k == "CanvasSize" or k == "CanvasPosition" or k == "AutomaticCanvasSize" or k == "ElasticBehavior" then
+                                    return
+                                end
+                                metatable.__newindex(t, k, v)
+                            end
+                            setmetatable(frame, mt)
+                        end
+                    end
+                end)
+            end
+
             -- // Drawings
 			if #Page.Window.Pages == 0 then
 				Page:Turn(true)
 			end
 			Page.Window.Pages[#Page.Window.Pages + 1] = Page
+			
 			Page.Window:UpdateTabs()
 			return setmetatable(Page, Library.Pages)
 		end
@@ -1809,10 +1840,10 @@ Library.Sections.__index = Library.Sections;
 			Right.AnchorPoint = Vector2.new(1,0)
 			Right.Visible = false
 			Right.BackgroundTransparency = 1
-			Right.ScrollBarThickness = 0
-			Right.CanvasSize = UDim2.new(0, 0, 0, 0)
-			Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
-			Right.ElasticBehavior = Enum.ElasticBehavior.Always
+			-- Right.ScrollBarThickness = 0
+			-- Right.CanvasSize = UDim2.new(0, 0, 0, 0)
+			-- Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
+			-- Right.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			UIListLayout.Padding = UDim.new(0,16)
