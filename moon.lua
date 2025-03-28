@@ -1623,10 +1623,6 @@ Library.Sections.__index = Library.Sections;
             Left.BorderColor3 = Color3.new(0,0,0)
             Left.Visible = false
             Left.ZIndex = 3
-            Left.ScrollBarThickness = 0
-            Left.CanvasSize = UDim2.new(0, 0, 0, 0)
-            Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
-            Left.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			Right.Name = "Right"
 			Right.Position = UDim2.new(1,-5,0,75)
@@ -1637,10 +1633,6 @@ Library.Sections.__index = Library.Sections;
 			Right.AnchorPoint = Vector2.new(1,0)
 			Right.Visible = false
 			Right.BackgroundTransparency = 1
-            -- Right.ScrollBarThickness = 0
-            -- Right.CanvasSize = UDim2.new(0, 0, 0, 0)
-            -- Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
-            -- Right.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
             UIListLayout.Padding = UDim.new(0,16)
