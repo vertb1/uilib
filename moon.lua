@@ -356,6 +356,9 @@ local crosshair_SpinAngle = 0;
 local crosshair_tick = 0;
 local buying = false; 
 local PlaceHolderUI = Instance.new("ScreenGui", game.CoreGui);
+PlaceHolderUI.Name = "KeybindListGui"
+PlaceHolderUI.DisplayOrder = 100
+PlaceHolderUI.ResetOnSpawn = false
 PlaceHolderUI.Enabled = false
 local Languages = {
     A = {English = "A", Arabic = "أ", Albanian = "A", Japanese = "あ", Spanish = "A", Russian = "А", Chinese = "阿", Urdu = "ا", French = "A", Portuguese = "A", Hindi = "अ"},
@@ -705,7 +708,7 @@ Library.Sections.__index = Library.Sections;
 			--
 			KeyInline.Name = "KeyInline"
 			KeyInline.Position = UDim2.new(0,1,0,1)
-			KeyInline.Size = UDim2.new(0,-2,0,-2)
+			KeyInline.Size = UDim2.new(1,-2,1,-2)
 			KeyInline.BackgroundColor3 = Color3.new(0.0745,0.0745,0.0745)
 			KeyInline.BorderSizePixel = 0
 			KeyInline.BorderColor3 = Color3.new(0,0,0)
@@ -716,6 +719,7 @@ Library.Sections.__index = Library.Sections;
 			KeyAccent.BackgroundColor3 = Library.Accent
 			KeyAccent.BorderSizePixel = 0
 			KeyAccent.BorderColor3 = Color3.new(0,0,0)
+			table.insert(Library.ThemeObjects, KeyAccent)
 			--
 			KeyHolder.Name = "KeyHolder"
 			KeyHolder.Position = UDim2.new(0,0,0,22)
@@ -747,7 +751,7 @@ Library.Sections.__index = Library.Sections;
 			LineThing.BorderColor3 = Color3.new(0,0,0)
 			-- Functions
 			function KeyList:SetVisible(State)
-				KeyOutline.Visible = State;
+				PlaceHolderUI.Enabled = State;
 			end;
 			--
 			function KeyList:NewKey(Name, Key, Mode)
@@ -761,7 +765,7 @@ Library.Sections.__index = Library.Sections;
 				NewValue.BackgroundTransparency = 1
 				NewValue.BorderSizePixel = 0
 				NewValue.BorderColor3 = Color3.new(0,0,0)
-				NewValue.Text = tostring(" ["..Key.."] " .. Name .. " (" .. Mode ..") ")
+				NewValue.Text = tostring(" ["..Name.."] " .. Key .. " (" .. Mode ..") ")
 				NewValue.TextColor3 = Color3.new(1,1,1)
 				NewValue.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 				NewValue.TextSize = 12
@@ -771,11 +775,16 @@ Library.Sections.__index = Library.Sections;
 				--
 				function KeyValue:SetVisible(State)
 					NewValue.Visible = State;
+					if State then
+						PlaceHolderUI.Enabled = true
+					end
 				end;
 				--
 				function KeyValue:Update(NewName, NewKey, NewMode)
 					NewValue.Text = tostring(" ["..NewName.."] " .. NewKey .. " (" .. NewMode ..") ")
 				end;
+				
+				table.insert(KeyList.Keybinds, KeyValue)
 				return KeyValue
 			end;
 			return KeyList
@@ -2196,6 +2205,11 @@ Library.Sections.__index = Library.Sections;
 				bool = type(bool) == "boolean" and bool or false
 				if Toggle.Toggled ~= bool then
 					SetState()
+				end
+				
+				-- Special handling for keybind list toggle
+				if Toggle.Flag == "Keybind List" and Library.KeyList then
+					Library.KeyList:SetVisible(bool)
 				end
 			end
 			Toggle.Set(Toggle.State)
