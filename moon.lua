@@ -506,17 +506,33 @@ Library.Sections.__index = Library.Sections;
 			end
 		
 			task.spawn(function()
-				Background.AnchorPoint = NewVector2(1,0)
-				local Tween1 = game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(0,0)}):Play()
-				local Tween2 = game:GetService("TweenService"):Create(Progress, TweenInfo.new(duration or 5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Size = UDim2.new(1,0,0,1)}):Play()
-				game:GetService("TweenService"):Create(Progress, TweenInfo.new(duration or 5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.new(0,1,0)}):Play()
-				task.wait(duration)
-				game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(1,0)}):Play()
-				for i,v in next, notification.Objects do
-					game:GetService("TweenService"):Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
+				if position == "Right" then
+					-- Right-side notifications should fade to the right
+					Background.AnchorPoint = NewVector2(0,0)
+					local Tween1 = game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(0,0)}):Play()
+					local Tween2 = game:GetService("TweenService"):Create(Progress, TweenInfo.new(duration or 5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Size = UDim2.new(1,0,0,1)}):Play()
+					game:GetService("TweenService"):Create(Progress, TweenInfo.new(duration or 5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.new(0,1,0)}):Play()
+					task.wait(duration)
+					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(0,0), Position = UDim2.new(1,0,0,0)}):Play()
+					for i,v in next, notification.Objects do
+						game:GetService("TweenService"):Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
+					end
+					game:GetService("TweenService"):Create(TextLabel, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 1}):Play()
+					game:GetService("TweenService"):Create(UIStroke, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Transparency = 1}):Play()
+				else
+					-- Left and middle notifications fade as before
+					Background.AnchorPoint = NewVector2(1,0)
+					local Tween1 = game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(0,0)}):Play()
+					local Tween2 = game:GetService("TweenService"):Create(Progress, TweenInfo.new(duration or 5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Size = UDim2.new(1,0,0,1)}):Play()
+					game:GetService("TweenService"):Create(Progress, TweenInfo.new(duration or 5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.new(0,1,0)}):Play()
+					task.wait(duration)
+					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(1,0)}):Play()
+					for i,v in next, notification.Objects do
+						game:GetService("TweenService"):Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1}):Play()
+					end
+					game:GetService("TweenService"):Create(TextLabel, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 1}):Play()
+					game:GetService("TweenService"):Create(UIStroke, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Transparency = 1}):Play()
 				end
-				game:GetService("TweenService"):Create(TextLabel, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 1}):Play()
-				game:GetService("TweenService"):Create(UIStroke, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Transparency = 1}):Play()
 			end)
 		
 			task.delay(0.25 + duration + 0.25, function()
