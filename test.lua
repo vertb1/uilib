@@ -1744,10 +1744,6 @@ Library.Sections.__index = Library.Sections;
                 WeaponOutline = WeaponOutline,
                 WeaponInline = WeaponInline,
 			}
-			
-			-- Apply scrolling to frames
-			Library:EnableScrolling(Left)
-			Library:EnableScrolling(Right)
 
             -- // Drawings
 			if #Page.Window.Pages == 0 then
@@ -1773,8 +1769,8 @@ Library.Sections.__index = Library.Sections;
 			--
             --Weapon.Window.Elements.WeaponOutline.Visible = true
 
-			local Left = Instance.new('Frame', Weapon.Window.Window.Elements.Holder)
-			local Right = Instance.new('Frame', Weapon.Window.Window.Elements.Holder)
+			local Left = Instance.new('ScrollingFrame', Weapon.Window.Window.Elements.Holder)
+			local Right = Instance.new('ScrollingFrame', Weapon.Window.Window.Elements.Holder)
 			local UIListLayout = Instance.new('UIListLayout', Left)
 			local UIListLayout_2 = Instance.new('UIListLayout', Right)
             local New = Instance.new("ImageButton")
@@ -1798,11 +1794,14 @@ Library.Sections.__index = Library.Sections;
 			Left.BorderColor3 = Color3.new(0,0,0)
 			Left.Visible = false
 			Left.ZIndex = 3
+			Left.ScrollBarThickness = 0
+			Left.CanvasSize = UDim2.new(0, 0, 0, 0)
+			Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
+			Left.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			Right.Name = "Right"
 			Right.Position = UDim2.new(1,-5,0,75)
 			Right.Size = UDim2.new(0.5,-5,1,-80)
-			
 			Right.BackgroundColor3 = Color3.new(1,1,1)
 			Right.BorderSizePixel = 0
 			Right.BorderColor3 = Color3.new(0,0,0)
