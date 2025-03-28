@@ -1296,6 +1296,7 @@ Library.Sections.__index = Library.Sections;
 				Elements = {};
 				Dragging = { false, UDim2.new(0, 0, 0, 0) };
 				Size = Options.Size or Options.size or UDim2.new(0, 550,0, 600);
+                Title = Options.Title or Options.title or "";
 			};
 			--
 			local ScreenGui = Instance.new('ScreenGui', game.CoreGui)
@@ -1307,6 +1308,7 @@ Library.Sections.__index = Library.Sections;
 			local Tabs = Instance.new('Frame', HolderInline)
 			local UIListLayout = Instance.new('UIListLayout', Tabs)
 			local DragButton = Instance.new('TextButton', Outline)
+            local TitleLabel = Instance.new('TextLabel', Inline)
 			local KeybindList = Library:KeybindList()
 			--
 			ScreenGui.DisplayOrder = 2
@@ -1332,10 +1334,24 @@ Library.Sections.__index = Library.Sections;
 			Accent.BorderSizePixel = 0
 			Accent.BorderColor3 = Color3.new(0,0,0)
 			table.insert(Library.ThemeObjects, Accent)
+            --
+            TitleLabel.Name = "TitleLabel"
+            TitleLabel.Position = UDim2.new(0,10,0,5)
+            TitleLabel.Size = UDim2.new(1,-20,0,25)
+            TitleLabel.BackgroundColor3 = Color3.new(1,1,1)
+            TitleLabel.BackgroundTransparency = 1
+            TitleLabel.BorderSizePixel = 0
+            TitleLabel.BorderColor3 = Color3.new(0,0,0)
+            TitleLabel.Text = Window.Title
+            TitleLabel.TextColor3 = Color3.new(1,1,1)
+            TitleLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+            TitleLabel.TextSize = Library.FontSize + 4
+            TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+            TitleLabel.TextStrokeTransparency = 0
 			--
 			HolderOutline.Name = "HolderOutline"
-			HolderOutline.Position = UDim2.new(0,7,0,11)
-			HolderOutline.Size = UDim2.new(1,-14,1,-18)
+			HolderOutline.Position = UDim2.new(0,7,0,35)
+			HolderOutline.Size = UDim2.new(1,-14,1,-42)
 			HolderOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			HolderOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			--
@@ -1373,8 +1389,15 @@ Library.Sections.__index = Library.Sections;
 			-- // Elements
 			Window.Elements = {
 				TabHolder = Tabs,
-				Holder = HolderInline
+				Holder = HolderInline,
+                TitleLabel = TitleLabel
 			}
+            
+            -- // Title Functions
+            function Window:UpdateTitle(newTitle)
+                Window.Title = newTitle
+                TitleLabel.Text = newTitle
+            end
 
 			-- // Dragging
 			Library:Connection(DragButton.MouseButton1Down, function()
