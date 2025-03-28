@@ -793,6 +793,15 @@ Library.Sections.__index = Library.Sections;
 			end
 		end;
 		--
+		function Library:EnableScrolling(scrollFrame)
+			self:Connection(scrollFrame.InputBegan, function(input)
+				if input.UserInputType == Enum.UserInputType.MouseWheel then
+					local scrollAmount = input.Position.Z > 0 and -30 or 30
+					scrollFrame.CanvasPosition = Vector2.new(0, math.max(0, scrollFrame.CanvasPosition.Y + scrollAmount))
+				end
+			end)
+		end;
+		--
 		function Library:ChangeAccent(Color)
 			Library.Accent = Color
 
@@ -1596,8 +1605,8 @@ Library.Sections.__index = Library.Sections;
             local WeaponOutline = Instance.new("Frame", Page.Window.Elements.Holder)
             local WeaponInline = Instance.new("Frame", WeaponOutline)
             local UIListLayout3 = Instance.new("UIListLayout", WeaponInline)
-            local Left = Instance.new('Frame', Page.Window.Elements.Holder)
-            local Right = Instance.new('Frame', Page.Window.Elements.Holder)
+            local Left = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
+            local Right = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
             local UIListLayout = Instance.new('UIListLayout', Left)
             local UIListLayout_2 = Instance.new('UIListLayout', Right)
             Left.Name = "Left"
@@ -1609,18 +1618,26 @@ Library.Sections.__index = Library.Sections;
             Left.BorderColor3 = Color3.new(0,0,0)
             Left.Visible = false
             Left.ZIndex = 3
-            --
-            Right.Name = "Right"
-            Right.Position = UDim2.new(1,-5,0,75)
-            Right.Size = UDim2.new(0.5,-5,1,-80)
-            Right.BackgroundColor3 = Color3.new(1,1,1)
-            Right.BorderSizePixel = 0
-            Right.BorderColor3 = Color3.new(0,0,0)
-            Right.AnchorPoint = Vector2.new(1,0)
-            Right.Visible = false
-            Right.BackgroundTransparency = 1
-            --
-            UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            Left.ScrollBarThickness = 0
+            Left.CanvasSize = UDim2.new(0, 0, 0, 0)
+            Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
+            Left.ElasticBehavior = Enum.ElasticBehavior.Always
+			--
+			Right.Name = "Right"
+			Right.Position = UDim2.new(1,-5,0,75)
+			Right.Size = UDim2.new(0.5,-5,1,-80)
+			Right.BackgroundColor3 = Color3.new(1,1,1)
+			Right.BorderSizePixel = 0
+			Right.BorderColor3 = Color3.new(0,0,0)
+			Right.AnchorPoint = Vector2.new(1,0)
+			Right.Visible = false
+			Right.BackgroundTransparency = 1
+            Right.ScrollBarThickness = 0
+            Right.CanvasSize = UDim2.new(0, 0, 0, 0)
+            Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
+            Right.ElasticBehavior = Enum.ElasticBehavior.Always
+			--
+			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
             UIListLayout.Padding = UDim.new(0,16)
             --
             UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
@@ -1752,8 +1769,8 @@ Library.Sections.__index = Library.Sections;
 			--
             --Weapon.Window.Elements.WeaponOutline.Visible = true
 
-			local Left = Instance.new('Frame', Weapon.Window.Window.Elements.Holder)
-			local Right = Instance.new('Frame', Weapon.Window.Window.Elements.Holder)
+			local Left = Instance.new('ScrollingFrame', Weapon.Window.Window.Elements.Holder)
+			local Right = Instance.new('ScrollingFrame', Weapon.Window.Window.Elements.Holder)
 			local UIListLayout = Instance.new('UIListLayout', Left)
 			local UIListLayout_2 = Instance.new('UIListLayout', Right)
             local New = Instance.new("ImageButton")
@@ -1777,6 +1794,10 @@ Library.Sections.__index = Library.Sections;
 			Left.BorderColor3 = Color3.new(0,0,0)
 			Left.Visible = false
 			Left.ZIndex = 3
+			Left.ScrollBarThickness = 0
+			Left.CanvasSize = UDim2.new(0, 0, 0, 0)
+			Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
+			Left.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			Right.Name = "Right"
 			Right.Position = UDim2.new(1,-5,0,75)
@@ -1787,6 +1808,10 @@ Library.Sections.__index = Library.Sections;
 			Right.AnchorPoint = Vector2.new(1,0)
 			Right.Visible = false
 			Right.BackgroundTransparency = 1
+			Right.ScrollBarThickness = 0
+			Right.CanvasSize = UDim2.new(0, 0, 0, 0)
+			Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
+			Right.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			UIListLayout.Padding = UDim.new(0,16)
