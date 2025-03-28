@@ -422,24 +422,11 @@ Library.Sections.__index = Library.Sections;
 		-- // Watermark function
 		function Library:Watermark(Properties)
 			Properties = Properties or {}
-			local Watermark = {
-				Text = Properties.Text or "Your Watermark",
-				BaseText = Properties.Text or "Your Watermark",
-				Visible = Properties.Visible ~= nil and Properties.Visible or true,
-				ShowFPS = Properties.ShowFPS ~= nil and Properties.ShowFPS or true,
-				ShowTime = Properties.ShowTime ~= nil and Properties.ShowTime or true,
-				ShowPing = Properties.ShowPing ~= nil and Properties.ShowPing or true,
-				Connections = {}
-			}
+			local Watermark = {}
 			
-			-- Check if the previous watermark exists and is a table before trying to destroy it
-			if Library.Watermark and type(Library.Watermark) == "table" and Library.Watermark.OutlineFrame then
-				-- Clean up previous watermark
-				if Library.Watermark.Destroy then
-					Library.Watermark:Destroy()
-				else
-					Library.Watermark.OutlineFrame:Destroy()
-				end
+			-- Clean up previous watermark if it exists
+			if Library.WatermarkFrame then
+				Library.WatermarkFrame:Destroy()
 			end
 			
 			-- Create watermark UI
@@ -459,6 +446,7 @@ Library.Sections.__index = Library.Sections;
 			OutlineFrame.BackgroundColor3 = Color3.new(0.1765, 0.1765, 0.1765)
 			OutlineFrame.BorderColor3 = Color3.new(0.0392, 0.0392, 0.0392)
 			OutlineFrame.AnchorPoint = Vector2.new(0.5, 0)
+			OutlineFrame.Visible = Properties.Visible ~= nil and Properties.Visible or true
 			
 			InlineFrame.Name = "InlineFrame"
 			InlineFrame.Position = UDim2.new(0, 1, 0, 1)
@@ -476,19 +464,12 @@ Library.Sections.__index = Library.Sections;
 			TextLabel.Position = UDim2.new(0, 5, 0, 0)
 			TextLabel.Size = UDim2.new(1, -10, 1, 0)
 			TextLabel.BackgroundTransparency = 1
-			TextLabel.Text = Watermark.Text
+			TextLabel.Text = Properties.Text or "Your Watermark"
 			TextLabel.TextColor3 = Color3.new(1, 1, 1)
 			TextLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			TextLabel.TextSize = Library.FontSize
 			TextLabel.TextXAlignment = Enum.TextXAlignment.Center
 			TextLabel.TextStrokeTransparency = 0
-			
-			-- Performance metrics tracking
-			local RunService = game:GetService("RunService")
-			local Stats = game:GetService("Stats")
-			local lastUpdateTime = os.clock()
-			local framesInLastSecond = 0
-			local currentFPS = 0
 			
 			-- Make watermark draggable
 			local dragging = false
@@ -503,7 +484,7 @@ Library.Sections.__index = Library.Sections;
 				end
 			end
 			
-			local connection1 = InlineFrame.InputBegan:Connect(function(input)
+			InlineFrame.InputBegan:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 then
 					dragging = true
 					dragStart = input.Position
@@ -515,143 +496,35 @@ Library.Sections.__index = Library.Sections;
 					end)
 				end
 			end)
-			table.insert(Watermark.Connections, connection1)
 			
-			local connection2 = InlineFrame.InputChanged:Connect(function(input)
+			InlineFrame.InputChanged:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseMovement then
 					dragInput = input
 				end
 			end)
-			table.insert(Watermark.Connections, connection2)
 			
-			local connection3 = game:GetService("UserInputService").InputChanged:Connect(function(input)
+			game:GetService("UserInputService").InputChanged:Connect(function(input)
 				if input == dragInput and dragging then
 					updateDrag(input)
 				end
 			end)
-			table.insert(Watermark.Connections, connection3)
 			
-			-- Store in Library
-			Watermark.OutlineFrame = OutlineFrame
-			Watermark.TextLabel = TextLabel
-			Watermark.GUI = WatermarkGui
-			
-			-- Functions
+			-- Define functions
 			function Watermark:SetVisible(visible)
 				OutlineFrame.Visible = visible
-				Watermark.Visible = visible
 			end
 			
 			function Watermark:SetText(text)
-				Watermark.BaseText = text
-				Watermark:UpdateText()
-			end
-			
-			function Watermark:UpdateText()
-				local displayText = Watermark.BaseText
-				local additionalInfo = {}
-				
-				-- Add time if enabled
-				if Watermark.ShowTime then
-					local timeString = os.date("%H:%M:%S")
-					table.insert(additionalInfo, timeString)
-				end
-				
-				-- Add FPS if enabled
-				if Watermark.ShowFPS then
-					table.insert(additionalInfo, currentFPS .. " fps")
-				end
-				
-				-- Add ping if enabled
-				if Watermark.ShowPing then
-					local ping = 0
-					pcall(function()
-						-- Try the most common method first
-						ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"].Average * 1000)
-					end)
-					
-					-- If ping is still 0, try alternative methods
-					if ping == 0 then
-						pcall(function()
-							ping = math.floor(game:GetService("Stats").PerformanceStats.Ping:GetValue())
-						end)
-					end
-					
-					-- Final fallback - just show 0 if nothing works
-					table.insert(additionalInfo, ping .. "ms")
-				end
-				
-				-- Combine all info
-				if #additionalInfo > 0 then
-					displayText = displayText .. " | " .. table.concat(additionalInfo, " | ")
-				end
-				
-				TextLabel.Text = displayText
-				
-				-- Adjust width based on text
+				TextLabel.Text = text
 				local textBounds = TextLabel.TextBounds
 				OutlineFrame.Size = UDim2.new(0, math.max(textBounds.X + 20, 100), 0, 25)
 			end
 			
-			function Watermark:UpdateFPS()
-				framesInLastSecond = framesInLastSecond + 1
-				
-				local currentTime = os.clock()
-				local deltaTime = currentTime - lastUpdateTime
-				
-				if deltaTime >= 1 then
-					currentFPS = math.floor(framesInLastSecond / deltaTime)
-					framesInLastSecond = 0
-					lastUpdateTime = currentTime
-					Watermark:UpdateText()
-				end
-			end
-			
-			-- Cleanup function
-			function Watermark:Destroy()
-				-- Disconnect all connections
-				for _, connection in pairs(Watermark.Connections) do
-					if connection and typeof(connection) == "RBXScriptConnection" and connection.Connected then
-						connection:Disconnect()
-					end
-				end
-				
-				-- Remove from theme objects
-				local index = table.find(Library.ThemeObjects, AccentBar)
-				if index then
-					table.remove(Library.ThemeObjects, index)
-				end
-				
-				-- Destroy GUI elements
-				if Watermark.GUI and Watermark.GUI.Parent then
-					Watermark.GUI:Destroy()
-				end
-				
-				-- Clear references
-				Library.Watermark = nil
-			end
-			
-			-- Start update loop for FPS counter
-			local connection4 = RunService.RenderStepped:Connect(function()
-				if Watermark.Visible then
-					Watermark:UpdateFPS()
-				end
-			end)
-			table.insert(Watermark.Connections, connection4)
-			
-			-- Timer for regular updates (for time and ping)
-			local connection5 = RunService.Heartbeat:Connect(function()
-				if Watermark.Visible and (Watermark.ShowTime or Watermark.ShowPing) then
-					Watermark:UpdateText()
-				end
-			end)
-			table.insert(Watermark.Connections, connection5)
-			
-			-- Initialize
-			Watermark:UpdateText()
-			Watermark:SetVisible(Watermark.Visible)
-			
+			-- Store references
+			Library.WatermarkFrame = OutlineFrame
+			Library.WatermarkText = TextLabel
 			Library.Watermark = Watermark
+			
 			return Watermark
 		end
 		-- 
