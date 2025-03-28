@@ -1602,7 +1602,7 @@ Library.Sections.__index = Library.Sections;
             local UIListLayout_2 = Instance.new('UIListLayout', Right)
             Left.Name = "Left"
             Left.Position = UDim2.new(0,5,0,75)
-            Left.Size = UDim2.new(0.485,-3,1,-80)
+            Left.Size = UDim2.new(0.5,-10,1,-80)
             Left.BackgroundColor3 = Color3.new(1,1,1)
             Left.BorderSizePixel = 0
             Left.BackgroundTransparency = 1
@@ -1612,7 +1612,7 @@ Library.Sections.__index = Library.Sections;
             --
             Right.Name = "Right"
             Right.Position = UDim2.new(1,-5,0,75)
-            Right.Size = UDim2.new(0.485,-3,1,-80)
+            Right.Size = UDim2.new(0.5,-10,1,-80)
             Right.BackgroundColor3 = Color3.new(1,1,1)
             Right.BorderSizePixel = 0
             Right.BorderColor3 = Color3.new(0,0,0)
@@ -1621,10 +1621,10 @@ Library.Sections.__index = Library.Sections;
             Right.BackgroundTransparency = 1
             --
             UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout.Padding = UDim.new(0,12)
+            UIListLayout.Padding = UDim.new(0,8)
             --
             UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout_2.Padding = UDim.new(0,12)
+            UIListLayout_2.Padding = UDim.new(0,8)
 			--
 			TabButton.Name = "TabButton"
 			TabButton.Size = UDim2.new(0.25,0,1,0)
@@ -1658,7 +1658,7 @@ Library.Sections.__index = Library.Sections;
             WeaponOutline.Name = "WeaponOutline"
             WeaponOutline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
             WeaponOutline.BorderColor3 = Color3.fromRGB(10, 10, 10)
-            WeaponOutline.Position = UDim2.new(0, 5, 0, 16)
+            WeaponOutline.Position = UDim2.new(0, 5, 0, 27)
             WeaponOutline.Size = UDim2.new(1, -10, 0, 40)
             WeaponOutline.Visible = false
             
@@ -1770,7 +1770,7 @@ Library.Sections.__index = Library.Sections;
 			--
 			Left.Name = "Left"
 			Left.Position = UDim2.new(0,5,0,75)
-			Left.Size = UDim2.new(0.485,-3,1,-80)
+			Left.Size = UDim2.new(0.5,-10,1,-80)
 			Left.BackgroundColor3 = Color3.new(1,1,1)
 			Left.BorderSizePixel = 0
 			Left.BackgroundTransparency = 1
@@ -1780,7 +1780,7 @@ Library.Sections.__index = Library.Sections;
 			--
 			Right.Name = "Right"
 			Right.Position = UDim2.new(1,-5,0,75)
-			Right.Size = UDim2.new(0.485,-3,1,-80)
+			Right.Size = UDim2.new(0.5,-10,1,-80)
 			Right.BackgroundColor3 = Color3.new(1,1,1)
 			Right.BorderSizePixel = 0
 			Right.BorderColor3 = Color3.new(0,0,0)
@@ -1789,10 +1789,10 @@ Library.Sections.__index = Library.Sections;
 			Right.BackgroundTransparency = 1
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0,12)
+			UIListLayout.Padding = UDim.new(0,8)
 			--
 			UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout_2.Padding = UDim.new(0,12)
+			UIListLayout_2.Padding = UDim.new(0,8)
 			
 			function Weapon:Turn(bool)
 				Weapon.Open = bool
@@ -1841,6 +1841,7 @@ Library.Sections.__index = Library.Sections;
 				ZIndex = Properties.ZIndex or 1, -- Idfk why
 				Elements = {},
 				Content = {},
+				Size = Properties.Size or Properties.size or nil,
 			}
 			--
 			local SectionOutline = Instance.new('Frame', Section.Side == "left" and Section.Page.Elements.Left or Section.Side == "right" and Section.Page.Elements.Right)
@@ -1853,10 +1854,14 @@ Library.Sections.__index = Library.Sections;
 			local TextBorder = Instance.new('Frame', SectionOutline)	
 			--
 			SectionOutline.Name = "SectionOutline"
-			SectionOutline.Size = UDim2.new(1,0,0,20)
+			if Section.Size then
+				SectionOutline.Size = UDim2.new(1,0,0,Section.Size)
+			else
+				SectionOutline.Size = UDim2.new(1,0,0,20)
+				SectionOutline.AutomaticSize = Enum.AutomaticSize.Y
+			end
 			SectionOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			SectionOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
-			SectionOutline.AutomaticSize = Enum.AutomaticSize.Y
 			SectionOutline.ZIndex = Section.ZIndex
 			--
 			
