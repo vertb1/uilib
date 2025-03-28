@@ -2747,18 +2747,32 @@ Library.Sections.__index = Library.Sections;
 			local UIListLayout = Instance.new('UIListLayout', ContainerInline)
 			--
 			NewDrop.Name = "NewDrop"
-			NewDrop.Size = UDim2.new(1,0,0,30)
+			NewDrop.Size = UDim2.new(1,0,0,16)
 			NewDrop.BackgroundColor3 = Color3.new(1,1,1)
 			NewDrop.BackgroundTransparency = 1
 			NewDrop.BorderSizePixel = 0
 			NewDrop.BorderColor3 = Color3.new(0,0,0)
 			--
+			Title.Name = "Title"
+			Title.Position = UDim2.new(0,15,0,0)
+			Title.Size = UDim2.new(1,-15,1,0)
+			Title.BackgroundColor3 = Color3.new(1,1,1)
+			Title.BackgroundTransparency = 1
+			Title.BorderSizePixel = 0
+			Title.BorderColor3 = Color3.new(0,0,0)
+			Title.Text = Dropdown.Name
+			Title.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
+			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			Title.TextSize = Library.FontSize
+			Title.TextXAlignment = Enum.TextXAlignment.Left
+			Title.TextStrokeTransparency = 0
+			--
 			Outline.Name = "Outline"
-			Outline.Position = UDim2.new(0,15,1,0)
+			Outline.Position = UDim2.new(1,0,0.5,12)
 			Outline.Size = UDim2.new(1,-30,0,16)
-			Outline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
-			Outline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
-			Outline.AnchorPoint = NewVector2(0,1)
+			Outline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+			Outline.BorderColor3 = Color3.fromRGB(10, 10, 10)
+			Outline.AnchorPoint = Vector2.new(1,0)
 			Outline.Text = ""
 			Outline.AutoButtonColor = false
 			--
@@ -2796,20 +2810,6 @@ Library.Sections.__index = Library.Sections;
 			Icon.TextSize = Library.FontSize
 			Icon.TextXAlignment = Enum.TextXAlignment.Right
 			Icon.TextStrokeTransparency = 0
-			--
-			Title.Name = "Title"
-			Title.Position = UDim2.new(0,15,0,0)
-			Title.Size = UDim2.new(1,0,0,10)
-			Title.BackgroundColor3 = Color3.new(1,1,1)
-			Title.BackgroundTransparency = 1
-			Title.BorderSizePixel = 0
-			Title.BorderColor3 = Color3.new(0,0,0)
-			Title.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
-			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-			Title.TextSize = Library.FontSize
-			Title.TextXAlignment = Enum.TextXAlignment.Left
-			Title.TextStrokeTransparency = 0
-			Title.Text = Dropdown.Name
 			--
 			ContainerOutline.Name = "ContainerOutline"
 			ContainerOutline.Position = UDim2.new(0,15,1,2)
@@ -3710,7 +3710,7 @@ Library.Sections.__index = Library.Sections;
 			local NewButton = Instance.new('TextLabel', Label.Section.Elements.SectionContent) -- ya im lazy
 			--
 			NewButton.Name = "NewButton"
-			NewButton.Size = UDim2.new(1,0,0,12)
+			NewButton.Size = UDim2.new(1,0,0,24)
 			NewButton.BackgroundColor3 = Color3.new(1,1,1)
 			NewButton.BackgroundTransparency = 1
 			NewButton.BorderSizePixel = 0
@@ -3720,8 +3720,15 @@ Library.Sections.__index = Library.Sections;
 			NewButton.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			NewButton.TextSize = Library.FontSize
 			NewButton.TextXAlignment = Label.Centered and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
+			NewButton.TextYAlignment = Enum.TextYAlignment.Center
 			NewButton.TextStrokeTransparency = 0
 			NewButton.TextStrokeColor3 = Color3.new(0,0,0)
+			NewButton.TextWrapped = true
+			
+			-- Adjust height based on content
+			if string.find(Label.Name, "\n") then
+				NewButton.Size = UDim2.new(1, 0, 0, 36)
+			end
 		end
         return Library
 	end
