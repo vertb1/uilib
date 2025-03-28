@@ -418,6 +418,123 @@ Library.Sections.__index = Library.Sections;
 				game:GetService("TweenService"):Create(v.Container, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0,Position.X,0,Position.Y + (i * 35))}):Play()
 			end 
 		end
+
+		-- // Watermark function
+		function Library:Watermark(Properties)
+			Properties = Properties or {}
+			local Watermark = {
+				Text = Properties.Text or "Your Watermark",
+				Visible = Properties.Visible ~= nil and Properties.Visible or true
+			}
+			
+			if Library.Watermark then
+				Library.Watermark.OutlineFrame:Destroy()
+			end
+			
+			-- Create watermark UI
+			local WatermarkGui = Instance.new("ScreenGui", game.CoreGui)
+			WatermarkGui.Name = "Watermark"
+			WatermarkGui.DisplayOrder = 100
+			WatermarkGui.ResetOnSpawn = false
+			
+			local OutlineFrame = Instance.new("Frame", WatermarkGui)
+			local InlineFrame = Instance.new("Frame", OutlineFrame)
+			local AccentBar = Instance.new("Frame", InlineFrame)
+			local TextLabel = Instance.new("TextLabel", InlineFrame)
+			
+			OutlineFrame.Name = "OutlineFrame"
+			OutlineFrame.Position = UDim2.new(0.5, 0, 0, 5)
+			OutlineFrame.Size = UDim2.new(0, 250, 0, 25)
+			OutlineFrame.BackgroundColor3 = Color3.new(0.1765, 0.1765, 0.1765)
+			OutlineFrame.BorderColor3 = Color3.new(0.0392, 0.0392, 0.0392)
+			OutlineFrame.AnchorPoint = Vector2.new(0.5, 0)
+			
+			InlineFrame.Name = "InlineFrame"
+			InlineFrame.Position = UDim2.new(0, 1, 0, 1)
+			InlineFrame.Size = UDim2.new(1, -2, 1, -2)
+			InlineFrame.BackgroundColor3 = Color3.new(0.0784, 0.0784, 0.0784)
+			InlineFrame.BorderSizePixel = 0
+			
+			AccentBar.Name = "AccentBar"
+			AccentBar.Size = UDim2.new(1, 0, 0, 1)
+			AccentBar.BackgroundColor3 = Library.Accent
+			AccentBar.BorderSizePixel = 0
+			table.insert(Library.ThemeObjects, AccentBar)
+			
+			TextLabel.Name = "TextLabel"
+			TextLabel.Position = UDim2.new(0, 5, 0, 0)
+			TextLabel.Size = UDim2.new(1, -10, 1, 0)
+			TextLabel.BackgroundTransparency = 1
+			TextLabel.Text = Watermark.Text
+			TextLabel.TextColor3 = Color3.new(1, 1, 1)
+			TextLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			TextLabel.TextSize = Library.FontSize
+			TextLabel.TextXAlignment = Enum.TextXAlignment.Center
+			TextLabel.TextStrokeTransparency = 0
+			
+			-- Make watermark draggable
+			local dragging = false
+			local dragInput = nil
+			local dragStart = nil
+			local startPos = nil
+			
+			local function updateDrag(input)
+				if dragging and input then
+					local delta = input.Position - dragStart
+					OutlineFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+				end
+			end
+			
+			InlineFrame.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					dragging = true
+					dragStart = input.Position
+					startPos = OutlineFrame.Position
+					input.Changed:Connect(function()
+						if input.UserInputState == Enum.UserInputState.End then
+							dragging = false
+						end
+					end)
+				end
+			end)
+			
+			InlineFrame.InputChanged:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseMovement then
+					dragInput = input
+				end
+			end)
+			
+			game:GetService("UserInputService").InputChanged:Connect(function(input)
+				if input == dragInput and dragging then
+					updateDrag(input)
+				end
+			end)
+			
+			-- Store in Library
+			Watermark.OutlineFrame = OutlineFrame
+			Watermark.TextLabel = TextLabel
+			
+			-- Functions
+			function Watermark:SetVisible(visible)
+				OutlineFrame.Visible = visible
+				Watermark.Visible = visible
+			end
+			
+			function Watermark:SetText(text)
+				TextLabel.Text = text
+				Watermark.Text = text
+				-- Adjust width based on text
+				local textBounds = TextLabel.TextBounds
+				OutlineFrame.Size = UDim2.new(0, math.max(textBounds.X + 20, 100), 0, 25)
+			end
+			
+			-- Initialize
+			Watermark:SetText(Watermark.Text)
+			Watermark:SetVisible(Watermark.Visible)
+			
+			Library.Watermark = Watermark
+			return Watermark
+		end
 		-- 
 		function Library:Notification(message, duration, color, position)
 			local notification = {Container = nil, Objects = {}}
