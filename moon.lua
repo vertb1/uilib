@@ -700,11 +700,12 @@ Library.Sections.__index = Library.Sections;
 			local LineThing = Instance.new('Frame', KeyInline)
 			--
 			KeyOutline.Name = "KeyOutline"
-			KeyOutline.Position = UDim2.new(0.01,0,0.5,0)
+			KeyOutline.Position = UDim2.new(0.98,0,0.5,0)
 			KeyOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			KeyOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
-			KeyOutline.AnchorPoint = NewVector2(0.009999999776482582,0.5)
-			KeyOutline.AutomaticSize = Enum.AutomaticSize.XY
+			KeyOutline.AnchorPoint = NewVector2(1,0.5)
+			KeyOutline.AutomaticSize = Enum.AutomaticSize.Y
+			KeyOutline.Size = UDim2.new(0,180,0,22)
 			--
 			KeyInline.Name = "KeyInline"
 			KeyInline.Position = UDim2.new(0,1,0,1)
@@ -712,7 +713,7 @@ Library.Sections.__index = Library.Sections;
 			KeyInline.BackgroundColor3 = Color3.new(0.0745,0.0745,0.0745)
 			KeyInline.BorderSizePixel = 0
 			KeyInline.BorderColor3 = Color3.new(0,0,0)
-			KeyInline.AutomaticSize = Enum.AutomaticSize.XY
+			KeyInline.AutomaticSize = Enum.AutomaticSize.Y
 			--
 			KeyAccent.Name = "KeyAccent"
 			KeyAccent.Size = UDim2.new(1,0,0,1)
@@ -727,9 +728,11 @@ Library.Sections.__index = Library.Sections;
 			KeyHolder.BackgroundTransparency = 1
 			KeyHolder.BorderSizePixel = 0
 			KeyHolder.BorderColor3 = Color3.new(0,0,0)
-			KeyHolder.AutomaticSize = Enum.AutomaticSize.XY
+			KeyHolder.AutomaticSize = Enum.AutomaticSize.Y
+			KeyHolder.Size = UDim2.new(1,0,0,0)
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout.Padding = UDim.new(0,2)
 			--
 			KeyTitle.Name = "KeyTitle"
 			KeyTitle.Size = UDim2.new(1,0,0,20)
@@ -760,23 +763,26 @@ Library.Sections.__index = Library.Sections;
 				local NewValue = Instance.new('TextLabel', KeyHolder)
 				--
 				NewValue.Name = "NewValue"
-				NewValue.Size = UDim2.new(0,0,0,15)
+				NewValue.Size = UDim2.new(1,0,0,15)
 				NewValue.BackgroundColor3 = Color3.new(1,1,1)
 				NewValue.BackgroundTransparency = 1
 				NewValue.BorderSizePixel = 0
+				
 				NewValue.BorderColor3 = Color3.new(0,0,0)
 				NewValue.Text = tostring(" ["..Name.."] " .. Key .. " (" .. Mode ..") ")
-				NewValue.TextColor3 = Color3.new(1,1,1)
+				NewValue.TextColor3 = Color3.new(0.5,0.5,0.5) -- Default inactive color
 				NewValue.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 				NewValue.TextSize = 12
-				NewValue.AutomaticSize = Enum.AutomaticSize.X
 				NewValue.TextXAlignment = Enum.TextXAlignment.Left
-				NewValue.Visible = false
+				NewValue.Visible = true
 				--
 				function KeyValue:SetVisible(State)
-					NewValue.Visible = State;
 					if State then
-						PlaceHolderUI.Enabled = true
+						-- Active keybind
+						NewValue.TextColor3 = Color3.new(1,1,1)
+					else
+						-- Inactive keybind
+						NewValue.TextColor3 = Color3.new(0.5,0.5,0.5)
 					end
 				end;
 				--
