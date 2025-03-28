@@ -564,7 +564,20 @@ Library.Sections.__index = Library.Sections;
 				
 				-- Add ping if enabled
 				if Watermark.ShowPing then
-					local ping = math.floor(Stats:GetValue("NetworkPing") * 1000)
+					local ping = 0
+					pcall(function()
+						-- Try the most common method first
+						ping = math.floor(game:GetService("Stats").Network.ServerStatsItem["Data Ping"].Average * 1000)
+					end)
+					
+					-- If ping is still 0, try alternative methods
+					if ping == 0 then
+						pcall(function()
+							ping = math.floor(game:GetService("Stats").PerformanceStats.Ping:GetValue())
+						end)
+					end
+					
+					-- Final fallback - just show 0 if nothing works
 					table.insert(additionalInfo, ping .. "ms")
 				end
 				
