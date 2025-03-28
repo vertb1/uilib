@@ -424,11 +424,22 @@ Library.Sections.__index = Library.Sections;
 			Properties = Properties or {}
 			local Watermark = {
 				Text = Properties.Text or "Your Watermark",
-				Visible = Properties.Visible ~= nil and Properties.Visible or true
+				BaseText = Properties.Text or "Your Watermark",
+				Visible = Properties.Visible ~= nil and Properties.Visible or true,
+				ShowFPS = Properties.ShowFPS ~= nil and Properties.ShowFPS or true,
+				ShowTime = Properties.ShowTime ~= nil and Properties.ShowTime or true,
+				ShowPing = Properties.ShowPing ~= nil and Properties.ShowPing or true,
+				Connections = {}
 			}
 			
-			if Library.Watermark then
-				Library.Watermark.OutlineFrame:Destroy()
+			-- Check if the previous watermark exists and is a table before trying to destroy it
+			if Library.Watermark and type(Library.Watermark) == "table" and Library.Watermark.OutlineFrame then
+				-- Clean up previous watermark
+				if Library.Watermark.Destroy then
+					Library.Watermark:Destroy()
+				else
+					Library.Watermark.OutlineFrame:Destroy()
+				end
 			end
 			
 			-- Create watermark UI
@@ -472,6 +483,13 @@ Library.Sections.__index = Library.Sections;
 			TextLabel.TextXAlignment = Enum.TextXAlignment.Center
 			TextLabel.TextStrokeTransparency = 0
 			
+			-- Performance metrics tracking
+			local RunService = game:GetService("RunService")
+			local Stats = game:GetService("Stats")
+			local lastUpdateTime = os.clock()
+			local framesInLastSecond = 0
+			local currentFPS = 0
+			
 			-- Make watermark draggable
 			local dragging = false
 			local dragInput = nil
@@ -485,7 +503,7 @@ Library.Sections.__index = Library.Sections;
 				end
 			end
 			
-			InlineFrame.InputBegan:Connect(function(input)
+			local connection1 = InlineFrame.InputBegan:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 then
 					dragging = true
 					dragStart = input.Position
@@ -497,22 +515,26 @@ Library.Sections.__index = Library.Sections;
 					end)
 				end
 			end)
+			table.insert(Watermark.Connections, connection1)
 			
-			InlineFrame.InputChanged:Connect(function(input)
+			local connection2 = InlineFrame.InputChanged:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseMovement then
 					dragInput = input
 				end
 			end)
+			table.insert(Watermark.Connections, connection2)
 			
-			game:GetService("UserInputService").InputChanged:Connect(function(input)
+			local connection3 = game:GetService("UserInputService").InputChanged:Connect(function(input)
 				if input == dragInput and dragging then
 					updateDrag(input)
 				end
 			end)
+			table.insert(Watermark.Connections, connection3)
 			
 			-- Store in Library
 			Watermark.OutlineFrame = OutlineFrame
 			Watermark.TextLabel = TextLabel
+			Watermark.GUI = WatermarkGui
 			
 			-- Functions
 			function Watermark:SetVisible(visible)
@@ -521,15 +543,99 @@ Library.Sections.__index = Library.Sections;
 			end
 			
 			function Watermark:SetText(text)
-				TextLabel.Text = text
-				Watermark.Text = text
+				Watermark.BaseText = text
+				Watermark:UpdateText()
+			end
+			
+			function Watermark:UpdateText()
+				local displayText = Watermark.BaseText
+				local additionalInfo = {}
+				
+				-- Add time if enabled
+				if Watermark.ShowTime then
+					local timeString = os.date("%H:%M:%S")
+					table.insert(additionalInfo, timeString)
+				end
+				
+				-- Add FPS if enabled
+				if Watermark.ShowFPS then
+					table.insert(additionalInfo, currentFPS .. " fps")
+				end
+				
+				-- Add ping if enabled
+				if Watermark.ShowPing then
+					local ping = math.floor(Stats:GetValue("NetworkPing") * 1000)
+					table.insert(additionalInfo, ping .. "ms")
+				end
+				
+				-- Combine all info
+				if #additionalInfo > 0 then
+					displayText = displayText .. " | " .. table.concat(additionalInfo, " | ")
+				end
+				
+				TextLabel.Text = displayText
+				
 				-- Adjust width based on text
 				local textBounds = TextLabel.TextBounds
 				OutlineFrame.Size = UDim2.new(0, math.max(textBounds.X + 20, 100), 0, 25)
 			end
 			
+			function Watermark:UpdateFPS()
+				framesInLastSecond = framesInLastSecond + 1
+				
+				local currentTime = os.clock()
+				local deltaTime = currentTime - lastUpdateTime
+				
+				if deltaTime >= 1 then
+					currentFPS = math.floor(framesInLastSecond / deltaTime)
+					framesInLastSecond = 0
+					lastUpdateTime = currentTime
+					Watermark:UpdateText()
+				end
+			end
+			
+			-- Cleanup function
+			function Watermark:Destroy()
+				-- Disconnect all connections
+				for _, connection in pairs(Watermark.Connections) do
+					if connection and typeof(connection) == "RBXScriptConnection" and connection.Connected then
+						connection:Disconnect()
+					end
+				end
+				
+				-- Remove from theme objects
+				local index = table.find(Library.ThemeObjects, AccentBar)
+				if index then
+					table.remove(Library.ThemeObjects, index)
+				end
+				
+				-- Destroy GUI elements
+				if Watermark.GUI and Watermark.GUI.Parent then
+					Watermark.GUI:Destroy()
+				end
+				
+				-- Clear references
+				Library.Watermark = nil
+			end
+			
+			-- Start update loop for FPS counter
+			local connection4 = RunService.RenderStepped:Connect(function()
+				if Watermark.Visible then
+					Watermark:UpdateFPS()
+				end
+			end)
+			table.insert(Watermark.Connections, connection4)
+			
+			-- Timer for regular updates (for time and ping)
+			local connection5 = RunService.Heartbeat:Connect(function()
+				if Watermark.Visible and (Watermark.ShowTime or Watermark.ShowPing) then
+					Watermark:UpdateText()
+				end
+			end)
+			table.insert(Watermark.Connections, connection5)
+			
 			-- Initialize
-			Watermark:SetText(Watermark.Text)
+			Watermark:UpdateText()
 			Watermark:SetVisible(Watermark.Visible)
 			
 			Library.Watermark = Watermark
@@ -545,7 +651,7 @@ Library.Sections.__index = Library.Sections;
 			local UIStroke = Instance.new('UIStroke', Outline)
 			local TextLabel = Instance.new('TextLabel', Background)
 			local Accemt = Instance.new('Frame', Background)
-			local Progress = Instance.new('Frame', Background)
+			local Progress = Instance.new('Frame', Background)z
 			--
 			local Position
 			if position == "Middle" then
