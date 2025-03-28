@@ -1,4 +1,3 @@
- 
 if isfile("menu_plex.font") then
 	delfile("menu_plex.font")
 end
@@ -698,12 +697,13 @@ Library.Sections.__index = Library.Sections;
 			local UIListLayout = Instance.new('UIListLayout', KeyHolder)
 			local KeyTitle = Instance.new('TextLabel', KeyInline)
 			local LineThing = Instance.new('Frame', KeyInline)
+			local DragButton = Instance.new('TextButton', KeyInline)
 			--
 			KeyOutline.Name = "KeyOutline"
-			KeyOutline.Position = UDim2.new(0.98,0,0.5,0)
+			KeyOutline.Position = UDim2.new(0.02,0,0.5,0)
 			KeyOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			KeyOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
-			KeyOutline.AnchorPoint = NewVector2(1,0.5)
+			KeyOutline.AnchorPoint = NewVector2(0,0.5)
 			KeyOutline.AutomaticSize = Enum.AutomaticSize.Y
 			KeyOutline.Size = UDim2.new(0,180,0,22)
 			--
@@ -752,6 +752,50 @@ Library.Sections.__index = Library.Sections;
 			LineThing.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			LineThing.BorderSizePixel = 0
 			LineThing.BorderColor3 = Color3.new(0,0,0)
+			--
+			DragButton.Name = "DragButton"
+			DragButton.Size = UDim2.new(1,0,0,20)
+			DragButton.BackgroundColor3 = Color3.new(1,1,1)
+			DragButton.BackgroundTransparency = 1
+			DragButton.BorderSizePixel = 0
+			DragButton.BorderColor3 = Color3.new(0,0,0)
+			DragButton.Text = ""
+			DragButton.TextColor3 = Color3.new(0,0,0)
+			DragButton.ZIndex = 10
+			
+			-- Dragging functionality
+			local dragging = false
+			local dragOffset = UDim2.new(0,0,0,0)
+			
+			Library:Connection(DragButton.MouseButton1Down, function()
+				dragging = true
+				local mousePosition = game:GetService("UserInputService"):GetMouseLocation()
+				dragOffset = UDim2.new(
+					0, 
+					KeyOutline.AbsolutePosition.X - mousePosition.X, 
+					0, 
+					KeyOutline.AbsolutePosition.Y - mousePosition.Y
+				)
+			end)
+			
+			Library:Connection(game:GetService("UserInputService").InputEnded, function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					dragging = false
+				end
+			end)
+			
+			Library:Connection(game:GetService("UserInputService").InputChanged, function(input)
+				if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+					local mousePosition = game:GetService("UserInputService"):GetMouseLocation()
+					KeyOutline.Position = UDim2.new(
+						0,
+						mousePosition.X + dragOffset.X.Offset,
+						0,
+						mousePosition.Y + dragOffset.Y.Offset
+					)
+				end
+			end)
+			
 			-- Functions
 			function KeyList:SetVisible(State)
 				PlaceHolderUI.Enabled = State;
