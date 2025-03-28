@@ -1612,7 +1612,7 @@ Library.Sections.__index = Library.Sections;
             --
             Right.Name = "Right"
             Right.Position = UDim2.new(1,-5,0,75)
-            Right.Size = UDim2.new(0.5,-10,1,-80)
+            Right.Size = UDim2.new(0.5,-5,1,-80)
             Right.BackgroundColor3 = Color3.new(1,1,1)
             Right.BorderSizePixel = 0
             Right.BorderColor3 = Color3.new(0,0,0)
@@ -1621,10 +1621,10 @@ Library.Sections.__index = Library.Sections;
             Right.BackgroundTransparency = 1
             --
             UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout.Padding = UDim.new(0,8)
+            UIListLayout.Padding = UDim.new(0,16)
             --
             UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout_2.Padding = UDim.new(0,8)
+            UIListLayout_2.Padding = UDim.new(0,16)
 			--
 			TabButton.Name = "TabButton"
 			TabButton.Size = UDim2.new(0.25,0,1,0)
@@ -1780,7 +1780,7 @@ Library.Sections.__index = Library.Sections;
 			--
 			Right.Name = "Right"
 			Right.Position = UDim2.new(1,-5,0,75)
-			Right.Size = UDim2.new(0.5,-10,1,-80)
+			Right.Size = UDim2.new(0.5,-5,1,-80)
 			Right.BackgroundColor3 = Color3.new(1,1,1)
 			Right.BorderSizePixel = 0
 			Right.BorderColor3 = Color3.new(0,0,0)
@@ -1789,10 +1789,10 @@ Library.Sections.__index = Library.Sections;
 			Right.BackgroundTransparency = 1
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0,8)
+			UIListLayout.Padding = UDim.new(0,16)
 			--
 			UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout_2.Padding = UDim.new(0,8)
+			UIListLayout_2.Padding = UDim.new(0,16)
 			
 			function Weapon:Turn(bool)
 				Weapon.Open = bool
@@ -1875,7 +1875,7 @@ Library.Sections.__index = Library.Sections;
 			--
 			Container.Name = "Container"
 			Container.Position = UDim2.new(0,7,0,10)
-			Container.Size = UDim2.new(1,-14,1,-10)
+			Container.Size = UDim2.new(1,-14,1,-14)
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
 			Container.BorderSizePixel = 0
@@ -1922,7 +1922,7 @@ Library.Sections.__index = Library.Sections;
 			TextBorder.BorderColor3 = Color3.new(0,0,0)
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0,10)
+			UIListLayout.Padding = UDim.new(0,6)
 			
 			-- // Elements
 			Section.Elements = {
@@ -1931,6 +1931,7 @@ Library.Sections.__index = Library.Sections;
 			}
 
 			-- // Returning
+			
 			Section.Page.Sections[#Section.Page.Sections + 1] = Section
 			wait(0.01)
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
