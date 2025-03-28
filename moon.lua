@@ -787,34 +787,39 @@ Library.Sections.__index = Library.Sections;
 			
 			-- Dragging functionality
 			local dragging = false
-			local dragOffset = UDim2.new(0,0,0,0)
+			local dragInput = nil
+			local dragStart = nil
+			local startPos = nil
 			
-			Library:Connection(DragButton.MouseButton1Down, function()
-				dragging = true
-				local mousePosition = game:GetService("UserInputService"):GetMouseLocation()
-				dragOffset = UDim2.new(
-					0, 
-					KeyOutline.AbsolutePosition.X - mousePosition.X, 
-					0, 
-					KeyOutline.AbsolutePosition.Y - mousePosition.Y
-				)
+			local function updateDrag(input)
+				if dragging and input then
+					local delta = input.Position - dragStart
+					KeyOutline.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+				end
+			end
+			
+			Library:Connection(DragButton.InputBegan, function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 then
+					dragging = true
+					dragStart = input.Position
+					startPos = KeyOutline.Position
+					input.Changed:Connect(function()
+						if input.UserInputState == Enum.UserInputState.End then
+							dragging = false
+						end
+					end)
+				end
 			end)
 			
-			Library:Connection(game:GetService("UserInputService").InputEnded, function(input)
-				if input.UserInputType == Enum.UserInputType.MouseButton1 then
-					dragging = false
+			Library:Connection(DragButton.InputChanged, function(input)
+				if input.UserInputType == Enum.UserInputType.MouseMovement then
+					dragInput = input
 				end
 			end)
 			
 			Library:Connection(game:GetService("UserInputService").InputChanged, function(input)
-				if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-					local mousePosition = game:GetService("UserInputService"):GetMouseLocation()
-					KeyOutline.Position = UDim2.new(
-						0,
-						mousePosition.X + dragOffset.X.Offset,
-						0,
-						mousePosition.Y + dragOffset.Y.Offset
-					)
+				if input == dragInput and dragging then
+					updateDrag(input)
 				end
 			end)
 			
@@ -835,7 +840,13 @@ Library.Sections.__index = Library.Sections;
 				NewValue.BorderSizePixel = 0
 				
 				NewValue.BorderColor3 = Color3.new(0,0,0)
-				NewValue.Text = tostring(" ["..Name.."] " .. Key .. " (" .. Mode ..") ")
+				-- Handle nil values with proper defaults
+				local displayKey = Key or "None"
+				if type(displayKey) == "nil" then displayKey = "None" end
+				local displayName = Name or "Keybind"
+				local displayMode = Mode or "Toggle"
+				
+				NewValue.Text = tostring(" ["..displayName.."] " .. displayKey .. " (" .. displayMode ..") ")
 				NewValue.TextColor3 = Color3.new(0.5,0.5,0.5) -- Default inactive color
 				NewValue.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 				NewValue.TextSize = 12
@@ -844,16 +855,26 @@ Library.Sections.__index = Library.Sections;
 				--
 				function KeyValue:SetVisible(State)
 					if State then
-						-- Active keybind
-						NewValue.TextColor3 = Color3.new(1,1,1)
+						-- Active keybind - use accent color instead of white
+						NewValue.TextColor3 = Library.Accent
+						table.insert(Library.ThemeObjects, NewValue)
 					else
 						-- Inactive keybind
 						NewValue.TextColor3 = Color3.new(0.5,0.5,0.5)
+						if table.find(Library.ThemeObjects, NewValue) then
+							table.remove(Library.ThemeObjects, table.find(Library.ThemeObjects, NewValue))
+						end
 					end
 				end;
 				--
 				function KeyValue:Update(NewName, NewKey, NewMode)
-					NewValue.Text = tostring(" ["..NewName.."] " .. NewKey .. " (" .. NewMode ..") ")
+					-- Handle nil values with proper defaults
+					local displayKey = NewKey or "None"
+					if type(displayKey) == "nil" then displayKey = "None" end
+					local displayName = NewName or "Keybind"
+					local displayMode = NewMode or "Toggle"
+					
+					NewValue.Text = tostring(" ["..displayName.."] " .. displayKey .. " (" .. displayMode ..") ")
 				end;
 				
 				table.insert(KeyList.Keybinds, KeyValue)
