@@ -1829,6 +1829,7 @@ Library.Sections.__index = Library.Sections;
 			Right.AnchorPoint = Vector2.new(1,0)
 			Right.Visible = false
 			Right.BackgroundTransparency = 1
+			Right.ClipsDescendants = true
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			UIListLayout.Padding = UDim.new(0,16)
@@ -1859,7 +1860,9 @@ Library.Sections.__index = Library.Sections;
 			Weapon.Elements = {
 				Left = Left,
 				Right = Right,
-				Button = New
+				Button = New,
+				LeftScroll = LeftScroll,
+				RightScroll = RightScroll
 			}
 
 			-- // Drawings
@@ -1888,9 +1891,21 @@ Library.Sections.__index = Library.Sections;
 			--
 			local SectionParent
 			if Section.Side == "left" then
-				SectionParent = Section.Page.Elements.Left.LeftScroll
+				if Section.Page.Elements.Left and Section.Page.Elements.Left.LeftScroll then
+					SectionParent = Section.Page.Elements.Left.LeftScroll
+				elseif Section.Page.Elements.LeftScroll then
+					SectionParent = Section.Page.Elements.LeftScroll
+				else
+					SectionParent = Section.Page.Elements.Left
+				end
 			elseif Section.Side == "right" then
-				SectionParent = Section.Page.Elements.Right.RightScroll
+				if Section.Page.Elements.Right and Section.Page.Elements.Right.RightScroll then
+					SectionParent = Section.Page.Elements.Right.RightScroll
+				elseif Section.Page.Elements.RightScroll then
+					SectionParent = Section.Page.Elements.RightScroll
+				else
+					SectionParent = Section.Page.Elements.Right
+				end
 			end
 			
 			local SectionOutline = Instance.new('Frame', SectionParent)
