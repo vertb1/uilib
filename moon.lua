@@ -651,7 +651,7 @@ Library.Sections.__index = Library.Sections;
 			local UIStroke = Instance.new('UIStroke', Outline)
 			local TextLabel = Instance.new('TextLabel', Background)
 			local Accemt = Instance.new('Frame', Background)
-			local Progress = Instance.new('Frame', Background)z
+			local Progress = Instance.new('Frame', Background)
 			--
 			local Position
 			if position == "Middle" then
