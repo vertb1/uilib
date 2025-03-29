@@ -1647,10 +1647,10 @@ Library.Sections.__index = Library.Sections;
             Right.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout.Padding = UDim.new(0, 20) -- Increased from 16 to 20 for better spacing with titles
+            UIListLayout.Padding = UDim.new(0, 24) -- Increased padding for better spacing with titles
             --
             UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout_2.Padding = UDim.new(0, 20) -- Increased from 16 to 20 for better spacing with titles
+            UIListLayout_2.Padding = UDim.new(0, 24) -- Increased padding for better spacing with titles
 			--
 			TabButton.Name = "TabButton"
 			TabButton.Size = UDim2.new(0.25,0,1,0)
@@ -1705,20 +1705,20 @@ Library.Sections.__index = Library.Sections;
                     Left.Visible = Page.Open
 				    Right.Visible = Page.Open
                     -- When no icon tab is present, position content just below the tabs
-                    Left.Position = UDim2.new(0, 5, 0, 31) -- Increased from 27 to 31
-                    Right.Position = UDim2.new(1, -5, 0, 31) -- Increased from 27 to 31
-                    Left.Size = UDim2.new(0.5, -10, 1, -36) -- Adjusted from -32 to -36
-                    Right.Size = UDim2.new(0.5, -5, 1, -36) -- Adjusted from -32 to -36
+                    Left.Position = UDim2.new(0, 5, 0, 31)
+                    Right.Position = UDim2.new(1, -5, 0, 31)
+                    Left.Size = UDim2.new(0.5, -10, 1, -36)
+                    Right.Size = UDim2.new(0.5, -5, 1, -36)
                 else
                     WeaponOutline.Visible = Page.Open
                     for Index, Weapon in pairs(Page.Weapons) do
                         Weapon:Turn(Weapon.Open)
                     end
                     -- When icon tab is present, position content below the weapon selector
-                    Left.Position = UDim2.new(0, 5, 0, 79) -- Increased from 75 to 79
-                    Right.Position = UDim2.new(1, -5, 0, 79) -- Increased from 75 to 79
-                    Left.Size = UDim2.new(0.5, -10, 1, -84) -- Adjusted from -80 to -84
-                    Right.Size = UDim2.new(0.5, -5, 1, -84) -- Adjusted from -80 to -84
+                    Left.Position = UDim2.new(0, 5, 0, 79)
+                    Right.Position = UDim2.new(1, -5, 0, 79)
+                    Left.Size = UDim2.new(0.5, -10, 1, -84)
+                    Right.Size = UDim2.new(0.5, -5, 1, -84)
                 end
 				TabAccent.Visible = Page.Open
 				TabLine.Visible = not Page.Open
@@ -1917,9 +1917,8 @@ Library.Sections.__index = Library.Sections;
 			SectionOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			SectionOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			SectionOutline.ZIndex = Section.ZIndex
-			SectionOutline.ClipsDescendants = false -- Added to prevent title clipping
-			SectionOutline.Transparency = 0
-			SectionOutline.Position = UDim2.new(0, 0, 0, 10) -- Increase spacing to 10px
+			SectionOutline.ClipsDescendants = false
+			SectionOutline.Position = UDim2.new(0, 0, 0, 10) -- Increased top margin from 5 to 10
 			--
 			
 			--
@@ -1957,9 +1956,8 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, SectionAccent)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,10,0,-10) -- Position higher to avoid clipping
-			Title.Size = UDim2.new(0,0,0,16) -- Auto width, fixed height
-			Title.AutomaticSize = Enum.AutomaticSize.X -- Allow width to adjust to text
+			Title.Position = UDim2.new(0,10,0,-10) -- Changed from -8 to -10
+			Title.Size = UDim2.new(0,100,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
@@ -1967,26 +1965,125 @@ Library.Sections.__index = Library.Sections;
 			Title.TextColor3 = Color3.new(1,1,1)
 			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Title.TextSize = Library.FontSize
+			Title.ZIndex = 10
 			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.Text = Section.Name
 			Title.TextStrokeTransparency = 0
-			Title.ZIndex = 10 -- Higher ZIndex for visibility
 			--
 			TextBorder.Name = "TextBorder"
-			TextBorder.Position = UDim2.new(0,5,0,-10) -- Match Title position
-			TextBorder.Size = UDim2.new(0,5,0,16) -- Size to match title height
-			TextBorder.AutomaticSize = Enum.AutomaticSize.X -- Auto-size width with title
-			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784) -- Match background
+			TextBorder.Position = UDim2.new(0,6,0,-4) -- Changed from -2 to -4
+			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,6) -- Increased height from 4 to 6
+			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			TextBorder.BorderSizePixel = 0
-			TextBorder.BorderColor3 = Color3.new(0,0,0)
-			TextBorder.ZIndex = 9 -- Just below title text
+				TextBorder.BorderColor3 = Color3.new(0,0,0)
+			TextBorder.ZIndex = 9
 			--
+			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout.Padding = UDim.new(0,6)
+			
+			-- // Elements
+			Section.Elements = {
+				SectionContent = Container;
+				SectionHolder = SectionOutline;
+			}
+
+			-- // Returning
+			
+			Section.Page.Sections[#Section.Page.Sections + 1] = Section
+			wait(0.01)
+			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,6)
+			return setmetatable(Section, Library.Sections)
+		end
+		--
+		function Sections:Toggle(Properties)
+			if not Properties then
+				Properties = {}
+			end
+			--
+			local Toggle = {
+				Window = self.Window,
+				Page = self.Page,
+				Section = self,
+				Risk = Properties.Risk or false,
+				Name = Properties.Name or "Toggle",
+				State = (
+					Properties.state
+						or Properties.State
+						or Properties.def
+						or Properties.Def
+						or Properties.default
+						or Properties.Default
+						or false
+				),
+				Callback = (
+					Properties.callback
+						or Properties.Callback
+						or Properties.callBack
+						or Properties.CallBack
+						or function() end
+				),
+				Flag = (
+					Properties.flag
+						or Properties.Flag
+						or Properties.pointer
+						or Properties.Pointer
+						or Library.NextFlag()
+				),
+				Toggled = false,
+				Colorpickers = 0,
+			}
+			--
+			local NewToggle = Instance.new('TextButton', Toggle.Section.Elements.SectionContent)
+			local Outline = Instance.new('Frame', NewToggle)
+			local Inline = Instance.new('Frame', Outline)
+			local Title = Instance.new('TextLabel', NewToggle)
+			--
+			NewToggle.Name = "NewToggle"
+			NewToggle.Size = UDim2.new(1,0,0,10)
+			NewToggle.BackgroundColor3 = Color3.new(1,1,1)
+			NewToggle.BackgroundTransparency = 1
+			NewToggle.BorderSizePixel = 0
+			NewToggle.BorderColor3 = Color3.new(0,0,0)
+			NewToggle.Text = ""
+			NewToggle.TextColor3 = Color3.new(0,0,0)
+			NewToggle.AutoButtonColor = false
+			NewToggle.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			NewToggle.TextSize = 14
+			--
+			Outline.Name = "Outline"
+			Outline.Size = UDim2.new(0,10,0,10)
+			Outline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
+			Outline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
+			--
+			Inline.Name = "Inline"
+			Inline.Position = UDim2.new(0,1,0,1)
+			Inline.Size = UDim2.new(1,-2,1,-2)
+			Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
+			Inline.BorderSizePixel = 0
+			Inline.BorderColor3 = Color3.new(0,0,0)
+			--
+			--[[local inputText = string.upper(Toggle.Name)
+			local targetLanguage = "Chinese" -- // English, Arabic, Albanian, Japanese, Spanish, Russian, Chinese, Urdu, French, Portuguese, Hindi
+			local translatedText = utility:TranslateString(inputText, targetLanguage)]] 
+			-- 
+			Title.Name = "Title"
+			Title.Position = UDim2.new(0,15,0,0)
+			Title.Size = UDim2.new(1,0,0,10)
+			Title.BackgroundColor3 = Color3.new(1,1,1)
+			Title.BackgroundTransparency = 1
+			Title.BorderSizePixel = 0
+			Title.BorderColor3 = Color3.new(0,0,0)
+			Title.TextColor3 = Toggle.Risk and Color3.fromRGB(158, 158, 24) or Color3.new(0.5686,0.5686,0.5686)
+			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			Title.TextSize = Library.FontSize
+			Title.TextXAlignment = Enum.TextXAlignment.Left
+			Title.Text = Toggle.Name
+			Title.TextStrokeTransparency = 0
 			
 			-- // Functions
 			local function SetState()
 				Toggle.Toggled = not Toggle.Toggled
 				if Toggle.Toggled then
-					
 					table.insert(Library.ThemeObjects, Inline)
 					Inline.BackgroundColor3 = Library.Accent
 					if Toggle.Risk then
@@ -3691,4 +3788,28 @@ Library.Sections.__index = Library.Sections;
 			end
 		end
         return Library
+	end
+
+	function Library:New()
+		local Window = self:Window(self.Properties)
+		--
+		local LibraryUI = {}
+		
+		-- // Example
+		local Home = Window:Tab("Home", "\xee\x8f\xa9")
+		local Left = Home:Section({Name = "Left Section", Side = "Left"})
+		local Right = Home:Section({Name = "Right Section", Side = "Right"})
+		
+		local UIListLayout = Instance.new('UIListLayout', Left.Elements.SectionHolder.Parent)
+		local UIListLayout_2 = Instance.new('UIListLayout', Right.Elements.SectionHolder.Parent)
+		
+		UIListLayout.Padding = UDim.new(0, 24) -- Increase padding from 20 to 24
+		UIListLayout_2.Padding = UDim.new(0, 24) -- Increase padding from 20 to 24
+		
+		-- // Return
+		function LibraryUI:Ready()
+			return Window
+		end
+		
+		return LibraryUI
 	end
