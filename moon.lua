@@ -2140,7 +2140,7 @@ Library.Sections.__index = Library.Sections;
 				local padding = 20 -- Additional padding (10 top + 10 bottom)
 				local containerHeight = 0
 				
-				-- Safety check - make sure Container and UIListLayout exist
+				-- Safety check - make sure Container exists
 				if not Container then return end
 				
 				-- Get content height
@@ -2162,8 +2162,10 @@ Library.Sections.__index = Library.Sections;
 					end
 				end
 				
-				-- Set container size with a minimum height
-				containerHeight = math.max(containerHeight, 10)
+				-- Set container size with a minimum height (increased for empty sections)
+				containerHeight = math.max(containerHeight, 20) -- Minimum height increased to 20 for empty sections
+				
+				-- Set container size
 				if Container then
 					Container.Size = UDim2.new(1, -14, 0, containerHeight)
 				end
@@ -2179,9 +2181,13 @@ Library.Sections.__index = Library.Sections;
 			end
 
 			-- Connect list layout changes to trigger resize
-			UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-				Section:RecalculateSize()
-			end)
+			if UIListLayout then
+				UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+					if Section and type(Section.RecalculateSize) == "function" then
+						Section:RecalculateSize()
+					end
+				end)
+			end
 
 			wait(0.01)
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
@@ -2714,8 +2720,10 @@ Library.Sections.__index = Library.Sections;
 					end
 				end
 				
-				-- Recalculate section size
-				Toggle.Section:RecalculateSize()
+				-- Recalculate section size with safety check
+				if Toggle and Toggle.Section and type(Toggle.Section.RecalculateSize) == "function" then
+					Toggle.Section:RecalculateSize()
+				end
 			end
 			Toggle.Set(Toggle.State)
 			Library.Flags[Toggle.Flag] = Toggle.State
@@ -2956,8 +2964,10 @@ Library.Sections.__index = Library.Sections;
 			--
 			function Slider:Set(Value)
 				Set(Value)
-				-- Recalculate section size
-				Slider.Section:RecalculateSize()
+				-- Recalculate section size with safety check
+				if Slider and Slider.Section and type(Slider.Section.RecalculateSize) == "function" then
+					Slider.Section:RecalculateSize()
+				end
 			end
 			-- 
 			function Slider:SetVisible(Bool) 
@@ -3336,8 +3346,10 @@ Library.Sections.__index = Library.Sections;
 					end
 				end
 				
-				-- Recalculate section size
-				Dropdown.Section:RecalculateSize()
+				-- Recalculate section size with safety check
+				if Dropdown and Dropdown.Section and type(Dropdown.Section.RecalculateSize) == "function" then
+					Dropdown.Section:RecalculateSize()
+				end
 			end
 			--
 			function Dropdown:Refresh(tbl)
