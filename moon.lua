@@ -2666,61 +2666,67 @@ Library.Sections.__index = Library.Sections;
 				OptionInsts = {},
 			}
 			
+			-- Create a separate ScreenGui for dropdowns to avoid z-index issues
+			local dropdownGui = Instance.new("ScreenGui", game.CoreGui)
+			dropdownGui.Name = "DropdownContainer_" .. (Dropdown.Name or "Dropdown")
+			dropdownGui.DisplayOrder = 999
+			dropdownGui.ResetOnSpawn = false
+			
 			local NewDrop = Instance.new('Frame', Dropdown.Section.Elements.SectionContent)
 			local Outline = Instance.new('TextButton', NewDrop)
 			local Inline = Instance.new('Frame', Outline)
 			local Value = Instance.new('TextLabel', Inline)
 			local Icon = Instance.new('TextLabel', Inline)
 			local Title = Instance.new('TextLabel', NewDrop)
-			local ContainerOutline = Instance.new('Frame', game.CoreGui) -- Place in CoreGui to avoid scrollframe issues
+			local ContainerOutline = Instance.new('Frame', dropdownGui)
 			local ContainerInline = Instance.new('Frame', ContainerOutline)
 			local UIListLayout = Instance.new('UIListLayout', ContainerInline)
 			
 			NewDrop.Name = "NewDrop"
-			NewDrop.Size = UDim2.new(1,0,0,32) -- Increased height for better spacing
-			NewDrop.BackgroundColor3 = Color3.new(1,1,1)
+			NewDrop.Size = UDim2.new(1, 0, 0, 36) -- Increased height for better spacing
+			NewDrop.BackgroundColor3 = Color3.new(1, 1, 1)
 			NewDrop.BackgroundTransparency = 1
 			NewDrop.BorderSizePixel = 0
-			NewDrop.BorderColor3 = Color3.new(0,0,0)
+			NewDrop.BorderColor3 = Color3.new(0, 0, 0)
 			
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,15,0,0)
-			Title.Size = UDim2.new(1,-15,0,16) -- Fixed title size
-			Title.BackgroundColor3 = Color3.new(1,1,1)
+			Title.Position = UDim2.new(0, 15, 0, 0)
+			Title.Size = UDim2.new(1, -15, 0, 16) -- Fixed title size
+			Title.BackgroundColor3 = Color3.new(1, 1, 1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
-			Title.BorderColor3 = Color3.new(0,0,0)
+			Title.BorderColor3 = Color3.new(0, 0, 0)
 			Title.Text = Dropdown.Name
-			Title.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
+			Title.TextColor3 = Color3.new(0.5686, 0.5686, 0.5686)
 			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Title.TextSize = Library.FontSize
 			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.TextStrokeTransparency = 0
 			
 			Outline.Name = "Outline"
-			Outline.Position = UDim2.new(1,0,0.5,12)
-			Outline.Size = UDim2.new(1,-30,0,16)
+			Outline.Position = UDim2.new(1, 0, 0, 20) -- Positioned below title
+			Outline.Size = UDim2.new(1, -30, 0, 16)
 			Outline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 			Outline.BorderColor3 = Color3.fromRGB(10, 10, 10)
-			Outline.AnchorPoint = Vector2.new(1,0)
+			Outline.AnchorPoint = Vector2.new(1, 0)
 			Outline.Text = ""
 			Outline.AutoButtonColor = false
 			
 			Inline.Name = "Inline"
-			Inline.Position = UDim2.new(0,1,0,1)
-			Inline.Size = UDim2.new(1,-2,1,-2)
-			Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
+			Inline.Position = UDim2.new(0, 1, 0, 1)
+			Inline.Size = UDim2.new(1, -2, 1, -2)
+			Inline.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
 			Inline.BorderSizePixel = 0
-			Inline.BorderColor3 = Color3.new(0,0,0)
+			Inline.BorderColor3 = Color3.new(0, 0, 0)
 			
 			Value.Name = "Value"
-			Value.Position = UDim2.new(0,2,0,0)
-			Value.Size = UDim2.new(1,-30,1,0)
-			Value.BackgroundColor3 = Color3.new(1,1,1)
+			Value.Position = UDim2.new(0, 2, 0, 0)
+			Value.Size = UDim2.new(1, -30, 1, 0)
+			Value.BackgroundColor3 = Color3.new(1, 1, 1)
 			Value.BackgroundTransparency = 1
 			Value.BorderSizePixel = 0
-			Value.BorderColor3 = Color3.new(0,0,0)
-			Value.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
+			Value.BorderColor3 = Color3.new(0, 0, 0)
+			Value.TextColor3 = Color3.new(0.5686, 0.5686, 0.5686)
 			Value.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Value.TextSize = Library.FontSize
 			Value.TextXAlignment = Enum.TextXAlignment.Left
@@ -2728,267 +2734,329 @@ Library.Sections.__index = Library.Sections;
 			Value.TextWrapped = true
 			
 			Icon.Name = "Icon"
-			Icon.Position = UDim2.new(0,-5,0,0)
-			Icon.Size = UDim2.new(1,0,1,0)
-			Icon.BackgroundColor3 = Color3.new(1,1,1)
+			
+			Icon.Position = UDim2.new(0, -5, 0, 0)
+			Icon.Size = UDim2.new(1, 0, 1, 0)
+			Icon.BackgroundColor3 = Color3.new(1, 1, 1)
 			Icon.BackgroundTransparency = 1
 			Icon.BorderSizePixel = 0
-			Icon.BorderColor3 = Color3.new(0,0,0)
+			Icon.BorderColor3 = Color3.new(0, 0, 0)
 			Icon.Text = "+"
-			Icon.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
+			Icon.TextColor3 = Color3.new(0.5686, 0.5686, 0.5686)
 			Icon.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Icon.TextSize = Library.FontSize
 			Icon.TextXAlignment = Enum.TextXAlignment.Right
 			Icon.TextStrokeTransparency = 0
 			
 			ContainerOutline.Name = "ContainerOutline"
-			ContainerOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
-			ContainerOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
+			ContainerOutline.BackgroundColor3 = Color3.new(0.1765, 0.1765, 0.1765)
+			ContainerOutline.BorderColor3 = Color3.new(0.0392, 0.0392, 0.0392)
 			ContainerOutline.Visible = false
 			ContainerOutline.AutomaticSize = Enum.AutomaticSize.Y
-			ContainerOutline.ZIndex = 100
+			ContainerOutline.Size = UDim2.new(0, 0, 0, 10) -- Will be updated dynamically
 			
 			ContainerInline.Name = "ContainerInline"
-			ContainerInline.Position = UDim2.new(0,1,0,1)
-			ContainerInline.Size = UDim2.new(1,-2,1,-2)
-			ContainerInline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
+			ContainerInline.Position = UDim2.new(0, 1, 0, 1)
+			ContainerInline.Size = UDim2.new(1, -2, 1, -2)
+			ContainerInline.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
 			ContainerInline.BorderSizePixel = 0
-			ContainerInline.BorderColor3 = Color3.new(0,0,0)
-			ContainerInline.ZIndex = 101
+			ContainerInline.BorderColor3 = Color3.new(0, 0, 0)
 			
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0, 2) -- Added small padding between options
+			UIListLayout.Padding = UDim.new(0, 2) -- Added padding between options
 			
-			-- // Connections
-			local function updateDropdownPosition()
-				local newPosition = NewDrop.AbsolutePosition
-				local newSize = NewDrop.AbsoluteSize
-				ContainerOutline.Position = UDim2.new(0, newPosition.X + 15, 0, newPosition.Y + newSize.Y + 2)
-				ContainerOutline.Size = UDim2.new(0, newSize.X - 30, 0, 10)
+			-- Function to update dropdown container position
+			local function updateContainerPosition()
+				local absPos = NewDrop.AbsolutePosition
+				local absSize = NewDrop.AbsoluteSize
+				local outlineAbsPos = Outline.AbsolutePosition
+				local outlineAbsSize = Outline.AbsoluteSize
+				
+				ContainerOutline.Position = UDim2.new(
+					0, outlineAbsPos.X, 
+					0, outlineAbsPos.Y + outlineAbsSize.Y + 2
+				)
+				ContainerOutline.Size = UDim2.new(0, outlineAbsSize.X, 0, 10)
 			end
 			
-			Library:Connection(Outline.MouseButton1Down, function()
-				updateDropdownPosition()
-				ContainerOutline.Visible = not ContainerOutline.Visible
-				if ContainerOutline.Visible then
-					NewDrop.ZIndex = 10
-					Icon.Text = "-"
-					
-					-- Bring dropdown to front when opened
-					for _, droplist in pairs(Dropdowns) do
-						if droplist ~= ContainerOutline then
-							droplist.Visible = false
-						end
-					end
-				else
-					NewDrop.ZIndex = 1
-					Icon.Text = "+"
-				end
-			end)
-			
-			table.insert(Dropdowns, ContainerOutline)
-			
-			Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
-				if ContainerOutline.Visible and Input.UserInputType == Enum.UserInputType.MouseButton1 then
-					if not Library:IsMouseOverFrame(ContainerOutline) and not Library:IsMouseOverFrame(NewDrop) then
-						ContainerOutline.Visible = false
-						NewDrop.ZIndex = 1
-						Icon.Text = "+"
-					end
-				end
-			end)
-			
-			-- Track scrolling to update dropdown position
-			Library:Connection(game:GetService("RunService").RenderStepped, function()
-				if ContainerOutline.Visible then
-					updateDropdownPosition()
-				end
-			end)
-			
-			local chosen = Dropdown.Max and {} or nil
-			
-			local function handleoptionclick(option, button, text)
-				button.MouseButton1Down:Connect(function()
+			local function createOption(option)
+				local NewOption = Instance.new('TextButton', ContainerInline)
+				local OptionName = Instance.new('TextLabel', NewOption)
+				
+				NewOption.Name = "Option_" .. option
+				NewOption.Size = UDim2.new(1, 0, 0, 15)
+				NewOption.BackgroundColor3 = Color3.new(1, 1, 1)
+				NewOption.BackgroundTransparency = 1
+				NewOption.BorderSizePixel = 0
+				NewOption.BorderColor3 = Color3.new(0, 0, 0)
+				NewOption.Text = ""
+				NewOption.TextColor3 = Color3.new(0, 0, 0)
+				NewOption.AutoButtonColor = false
+				
+				OptionName.Name = "OptionName"
+				OptionName.Position = UDim2.new(0, 2, 0, 0)
+				OptionName.Size = UDim2.new(1, 0, 1, 0)
+				OptionName.BackgroundColor3 = Color3.new(1, 1, 1)
+				OptionName.BackgroundTransparency = 1
+				OptionName.BorderSizePixel = 0
+				OptionName.BorderColor3 = Color3.new(0, 0, 0)
+				OptionName.Text = option
+				OptionName.TextColor3 = Color3.new(0.5686, 0.5686, 0.5686)
+				OptionName.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+				OptionName.TextSize = Library.FontSize
+				OptionName.TextXAlignment = Enum.TextXAlignment.Left
+				OptionName.TextStrokeTransparency = 0
+				
+				Dropdown.OptionInsts[option] = {
+					button = NewOption,
+					text = OptionName
+				}
+				
+				-- Handle option selection
+				NewOption.MouseButton1Down:Connect(function()
 					if Dropdown.Max then
-						if table.find(chosen, option) then
-							table.remove(chosen, table.find(chosen, option))
-
-							local textchosen = {}
-							local cutobject = false
-
-							for _, opt in next, chosen do
-								table.insert(textchosen, opt)
-							end
-
-							Value.Text = #chosen == 0 and "" or table.concat(textchosen, ",") .. (cutobject and ", ..." or "")
-
-							text.TextColor3 = Color3.fromRGB(145,145,145)
-
-							Library.Flags[Dropdown.Flag] = chosen
-							Dropdown.Callback(chosen)
+						if table.find(Dropdown.State or {}, option) then
+							-- Remove from selection
+							table.remove(Dropdown.State, table.find(Dropdown.State, option))
+							OptionName.TextColor3 = Color3.fromRGB(145, 145, 145)
 						else
-							if #chosen == Dropdown.Max then
-								Dropdown.OptionInsts[chosen[1]].text.TextColor3 = Color3.fromRGB(145,145,145)
-								table.remove(chosen, 1)
+							-- Add to selection (with max check)
+							if not Dropdown.State then Dropdown.State = {} end
+							if #Dropdown.State >= Dropdown.Max then
+								local firstOption = Dropdown.State[1]
+								table.remove(Dropdown.State, 1)
+								if Dropdown.OptionInsts[firstOption] then
+									Dropdown.OptionInsts[firstOption].text.TextColor3 = Color3.fromRGB(145, 145, 145)
+								end
 							end
-
-							table.insert(chosen, option)
-
-							local textchosen = {}
-							local cutobject = false
-
-							for _, opt in next, chosen do
-								table.insert(textchosen, opt)
-							end
-
-							Value.Text = #chosen == 0 and "" or table.concat(textchosen, ",") .. (cutobject and ", ..." or "")
-
-							text.TextColor3 = Color3.fromRGB(255,255,255)
-
-							Library.Flags[Dropdown.Flag] = chosen
-							Dropdown.Callback(chosen)
+							table.insert(Dropdown.State, option)
+							OptionName.TextColor3 = Color3.fromRGB(255, 255, 255)
 						end
+						
+						-- Update display value
+						local displayText = ""
+						if #Dropdown.State > 0 then
+							displayText = table.concat(Dropdown.State, ", ")
+							if #displayText > 20 then
+								displayText = string.sub(displayText, 1, 18) .. "..."
+							end
+						end
+						Value.Text = displayText
+						
+						Library.Flags[Dropdown.Flag] = Dropdown.State
+						Dropdown.Callback(Dropdown.State)
 					else
-						for opt, tbl in next, Dropdown.OptionInsts do
-							if opt ~= option then
-								tbl.text.TextColor3 = Color3.fromRGB(145,145,145)
-							end
+						-- Single selection
+						for opt, inst in pairs(Dropdown.OptionInsts) do
+							inst.text.TextColor3 = Color3.fromRGB(145, 145, 145)
 						end
-						chosen = option
+						OptionName.TextColor3 = Color3.fromRGB(255, 255, 255)
+						Dropdown.State = option
 						Value.Text = option
-						text.TextColor3 = Color3.fromRGB(255,255,255)
 						Library.Flags[Dropdown.Flag] = option
 						Dropdown.Callback(option)
+						
+						-- Close dropdown after selection
+						ContainerOutline.Visible = false
+						Icon.Text = "+"
+					end
+				end)
+				
+				-- Handle hover effect
+				NewOption.MouseEnter:Connect(function()
+					if (Dropdown.Max and not table.find(Dropdown.State or {}, option)) or 
+					   (not Dropdown.Max and Dropdown.State ~= option) then
+						OptionName.TextColor3 = Color3.fromRGB(200, 200, 200)
+					end
+				end)
+				
+				NewOption.MouseLeave:Connect(function()
+					if (Dropdown.Max and not table.find(Dropdown.State or {}, option)) or 
+					   (not Dropdown.Max and Dropdown.State ~= option) then
+						OptionName.TextColor3 = Color3.fromRGB(145, 145, 145)
 					end
 				end)
 			end
-			--
-			local function createoptions(tbl)
-				for _, option in next, tbl do
-					Dropdown.OptionInsts[option] = {}
-					local NewOption = Instance.new('TextButton', ContainerInline)
-					local OptionName = Instance.new('TextLabel', NewOption)
-					NewOption.Name = "NewOption"
-					NewOption.Size = UDim2.new(1,0,0,15)
-					NewOption.BackgroundColor3 = Color3.new(1,1,1)
-					NewOption.BackgroundTransparency = 1
-					NewOption.BorderSizePixel = 0
-					NewOption.BorderColor3 = Color3.new(0,0,0)
-					NewOption.Text = ""
-					NewOption.TextColor3 = Color3.new(0,0,0)
-					NewOption.AutoButtonColor = false
-					NewOption.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-					NewOption.TextSize = 14
-					NewOption.ZIndex = 52 -- Much higher Z-index
-					Dropdown.OptionInsts[option].button = NewOption
+			
+			-- Create all initial options
+			for _, option in pairs(Dropdown.Options) do
+				createOption(option)
+			end
+			
+			-- Set initial state
+			if Dropdown.State then
+				if Dropdown.Max and type(Dropdown.State) == "table" then
+					for _, option in pairs(Dropdown.State) do
+						if Dropdown.OptionInsts[option] then
+							Dropdown.OptionInsts[option].text.TextColor3 = Color3.fromRGB(255, 255, 255)
+						end
+					end
+					local displayText = table.concat(Dropdown.State, ", ")
+					if #displayText > 20 then
+						displayText = string.sub(displayText, 1, 18) .. "..."
+					end
+					Value.Text = displayText
+				elseif not Dropdown.Max and Dropdown.OptionInsts[Dropdown.State] then
+					Dropdown.OptionInsts[Dropdown.State].text.TextColor3 = Color3.fromRGB(255, 255, 255)
+					Value.Text = Dropdown.State
+				end
+			end
+			
+			-- Toggle dropdown visibility
+			Outline.MouseButton1Down:Connect(function()
+				updateContainerPosition()
+				ContainerOutline.Visible = not ContainerOutline.Visible
+				Icon.Text = ContainerOutline.Visible and "-" or "+"
+				
+				-- Close other dropdowns
+				for _, otherDropGui in pairs(game.CoreGui:GetChildren()) do
+					if otherDropGui.Name:find("DropdownContainer_") and otherDropGui ~= dropdownGui then
+						for _, child in pairs(otherDropGui:GetChildren()) do
+							if child.Name == "ContainerOutline" then
+								child.Visible = false
+							end
+						end
+					end
+				end
+			end)
+			
+			-- Add hover effects
+			Library:Connection(NewDrop.MouseEnter, function()
+				Outline.BorderColor3 = Library.Accent
+				table.insert(Library.ThemeObjects, Title)
+				Title.TextColor3 = Library.Accent
+			end)
+			
+			Library:Connection(NewDrop.MouseLeave, function()
+				Outline.BorderColor3 = Color3.new(0.0392, 0.0392, 0.0392)
+				local index = table.find(Library.ThemeObjects, Title)
+				if index then
+					table.remove(Library.ThemeObjects, index)
+				end
+				Title.TextColor3 = Color3.new(0.5686, 0.5686, 0.5686)
+			end)
+			
+			-- Close dropdown when clicking elsewhere
+			Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
+				if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+					local mousePos = game:GetService("UserInputService"):GetMouseLocation()
+					if ContainerOutline.Visible then
+						local absPos = ContainerOutline.AbsolutePosition
+						local absSize = ContainerOutline.AbsoluteSize
+						
+						-- Check if click is outside dropdown
+						if mousePos.X < absPos.X or 
+						   mousePos.X > absPos.X + absSize.X or 
+						   mousePos.Y < absPos.Y or 
+						   mousePos.Y > absPos.Y + absSize.Y then
+							
+							-- Also check if not clicking on the dropdown button
+							local outlinePos = Outline.AbsolutePosition
+							local outlineSize = Outline.AbsoluteSize
+							
+							if mousePos.X < outlinePos.X or 
+							   mousePos.X > outlinePos.X + outlineSize.X or 
+							   mousePos.Y < outlinePos.Y or 
+							   mousePos.Y > outlinePos.Y + outlineSize.Y then
+								
+								ContainerOutline.Visible = false
+								Icon.Text = "+"
+							end
+						end
+					end
+				end
+			end)
+			
+			-- Update position if scrolling occurs
+			Library:Connection(game:GetService("RunService").RenderStepped, function()
+				if ContainerOutline.Visible then
+					updateContainerPosition()
+				end
+			end)
+			
+			-- Public methods for the dropdown
+			function Dropdown:Set(value)
+				if Dropdown.Max and type(value) == "table" then
+					-- Clear all selections
+					for opt, inst in pairs(Dropdown.OptionInsts) do
+						inst.text.TextColor3 = Color3.fromRGB(145, 145, 145)
+					end
 					
-					OptionName.Name = "OptionName"
-					OptionName.Position = UDim2.new(0,2,0,0)
-					OptionName.Size = UDim2.new(1,0,1,0)
-					OptionName.BackgroundColor3 = Color3.new(1,1,1)
-					OptionName.BackgroundTransparency = 1
-					OptionName.BorderSizePixel = 0
-					OptionName.BorderColor3 = Color3.new(0,0,0)
-					OptionName.Text = option
-					OptionName.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
-					OptionName.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-					OptionName.TextSize = Library.FontSize
-					OptionName.TextXAlignment = Enum.TextXAlignment.Left
-					OptionName.TextStrokeTransparency = 0
-					OptionName.ZIndex = 53 -- Much higher Z-index
-					Dropdown.OptionInsts[option].text = OptionName
-					handleoptionclick(option, NewOption, OptionName)
-				end
-			end
-			createoptions(Dropdown.Options)
-			--
-			local set
-			set = function(option)
-				if Dropdown.Max then
-					table.clear(chosen)
-					option = type(option) == "table" and option or {}
-
-					for opt, tbl in next, Dropdown.OptionInsts do
-						if not table.find(option, opt) then
-							tbl.text.TextColor3 = Color3.fromRGB(145,145,145)
+					-- Set new selections
+					Dropdown.State = {}
+					for _, option in pairs(value) do
+						if Dropdown.OptionInsts[option] and #Dropdown.State < Dropdown.Max then
+							table.insert(Dropdown.State, option)
+							Dropdown.OptionInsts[option].text.TextColor3 = Color3.fromRGB(255, 255, 255)
 						end
 					end
-
-					for i, opt in next, option do
-						if table.find(Dropdown.Options, opt) and #chosen < Dropdown.Max then
-							table.insert(chosen, opt)
-							Dropdown.OptionInsts[opt].text.TextColor3 = Color3.fromRGB(255,255,255)
+					
+					-- Update display
+					local displayText = ""
+					if #Dropdown.State > 0 then
+						displayText = table.concat(Dropdown.State, ", ")
+						if #displayText > 20 then
+							displayText = string.sub(displayText, 1, 18) .. "..."
 						end
 					end
-
-					local textchosen = {}
-					local cutobject = false
-
-					for _, opt in next, chosen do
-						table.insert(textchosen, opt)
+					Value.Text = displayText
+					
+					Library.Flags[Dropdown.Flag] = Dropdown.State
+					Dropdown.Callback(Dropdown.State)
+				elseif not Dropdown.Max then
+					-- Clear all selections
+					for opt, inst in pairs(Dropdown.OptionInsts) do
+						inst.text.TextColor3 = Color3.fromRGB(145, 145, 145)
 					end
-
-					Value.Text = #chosen == 0 and "" or table.concat(textchosen, ",") .. (cutobject and ", ..." or "")
-
-					Library.Flags[Dropdown.Flag] = chosen
-					Dropdown.Callback(chosen)
-				end
-			end
-			--
-			function Dropdown:Set(option)
-				if Dropdown.Max then
-					set(option)
-				else
-					for opt, tbl in next, Dropdown.OptionInsts do
-						if opt ~= option then
-							tbl.text.TextColor3 = Color3.fromRGB(145,145,145)
-						end
-					end
-					if table.find(Dropdown.Options, option) then
-						chosen = option
-						Value.Text = option
-						Dropdown.OptionInsts[option].text.TextColor3 = Color3.fromRGB(255,255,255)
-						Library.Flags[Dropdown.Flag] = chosen
-						Dropdown.Callback(chosen)
+					
+					-- Set new selection
+					if Dropdown.OptionInsts[value] then
+						Dropdown.State = value
+						Dropdown.OptionInsts[value].text.TextColor3 = Color3.fromRGB(255, 255, 255)
+						Value.Text = value
+						Library.Flags[Dropdown.Flag] = value
+						Dropdown.Callback(value)
 					else
-						chosen = nil
+						Dropdown.State = nil
 						Value.Text = ""
-						Library.Flags[Dropdown.Flag] = chosen
-						Dropdown.Callback(chosen)
+						Library.Flags[Dropdown.Flag] = nil
+						Dropdown.Callback(nil)
 					end
 				end
 			end
-			--
-			function Dropdown:Refresh(tbl)
-				for _, opt in next, Dropdown.OptionInsts do
-					coroutine.wrap(function()
-						opt.button:Destroy()
-					end)()
+			
+			function Dropdown:Refresh(options)
+				-- Clear existing options
+				for _, inst in pairs(Dropdown.OptionInsts) do
+					inst.button:Destroy()
 				end
-				table.clear(Dropdown.OptionInsts)
-
-				createoptions(tbl)
-
+				Dropdown.OptionInsts = {}
+				
+				-- Add new options
+				Dropdown.Options = options
+				for _, option in pairs(options) do
+					createOption(option)
+				end
+				
+				-- Reset state
 				if Dropdown.Max then
-					table.clear(chosen)
+					Dropdown.State = {}
 				else
-					chosen = nil
+					Dropdown.State = nil
 				end
-
-				Library.Flags[Dropdown.Flag] = chosen
-				Dropdown.Callback(chosen)
+				
+				Value.Text = ""
+				Library.Flags[Dropdown.Flag] = Dropdown.State
+				Dropdown.Callback(Dropdown.State)
 			end
-
-			-- // Returning
-			if Dropdown.Max then
-				Flags[Dropdown.Flag] = set
-			else
-				Flags[Dropdown.Flag] = Dropdown
+			
+			function Dropdown:SetVisible(visible)
+				NewDrop.Visible = visible
 			end
-			Dropdown:Set(Dropdown.State)
-			function Dropdown:SetVisible(Bool) 
-				NewDrop.Visible = Bool 
-			end 
+			
+			-- Set the initial flag value
+			Library.Flags[Dropdown.Flag] = Dropdown.State
+			
 			return Dropdown
 		end
 		--
