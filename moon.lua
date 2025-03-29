@@ -528,28 +528,34 @@ Library.Sections.__index = Library.Sections;
 			
 			-- Update keybinds list if it exists
 			if self.KeyList and self.KeyList.Outline then
-				-- Update the main frame
 				self.KeyList.Outline.BackgroundColor3 = selectedTheme.TopBackground
 				self.KeyList.Outline.BorderColor3 = selectedTheme.Border
 				
-				-- Update all child elements
 				for _, child in pairs(self.KeyList.Outline:GetDescendants()) do
 					if child:IsA("Frame") then
 						if child.Name == "Inline" then
 							child.BackgroundColor3 = selectedTheme.Background
 						elseif child.Name == "Accent" then
 							child.BackgroundColor3 = selectedTheme.Accent
-						elseif child.Name == "LineThing" then
-							child.BackgroundColor3 = selectedTheme.Border
+						end
+					elseif child:IsA("TextLabel") and child.Name == "NewValue" then
+						-- For keybind entries, only update if it's not meant to be highlighted
+						-- Preserve the accent color for active keybinds
+						if not table.find(self.ThemeObjects, child) then
+							child.TextColor3 = selectedTheme.TextColor
+						else
+							child.TextColor3 = selectedTheme.Accent -- Keep accent for active keybinds
 						end
 					elseif child:IsA("TextLabel") then
-						-- KeyTitle and key labels (that aren't active)
-						if child.Name == "KeyTitle" then
-							child.TextColor3 = selectedTheme.TextColor
-						-- Only change inactive keybind entries
-						elseif child.Name == "NewValue" and child.TextColor3 ~= Library.Accent then
-							child.TextColor3 = selectedTheme.TextColor
-						end
+						child.TextColor3 = selectedTheme.TextColor
+					end
+				end
+				
+				-- Also explicitly maintain states for all keybinds
+				for _, keybind in pairs(self.KeyList.Keybinds) do
+					if keybind.IsActive then
+						-- This ensures active keybinds stay visually active
+						keybind:SetVisible(true)
 					end
 				end
 			end
@@ -1033,7 +1039,7 @@ Library.Sections.__index = Library.Sections;
 			local LineThing = Instance.new('Frame', KeyInline)
 			local DragButton = Instance.new('TextButton', KeyInline)
 			--
-			KeyOutline.Name = "Outline"
+			KeyOutline.Name = "KeyOutline"
 			KeyOutline.Position = UDim2.new(0.02,0,0.5,0)
 			KeyOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			KeyOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
@@ -1041,7 +1047,7 @@ Library.Sections.__index = Library.Sections;
 			KeyOutline.AutomaticSize = Enum.AutomaticSize.Y
 			KeyOutline.Size = UDim2.new(0,180,0,22)
 			--
-			KeyInline.Name = "Inline"
+			KeyInline.Name = "KeyInline"
 			KeyInline.Position = UDim2.new(0,1,0,1)
 			KeyInline.Size = UDim2.new(1,-2,1,-2)
 			KeyInline.BackgroundColor3 = Color3.new(0.0745,0.0745,0.0745)
@@ -1049,7 +1055,7 @@ Library.Sections.__index = Library.Sections;
 			KeyInline.BorderColor3 = Color3.new(0,0,0)
 			KeyInline.AutomaticSize = Enum.AutomaticSize.Y
 			--
-			KeyAccent.Name = "Accent"
+			KeyAccent.Name = "KeyAccent"
 			KeyAccent.Size = UDim2.new(1,0,0,1)
 			KeyAccent.BackgroundColor3 = Library.Accent
 			KeyAccent.BorderSizePixel = 0
@@ -1115,7 +1121,6 @@ Library.Sections.__index = Library.Sections;
 					dragging = true
 					dragStart = input.Position
 					startPos = KeyOutline.Position
-					
 					input.Changed:Connect(function()
 						if input.UserInputState == Enum.UserInputState.End then
 							dragging = false
@@ -1159,19 +1164,27 @@ Library.Sections.__index = Library.Sections;
 				local displayName = Name or "Keybind"
 				local displayMode = Mode or "Toggle"
 				
-				NewValue.Text = tostring(" ["..displayName.."] " .. displayKey .. " (" .. displayMode ..") ")
+				-- Format the keybind text to clearly show the label name
+				NewValue.Text = string.format(" [%s] %s (%s)", displayName, displayKey, displayMode)
 				NewValue.TextColor3 = Color3.new(0.5,0.5,0.5) -- Default inactive color
 				NewValue.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 				NewValue.TextSize = 12
 				NewValue.TextXAlignment = Enum.TextXAlignment.Left
 				NewValue.Visible = true
 				
+				-- Store the current state
+				KeyValue.IsActive = false
+				
 				--
 				function KeyValue:SetVisible(State)
+					KeyValue.IsActive = State
+					
 					if State then
-						-- Active keybind - use accent color instead of white
-							NewValue.TextColor3 = Library.Accent
+						-- Active keybind - use accent color 
+						NewValue.TextColor3 = Library.Accent
+						if not table.find(Library.ThemeObjects, NewValue) then
 							table.insert(Library.ThemeObjects, NewValue)
+						end
 					else
 						-- Inactive keybind
 						NewValue.TextColor3 = Color3.new(0.5,0.5,0.5)
@@ -1180,6 +1193,7 @@ Library.Sections.__index = Library.Sections;
 						end
 					end
 				end;
+				
 				--
 				function KeyValue:Update(NewName, NewKey, NewMode)
 					-- Handle nil values with proper defaults
@@ -1188,13 +1202,16 @@ Library.Sections.__index = Library.Sections;
 					local displayName = NewName or "Keybind"
 					local displayMode = NewMode or "Toggle"
 					
-					NewValue.Text = tostring(" ["..displayName.."] " .. displayKey .. " (" .. displayMode ..") ")
+					-- Format the keybind text to clearly show the label name
+					NewValue.Text = string.format(" [%s] %s (%s)", displayName, displayKey, displayMode)
+					
+					-- Maintain the active state when updating
+					KeyValue:SetVisible(KeyValue.IsActive)
 				end;
 				
 				table.insert(KeyList.Keybinds, KeyValue)
 				return KeyValue
 			end;
-			
 			return KeyList
 		end
 	end
@@ -2311,20 +2328,23 @@ Library.Sections.__index = Library.Sections;
 						end
 						if newkey == Enum.KeyCode.Backspace then
 							Key = nil
-
 							local text = "None"
-
 							Value.Text = text
 							ListValue:Update(text, Keybind.Name, Keybind.Mode)
+							-- Make sure to maintain visual state in keybind list
+							if State then
+								ListValue:SetVisible(State)
+							end
 						elseif newkey ~= nil then
 							Key = newkey
-
 							local text = (Library.Keys[newkey] or tostring(newkey):gsub("Enum.KeyCode.", ""))
-
 							Value.Text = text
 							ListValue:Update(text, Keybind.Name, Keybind.Mode)
+							-- Make sure to maintain visual state in keybind list
+							if State then
+								ListValue:SetVisible(State)
+							end
 						end
-
 						Library.Flags[Keybind.Flag .. "_KEY"] = newkey
 					elseif table.find({ "Always", "Toggle", "Hold" }, newkey) then
 						Library.Flags[Keybind.Flag .. "_KEY STATE"] = newkey
@@ -2344,6 +2364,7 @@ Library.Sections.__index = Library.Sections;
 							Library.Flags[Keybind.Flag] = newkey
 						end
 						Keybind.Callback(newkey)
+						ListValue:SetVisible(newkey)
 					end
 				end
 				--
@@ -2537,6 +2558,14 @@ Library.Sections.__index = Library.Sections;
 				-- Special handling for keybind list toggle
 				if Toggle.Flag == "Keybind List" and Library.KeyList then
 					Library.KeyList:SetVisible(bool)
+					-- Make sure we update all active keybinds to show correctly in the list
+					if bool then
+						for _, keybind in pairs(Library.KeyList.Keybinds) do
+							if keybind.IsActive then
+								keybind:SetVisible(true)
+							end
+						end
+					end
 				end
 			end
 			Toggle.Set(Toggle.State)
@@ -3390,7 +3419,7 @@ Library.Sections.__index = Library.Sections;
 					if not Keybind.UseKey then
 						Library.Flags[Keybind.Flag .. "_KEY STATE"] = newkey
 						Keybind.Mode = newkey
-						ListValue:Update((Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", "")), Toggle.Name, Keybind.Mode)
+						ListValue:Update((Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", "")), Keybind.Name, Keybind.Mode)
 						if Keybind.Mode == "Always" then
 							State = true
 							if Keybind.Flag then
@@ -3877,325 +3906,6 @@ Library.Sections.__index = Library.Sections;
 				local baseHeight = 16 -- Height per line
 				local padding = 8 -- Top and bottom padding
 				NewLabel.Size = UDim2.new(1, -30, 0, lineCount * baseHeight + padding)
-			end
-			
-			-- Add keybind support for labels
-			function Label:Keybind(Properties)
-				local Properties = Properties or {}
-				local Keybind = {
-					Section = self,
-					State = (
-						Properties.state
-							or Properties.State
-							or Properties.def
-							or Properties.Def
-							or Properties.default
-							or Properties.Default
-							or nil
-					),
-					Mode = (Properties.mode or Properties.Mode or "Toggle"),
-					Callback = (
-						Properties.callback
-							or Properties.Callback
-							or Properties.callBack
-							or Properties.CallBack
-							or function() end
-					),
-					Flag = (
-						Properties.flag
-							or Properties.Flag
-							or Properties.pointer
-							or Properties.Pointer
-							or Library.NextFlag()
-					),
-					Name = Properties.name or Properties.Name or "Keybind",
-					Binding = nil,
-				}
-				local Key
-				local State = false
-				--
-				local KeyContainer = Instance.new('Frame', NewLabel)
-				local Outline = Instance.new('TextButton', KeyContainer)
-				local Inline = Instance.new('Frame', Outline)
-				local Value = Instance.new('TextLabel', Inline)
-				local ModeOutline = Instance.new('Frame', KeyContainer)
-				local ModeInline = Instance.new('Frame', ModeOutline)
-				local UIListLayout = Instance.new('UIListLayout', ModeInline)
-				local Hold = Instance.new('TextButton', ModeInline)
-				local Toggle = Instance.new('TextButton', ModeInline)
-				local Always = Instance.new('TextButton', ModeInline)
-				local ListValue = Library.KeyList:NewKey(tostring(Keybind.State):gsub("Enum.KeyCode.", ""), Label.Name, Keybind.Mode)
-				
-				-- Position the keybind button at the right side of the label
-				KeyContainer.Name = "KeyContainer"
-				KeyContainer.Position = UDim2.new(1, -45, 0, 0)
-				KeyContainer.Size = UDim2.new(0, 40, 0, 12)
-				KeyContainer.BackgroundTransparency = 1
-				KeyContainer.AnchorPoint = Vector2.new(1, 0)
-				
-				Outline.Name = "Outline"
-				Outline.Position = UDim2.new(0, 0, 0, 0)
-				Outline.Size = UDim2.new(1, 0, 1, 0)
-				Outline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
-				Outline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
-				Outline.Text = ""
-				Outline.AutoButtonColor = false
-				
-				Inline.Name = "Inline"
-				Inline.Position = UDim2.new(0,1,0,1)
-				Inline.Size = UDim2.new(1,-2,1,-2)
-				Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
-				Inline.BorderSizePixel = 0
-				Inline.BorderColor3 = Color3.new(0,0,0)
-				
-				Value.Name = "Value"
-				Value.Size = UDim2.new(1,0,1,0)
-				Value.BackgroundColor3 = Color3.new(1,1,1)
-				Value.BackgroundTransparency = 1
-				Value.BorderSizePixel = 0
-				Value.BorderColor3 = Color3.new(0,0,0)
-				Value.Text = "MB2"
-				Value.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
-				Value.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-				Value.TextSize = Library.FontSize
-				Value.TextStrokeTransparency = 0
-				
-				ModeOutline.Name = "ModeOutline"
-				ModeOutline.Position = UDim2.new(1,25,0,0)
-				ModeOutline.Size = UDim2.new(0,60,0,12)
-				ModeOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
-				ModeOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
-				ModeOutline.AutomaticSize = Enum.AutomaticSize.Y
-				ModeOutline.Visible = false
-				ModeOutline.ZIndex = 100
-
-				ModeInline.Name = "ModeInline"
-				ModeInline.Position = UDim2.new(0,1,0,1)
-				ModeInline.Size = UDim2.new(1,-2,1,-2)
-				ModeInline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
-				ModeInline.BorderSizePixel = 0
-				ModeInline.BorderColor3 = Color3.new(0,0,0)
-				ModeInline.ZIndex = 100
-				
-				UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-				UIListLayout.ZIndex = 100
-				
-				Hold.Name = "Hold"
-				Hold.Size = UDim2.new(1,0,0,15)
-				Hold.BackgroundColor3 = Color3.new(1,1,1)
-				Hold.BackgroundTransparency = 1
-				Hold.BorderSizePixel = 0
-				Hold.BorderColor3 = Color3.new(0,0,0)
-				Hold.Text = "Hold"
-				Hold.TextColor3 = Keybind.Mode == "Hold" and Color3.new(1,1,1) or Color3.new(0.5686,0.5686,0.5686)
-				Hold.AutoButtonColor = false
-				Hold.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-				Hold.TextSize = Library.FontSize
-				Hold.TextStrokeTransparency = 0
-				Hold.ZIndex = 100
-				
-				Toggle.Name = "Toggle"
-				Toggle.Size = UDim2.new(1,0,0,15)
-				Toggle.BackgroundColor3 = Color3.new(1,1,1)
-				Toggle.BackgroundTransparency = 1
-				Toggle.BorderSizePixel = 0
-				Toggle.BorderColor3 = Color3.new(0,0,0)
-				Toggle.Text = "Toggle"
-				Toggle.TextColor3 = Keybind.Mode == "Toggle" and Color3.new(1,1,1) or Color3.new(0.5686,0.5686,0.5686)
-				Toggle.AutoButtonColor = false
-				Toggle.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-				Toggle.TextSize = Library.FontSize
-				Toggle.TextStrokeTransparency = 0
-				Toggle.ZIndex = 100
-				
-				Always.Name = "Always"
-				Always.Size = UDim2.new(1,0,0,15)
-				Always.BackgroundColor3 = Color3.new(1,1,1)
-				Always.BackgroundTransparency = 1
-				Always.BorderSizePixel = 0
-				Always.BorderColor3 = Color3.new(0,0,0)
-				Always.Text = "Always"
-				Always.TextColor3 = Keybind.Mode == "Always" and Color3.new(1,1,1) or Color3.new(0.5686,0.5686,0.5686)
-				Always.AutoButtonColor = false
-				Always.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-				Always.TextSize = Library.FontSize
-				Always.TextStrokeTransparency = 0
-				Always.ZIndex = 100
-
-				-- // Functions
-				local function set(newkey)
-					if string.find(tostring(newkey), "Enum") then
-						if c then
-							c:Disconnect()
-							if Keybind.Flag then
-								Library.Flags[Keybind.Flag] = false
-							end
-							Keybind.Callback(false)
-						end
-						if tostring(newkey):find("Enum.KeyCode.") then
-							newkey = Enum.KeyCode[tostring(newkey):gsub("Enum.KeyCode.", "")]
-						elseif tostring(newkey):find("Enum.UserInputType.") then
-							newkey = Enum.UserInputType[tostring(newkey):gsub("Enum.UserInputType.", "")]
-						end
-						if newkey == Enum.KeyCode.Backspace then
-							Key = nil
-							local text = "None"
-							Value.Text = text
-							ListValue:Update(text, Label.Name, Keybind.Mode)
-						elseif newkey ~= nil then
-							Key = newkey
-							local text = (Library.Keys[newkey] or tostring(newkey):gsub("Enum.KeyCode.", ""))
-							Value.Text = text
-							ListValue:Update(text, Label.Name, Keybind.Mode)
-						end
-						Library.Flags[Keybind.Flag .. "_KEY"] = newkey
-					elseif table.find({ "Always", "Toggle", "Hold" }, newkey) then
-						Library.Flags[Keybind.Flag .. "_KEY STATE"] = newkey
-						Keybind.Mode = newkey
-						ListValue:Update((Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", "")), Label.Name, Keybind.Mode)
-						
-						-- Update the button colors based on selected mode
-						Hold.TextColor3 = newkey == "Hold" and Color3.new(1,1,1) or Color3.new(0.5686,0.5686,0.5686)
-						Toggle.TextColor3 = newkey == "Toggle" and Color3.new(1,1,1) or Color3.new(0.5686,0.5686,0.5686)
-						Always.TextColor3 = newkey == "Always" and Color3.new(1,1,1) or Color3.new(0.5686,0.5686,0.5686)
-						
-						if Keybind.Mode == "Always" then
-							State = true
-							if Keybind.Flag then
-								Library.Flags[Keybind.Flag] = State
-							end
-							Keybind.Callback(true)
-							ListValue:SetVisible(true)
-						end
-					else
-						State = newkey
-						if Keybind.Flag then
-							Library.Flags[Keybind.Flag] = newkey
-						end
-						Keybind.Callback(newkey)
-					end
-				end
-				
-				-- Set initial state
-				set(Keybind.State)
-				set(Keybind.Mode)
-				
-				-- Button click event to start binding
-				Outline.MouseButton1Click:Connect(function()
-					if not Keybind.Binding then
-						Value.Text = "..."
-						Keybind.Binding = Library:Connection(
-							game:GetService("UserInputService").InputBegan,
-							function(input, gpe)
-								set(
-									input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode or input.UserInputType
-								)
-								Library:Disconnect(Keybind.Binding)
-								task.wait()
-								Keybind.Binding = nil
-							end
-						)
-					end
-				end)
-				
-				-- Right-click to show mode selection
-				Library:Connection(Outline.MouseButton2Down, function()
-					ModeOutline.Visible = not ModeOutline.Visible
-				end)
-				
-				-- Mode selection buttons
-				Library:Connection(Hold.MouseButton1Down, function()
-					set("Hold")
-				end)
-				
-				Library:Connection(Toggle.MouseButton1Down, function()
-					set("Toggle")
-				end)
-				
-				Library:Connection(Always.MouseButton1Down, function()
-					set("Always")
-				end)
-				
-				-- Close mode selection when clicking elsewhere
-				Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
-					if ModeOutline.Visible and Input.UserInputType == Enum.UserInputType.MouseButton1 then
-						if not Library:IsMouseOverFrame(ModeOutline) then
-							ModeOutline.Visible = false
-						end
-					end
-				end)
-				
-				-- Input handling for keybind functionality
-				Library:Connection(game:GetService("UserInputService").InputBegan, function(inp, Chatting)
-					if not Chatting then
-						if (inp.KeyCode == Key or inp.UserInputType == Key) and not Keybind.Binding then
-							if Keybind.Mode == "Hold" then
-								State = true
-								if Keybind.Flag then
-									Library.Flags[Keybind.Flag] = true
-								end
-								c = Library:Connection(game:GetService("RunService").RenderStepped, function()
-									if Keybind.Callback then
-										Keybind.Callback(true)
-									end
-								end)
-								ListValue:SetVisible(true)
-							elseif Keybind.Mode == "Toggle" then
-								State = not State
-								if Keybind.Flag then
-									Library.Flags[Keybind.Flag] = State
-								end
-								Keybind.Callback(State)
-								ListValue:SetVisible(State)
-							end
-						end
-					end
-				end)
-				
-				-- Release handling for Hold mode
-				Library:Connection(game:GetService("UserInputService").InputEnded, function(inp, Chatting)
-					if not Chatting then
-						if Keybind.Mode == "Hold" then
-							if Key ~= "" and Key ~= nil then
-								if inp.KeyCode == Key or inp.UserInputType == Key then
-									if c then
-										c:Disconnect()
-										State = false
-										if Keybind.Flag then
-											Library.Flags[Keybind.Flag] = false
-										end
-										if Keybind.Callback then
-											Keybind.Callback(false)
-										end
-										ListValue:SetVisible(false)
-									end
-								end
-							end
-						end
-					end
-				end)
-				
-				-- Hover effects
-				Library:Connection(Outline.MouseEnter, function()
-					Outline.BorderColor3 = Library.Accent
-				end)
-				
-				Library:Connection(Outline.MouseLeave, function()
-					Outline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
-				end)
-				
-				-- Setup flags
-				Library.Flags[Keybind.Flag .. "_KEY"] = Keybind.State
-				Library.Flags[Keybind.Flag .. "_KEY STATE"] = Keybind.Mode
-				Flags[Keybind.Flag] = set
-				Flags[Keybind.Flag .. "_KEY"] = set
-				Flags[Keybind.Flag .. "_KEY STATE"] = set
-				
-				function Keybind:Set(key)
-					set(key)
-				end
-				
-				return Keybind
 			end
 			
 			return Label
