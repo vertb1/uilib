@@ -2141,7 +2141,7 @@ Library.Sections.__index = Library.Sections;
 			SectionInline.AutomaticSize = Enum.AutomaticSize.Y -- Add automatic vertical sizing
 			--
 			Container.Name = "Container"
-			Container.Position = UDim2.new(0,7,0,16) -- Nudged up slightly by changing Y from 18 to 16
+			Container.Position = UDim2.new(0,7,0,14) -- Nudged up further by changing Y from 16 to 14
 			Container.Size = UDim2.new(1,-14,0,15) -- Minimum height for empty sections
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
