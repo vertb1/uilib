@@ -311,35 +311,6 @@ PlaceHolderUI.Name = "KeybindListGui"
 PlaceHolderUI.DisplayOrder = 100
 PlaceHolderUI.ResetOnSpawn = false
 PlaceHolderUI.Enabled = false
-local Languages = {
-    A = {English = "A", Arabic = "أ", Albanian = "A", Japanese = "あ", Spanish = "A", Russian = "А", Chinese = "阿", Urdu = "ا", French = "A", Portuguese = "A", Hindi = "अ"},
-    B = {English = "B", Arabic = "ب", Albanian = "B", Japanese = "い", Spanish = "B", Russian = "Б", Chinese = "波", Urdu = "ب", French = "B", Portuguese = "B", Hindi = "ब"},
-    C = {English = "C", Arabic = "ت", Albanian = "C", Japanese = "う", Spanish = "C", Russian = "Ц", Chinese = "西", Urdu = "س", French = "C", Portuguese = "C", Hindi = "स"},
-    D = {English = "D", Arabic = "د", Albanian = "D", Japanese = "え", Spanish = "D", Russian = "Д", Chinese = "德", Urdu = "ڈ", French = "D", Portuguese = "D", Hindi = "ड"},
-    E = {English = "E", Arabic = "إ", Albanian = "E", Japanese = "お", Spanish = "E", Russian = "Е", Chinese = "俄", Urdu = "اے", French = "E", Portuguese = "E", Hindi = "ए"},
-    F = {English = "F", Arabic = "ف", Albanian = "F", Japanese = "か", Spanish = "F", Russian = "Ф", Chinese = "夫", Urdu = "ف", French = "F", Portuguese = "F", Hindi = "फ"},
-    G = {English = "G", Arabic = "ج", Albanian = "G", Japanese = "き", Spanish = "G", Russian = "Г", Chinese = "吉", Urdu = "ج", French = "G", Portuguese = "G", Hindi = "ग"},
-    H = {English = "H", Arabic = "ح", Albanian = "H", Japanese = "く", Spanish = "H", Russian = "Х", Chinese = "艾尺", Urdu = "ح", French = "H", Portuguese = "H", Hindi = "ह"},
-    I = {English = "I", Arabic = "ي", Albanian = "I", Japanese = "け", Spanish = "I", Russian = "И", Chinese = "伊", Urdu = "آئی", French = "I", Portuguese = "I", Hindi = "इ"},
-    J = {English = "J", Arabic = "ج", Albanian = "J", Japanese = "こ", Spanish = "J", Russian = "Й", Chinese = "杰", Urdu = "جے", French = "J", Portuguese = "J", Hindi = "ज"},
-    K = {English = "K", Arabic = "ك", Albanian = "K", Japanese = "さ", Spanish = "K", Russian = "К", Chinese = "开", Urdu = "کے", French = "K", Portuguese = "K", Hindi = "क"},
-    L = {English = "L", Arabic = "ل", Albanian = "L", Japanese = "し", Spanish = "L", Russian = "Л", Chinese = "艾勒", Urdu = "ل", French = "L", Portuguese = "L", Hindi = "ल"},
-    M = {English = "M", Arabic = "م", Albanian = "M", Japanese = "す", Spanish = "M", Russian = "М", Chinese = "艾马", Urdu = "م", French = "M", Portuguese = "M", Hindi = "म"},
-    N = {English = "N", Arabic = "ن", Albanian = "N", Japanese = "せ", Spanish = "N", Russian = "Н", Chinese = "艾娜", Urdu = "ن", French = "N", Portuguese = "N", Hindi = "न"},
-    O = {English = "O", Arabic = "أو", Albanian = "O", Japanese = "そ", Spanish = "O", Russian = "О", Chinese = "哦", Urdu = "او", French = "O", Portuguese = "O", Hindi = "ओ"},
-    P = {English = "P", Arabic = "ب", Albanian = "P", Japanese = "た", Spanish = "P", Russian = "П", Chinese = "屁", Urdu = "پ", French = "P", Portuguese = "P", Hindi = "प"},
-    Q = {English = "Q", Arabic = "ق", Albanian = "Q", Japanese = "ち", Spanish = "Q", Russian = "К", Chinese = "丘", Urdu = "ق", French = "Q", Portuguese = "Q", Hindi = "क्यू"},
-    R = {English = "R", Arabic = "ر", Albanian = "R", Japanese = "つ", Spanish = "R", Russian = "Р", Chinese = "艾儿", Urdu = "ر", French = "R", Portuguese = "R", Hindi = "र"},
-    S = {English = "S", Arabic = "س", Albanian = "S", Japanese = "て", Spanish = "S", Russian = "С", Chinese = "艾丝", Urdu = "س", French = "S", Portuguese = "S", Hindi = "एस"},
-    T = {English = "T", Arabic = "ت", Albanian = "T", Japanese = "と", Spanish = "T", Russian = "Т", Chinese = "提", Urdu = "ٹ", French = "T", Portuguese = "T", Hindi = "ट"},
-    U = {English = "U", Arabic = "أو", Albanian = "U", Japanese = "な", Spanish = "U", Russian = "У", Chinese = "优", Urdu = "یو", French = "U", Portuguese = "U", Hindi = "यू"},
-    V = {English = "V", Arabic = "ف", Albanian = "V", Japanese = "に", Spanish = "V", Russian = "В", Chinese = "维", Urdu = "وی", French = "V", Portuguese = "V", Hindi = "व"},
-    W = {English = "W", Arabic = "و", Albanian = "W", Japanese = "ぬ", Spanish = "W", Russian = "В", Chinese = "豆贝尔维", Urdu = "ڈبلیو", French = "W", Portuguese = "W", Hindi = "डब्ल्यू"},
-    X = {English = "X", Arabic = "إكس", Albanian = "X", Japanese = "ね", Spanish = "X", Russian = "Х", Chinese = "艾克斯", Urdu = "اکس", French = "X", Portuguese = "X", Hindi = "एक्स"},
-    Y = {English = "Y", Arabic = "ي", Albanian = "Y", Japanese = "の", Spanish = "Y", Russian = "У", Chinese = "伊儿", Urdu = "وائی", French = "Y", Portuguese = "Y", Hindi = "वाई"},
-    Z = {English = "Z", Arabic = "ز", Albanian = "Z", Japanese = "は", Spanish = "Z", Russian = "З", Chinese = "贼德", Urdu = "زیڈ", French = "Z", Portuguese = "Z", Hindi = "जेड"}
-}
-local utx = {} 
 local Messages = {}
 local drawingCache = {} 
 
@@ -406,32 +377,79 @@ Library.Sections.__index = Library.Sections;
 		function Library:ApplyTheme(theme)
 			local selectedTheme = self.Themes[theme] or self.Themes.Default
 			
-			-- Update accent color and other elements
+			-- Update accent color
 			self.Accent = selectedTheme.Accent
 			
 			-- Update all UI elements with the theme
 			for _, obj in pairs(self.ThemeObjects) do
-				if obj.BackgroundColor3 ~= nil then
+				if obj and obj.BackgroundColor3 ~= nil then
 					obj.BackgroundColor3 = selectedTheme.Accent
 				end
 			end
 			
 			-- Update background colors if the Holder exists
 			if self.Holder then
+				-- Update main window
 				self.Holder.BackgroundColor3 = selectedTheme.TopBackground
 				self.Holder.BorderColor3 = selectedTheme.Border
 				
-				-- Find and update other UI elements
+				-- Update all descendants with proper names and types
 				for _, descendant in pairs(self.Holder:GetDescendants()) do
+					-- Frame updates
 					if descendant:IsA("Frame") then
-						if descendant.Name == "Inline" or descendant.Name == "HolderInline" then
+						-- Handle different frame types
+						if descendant.Name == "Inline" or descendant.Name == "HolderInline" or
+						   descendant.Name == "SectionInline" or descendant.Name == "ContainerInline" then
 							descendant.BackgroundColor3 = selectedTheme.Background
-						elseif descendant.Name == "Outline" or descendant.Name == "HolderOutline" then
+						elseif descendant.Name == "Outline" or descendant.Name == "HolderOutline" or 
+							   descendant.Name == "SectionOutline" or descendant.Name == "ContainerOutline" then
 							descendant.BackgroundColor3 = selectedTheme.TopBackground
 							descendant.BorderColor3 = selectedTheme.Border
+						elseif descendant.Name == "TabLine" then
+							descendant.BackgroundColor3 = selectedTheme.TopBackground
+						elseif descendant.Name == "SectionAccent" or descendant.Name == "TabAccent" then
+							descendant.BackgroundColor3 = selectedTheme.Accent
 						end
-					elseif descendant:IsA("TextLabel") or descendant:IsA("TextButton") then
-						descendant.TextColor3 = selectedTheme.TextColor
+					end
+					
+					-- Update text elements
+					if descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox") then
+						-- Preserve white text for open tabs
+						if descendant.Name == "TabButton" and descendant.TextColor3 == Color3.fromRGB(255, 255, 255) then
+							-- This is an active tab, keep it white
+						else
+							-- Other text elements
+							if descendant.TextColor3 == Color3.fromRGB(145, 145, 145) then
+								-- Don't change inactive element colors
+							elseif descendant.TextColor3 == Library.Accent then
+								-- Update text that was using the old accent
+								descendant.TextColor3 = selectedTheme.Accent
+							elseif descendant.TextColor3 == Color3.fromRGB(255, 255, 255) or 
+								  descendant.TextColor3 == Color3.new(1, 1, 1) then
+								-- Only update white text that isn't an active tab
+								if descendant.Name ~= "TabButton" then
+									descendant.TextColor3 = selectedTheme.TextColor
+								end
+							end
+						end
+					end
+				end
+			end
+			
+			-- Update keybinds list if it exists
+			if self.KeyList and self.KeyList.Outline then
+				self.KeyList.Outline.BackgroundColor3 = selectedTheme.TopBackground
+				self.KeyList.Outline.BorderColor3 = selectedTheme.Border
+				
+				for _, child in pairs(self.KeyList.Outline:GetDescendants()) do
+					if child:IsA("Frame") then
+						if child.Name == "Inline" then
+							child.BackgroundColor3 = selectedTheme.Background
+						elseif child.Name == "Accent" then
+							child.BackgroundColor3 = selectedTheme.Accent
+						end
+					elseif child:IsA("TextLabel") then
+						child.TextColor3 = selectedTheme.TextColor
 					end
 				end
 			end
@@ -442,10 +460,28 @@ Library.Sections.__index = Library.Sections;
 				self.WatermarkFrame.BorderColor3 = selectedTheme.Border
 				
 				for _, child in pairs(self.WatermarkFrame:GetDescendants()) do
-					if child:IsA("Frame") and child.Name == "InlineFrame" then
-						child.BackgroundColor3 = selectedTheme.Background
+					if child:IsA("Frame") then
+						if child.Name == "InlineFrame" then
+							child.BackgroundColor3 = selectedTheme.Background
+						elseif child.Name == "AccentBar" then
+							child.BackgroundColor3 = selectedTheme.Accent
+						end
 					elseif child:IsA("TextLabel") then
 						child.TextColor3 = selectedTheme.TextColor
+					end
+				end
+			end
+			
+			-- Update notifications
+			for _, notification in pairs(self.Notifs) do
+				for _, obj in pairs(notification.Objects) do
+					if obj.Name == "Background" then
+						obj.BackgroundColor3 = selectedTheme.Background
+						obj.BorderColor3 = selectedTheme.Border
+					elseif obj.Name == "Accemt" then
+						obj.BackgroundColor3 = selectedTheme.Accent
+					elseif obj.Name == "TextLabel" then
+						obj.TextColor3 = selectedTheme.TextColor
 					end
 				end
 			end
