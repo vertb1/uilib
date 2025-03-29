@@ -1482,7 +1482,9 @@ Library.Sections.__index = Library.Sections;
 				-- Add padding at the bottom with safety check
 				local padding = Section and Section.ContentPadding or 5
 				local contentSize = UIListLayout.AbsoluteContentSize.Y + padding * 2
-				Container.Size = UDim2.new(1, -14, 0, contentSize)
+				if Container and Container:IsA("GuiObject") then
+					Container.Size = UDim2.new(1, -14, 0, contentSize)
+				end
 			end)
 			--
 			Hold.Name = "Hold"
@@ -1819,7 +1821,9 @@ Library.Sections.__index = Library.Sections;
 				-- Add padding at the bottom with safety check
 				local padding = Section and Section.ContentPadding or 5
 				local contentSize = UIListLayout.AbsoluteContentSize.Y + padding * 2
-				Container.Size = UDim2.new(1, -14, 0, contentSize)
+				if Container and Container:IsA("GuiObject") then
+					Container.Size = UDim2.new(1, -14, 0, contentSize)
+				end
 			end)
 			--
 			DragButton.Name = "DragButton"
@@ -2039,7 +2043,14 @@ Library.Sections.__index = Library.Sections;
 				ContentPadding = Properties.Padding or 5, -- Add padding option with default value
 			}
 			--
-			local SectionOutline = Instance.new('Frame', Section.Side == "left" and Section.Page.Elements.Left or Section.Side == "right" and Section.Page.Elements.Right)
+			local parentFrame
+			if Section.Side == "Right" then
+				parentFrame = Section.Page.Elements.Right
+			else
+				parentFrame = Section.Page.Elements.Left
+			end
+			
+			local SectionOutline = Instance.new('Frame', parentFrame)
 			local SectionInline = Instance.new('Frame', SectionOutline)
 			local Container = Instance.new('Frame', SectionInline)
 			local UIListLayout = Instance.new('UIListLayout', Container)
