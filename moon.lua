@@ -1844,10 +1844,11 @@ Library.Sections.__index = Library.Sections;
 			Tabs.BackgroundTransparency = 1
 			Tabs.BorderSizePixel = 0
 			Tabs.BorderColor3 = Color3.new(0,0,0)
+			Tabs.ClipsDescendants = true -- Ensure tab buttons don't overflow
 			--
 			UIListLayout.FillDirection = Enum.FillDirection.Horizontal
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0,6)
+			UIListLayout.Padding = UDim.new(0,0) -- Removed padding between tabs
 			UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 			UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
@@ -1924,7 +1925,16 @@ Library.Sections.__index = Library.Sections;
 			-- // Functions
 			function Window:UpdateTabs()
 				for Index, Page in pairs(Window.Pages) do
-					Page.Elements.Button.Size = UDim2.new(1/#Window.Pages,0,1,0)
+					-- Calculate exact width based on number of tabs
+					local width = 1 / #Window.Pages
+					-- Set button width with exact sizing to prevent overflow
+					Page.Elements.Button.Size = UDim2.new(width, 0, 1, 0)
+					
+					-- Adjust tab line to fit perfectly within the button
+					if Page.Elements.Button:FindFirstChild("TabLine") then
+						Page.Elements.Button.TabLine.Size = UDim2.new(1, 0, 0, 1)
+					end
+					
 					Page:Turn(Page.Open)
 				end
 			end
@@ -2016,6 +2026,7 @@ Library.Sections.__index = Library.Sections;
 			TabLine.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			TabLine.BorderSizePixel = 0
 			TabLine.BorderColor3 = Color3.new(0,0,0)
+			TabLine.ZIndex = 2 -- Ensure the line appears above other elements
 
 			function Page:Turn(bool)
 				Page.Open = bool
