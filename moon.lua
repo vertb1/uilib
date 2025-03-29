@@ -1955,8 +1955,8 @@ Library.Sections.__index = Library.Sections;
 			local UIListLayout = Instance.new('UIListLayout', Left)
 			local UIListLayout_2 = Instance.new('UIListLayout', Right)
 			Left.Name = "Left"
-			Left.Position = UDim2.new(0,5,0,35) -- Increase Y position to 35 for more spacing below tabs
-			Left.Size = UDim2.new(0.5,-10,1,-40) -- Adjust size to match the new position
+			Left.Position = UDim2.new(0,5,0,40) -- Increase Y position to 40 for more spacing below tabs
+			Left.Size = UDim2.new(0.5,-10,1,-45) -- Adjust size to match the new position
 			Left.BackgroundColor3 = Color3.new(1,1,1)
 			Left.BorderSizePixel = 0
 			Left.BackgroundTransparency = 1
@@ -1969,8 +1969,8 @@ Library.Sections.__index = Library.Sections;
 			Left.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			Right.Name = "Right"
-			Right.Position = UDim2.new(1,-5,0,35) -- Increase Y position to 35 for more spacing below tabs
-			Right.Size = UDim2.new(0.5,-5,1,-40) -- Adjust size to match the new position
+			Right.Position = UDim2.new(1,-5,0,40) -- Increase Y position to 40 for more spacing below tabs
+			Right.Size = UDim2.new(0.5,-5,1,-45) -- Adjust size to match the new position
 			Right.BackgroundColor3 = Color3.new(1,1,1)
 			Right.BorderSizePixel = 0
 			Right.BorderColor3 = Color3.new(0,0,0)
@@ -2001,9 +2001,12 @@ Library.Sections.__index = Library.Sections;
 			TabButton.TextSize = Library.FontSize
 			TabButton.TextStrokeTransparency = 0
 			TabButton.LineHeight = 1.1
+			TabButton.ClipsDescendants = true -- Make sure descendants like accent lines don't extend beyond the button
 			--
 			TabAccent.Name = "TabAccent"
-			TabAccent.Size = UDim2.new(1,0,0,1)
+			TabAccent.Size = UDim2.new(0.95,0,0,1) -- Make accent slightly smaller than parent
+			TabAccent.Position = UDim2.new(0.5, 0, 0, 0) -- Center the accent
+			TabAccent.AnchorPoint = Vector2.new(0.5, 0) -- Center anchor point
 			TabAccent.BackgroundColor3 = Library.Accent
 			TabAccent.BorderSizePixel = 0
 			TabAccent.BorderColor3 = Color3.new(0,0,0)
@@ -2012,7 +2015,9 @@ Library.Sections.__index = Library.Sections;
 			--
 			TabLine.Name = "TabLine"
 			TabLine.Position = UDim2.new(0,0,1,-1)
-			TabLine.Size = UDim2.new(1,0,0,1)
+			TabLine.Size = UDim2.new(0.95,0,0,1) -- Make line slightly smaller than parent
+			TabLine.Position = UDim2.new(0.5, 0, 1, -1) -- Center the line
+			TabLine.AnchorPoint = Vector2.new(0.5, 0) -- Center anchor point
 			TabLine.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			TabLine.BorderSizePixel = 0
 			TabLine.BorderColor3 = Color3.new(0,0,0)
@@ -2131,7 +2136,7 @@ Library.Sections.__index = Library.Sections;
 			
 			-- Add extra padding at the top of the section if it's the first one
 			if isFirstSection then
-				SectionOutline.Position = UDim2.new(0, 0, 0, 12) -- Add 12 pixels of margin at the top (increased from 8)
+				SectionOutline.Position = UDim2.new(0, 0, 0, 20) -- Add 20 pixels of margin at the top
 			end
 						
 			--
@@ -2144,7 +2149,7 @@ Library.Sections.__index = Library.Sections;
 			SectionInline.AutomaticSize = Enum.AutomaticSize.Y -- Add automatic vertical sizing
 			--
 			Container.Name = "Container"
-			Container.Position = UDim2.new(0,7,0,10)
+			Container.Position = UDim2.new(0,7,0,20) -- Start container 20px from top to make room for title
 			Container.Size = UDim2.new(1,-14,0,15) -- Minimum height for empty sections
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
@@ -2152,6 +2157,35 @@ Library.Sections.__index = Library.Sections;
 			Container.BorderColor3 = Color3.new(0,0,0)
 			Container.AutomaticSize = Enum.AutomaticSize.Y
 			--
+			
+			Title.Name = "Title"
+			Title.Position = UDim2.new(0,0,0,0) -- Position at top
+			Title.Size = UDim2.new(1,0,0,20) -- Full width for title bar
+			Title.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294) -- Slightly darker than section inline
+			Title.BackgroundTransparency = 0
+			Title.BorderSizePixel = 0
+			Title.BorderColor3 = Color3.new(0,0,0)
+			Title.TextColor3 = Color3.new(1,1,1)
+			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			Title.TextSize = Library.FontSize + 1
+			Title.ZIndex = 5 -- Increased Z-index to ensure it's visible
+			Title.TextXAlignment = Enum.TextXAlignment.Center
+			Title.Text = Section.Name
+			Title.TextStrokeTransparency = 0
+			
+			-- Create a small accent bar at the top of the title
+			local TitleAccent = Instance.new('Frame', Title)
+			TitleAccent.Name = "TitleAccent"
+			TitleAccent.Size = UDim2.new(1,0,0,1)
+			TitleAccent.Position = UDim2.new(0,0,0,0)
+			TitleAccent.BackgroundColor3 = Library.Accent
+			TitleAccent.BorderSizePixel = 0
+			TitleAccent.ZIndex = 6
+			table.insert(Library.ThemeObjects, TitleAccent)
+			
+			-- Hide the text border since we're using full title bar
+			TextBorder.Visible = false
+			
 			Space.Name = "Space"
 			Space.Position = UDim2.new(0,0,1,0)
 			Space.Size = UDim2.new(1,0,0,1)
@@ -2168,29 +2202,6 @@ Library.Sections.__index = Library.Sections;
 			SectionAccent.BorderColor3 = Color3.new(0,0,0)
 			table.insert(Library.ThemeObjects, SectionAccent)
 			table.insert(Library.ThemeObjects, SectionAccent)
-			--
-			Title.Name = "Title"
-			Title.Position = UDim2.new(0,10,0,-11) -- Move up more to -11 from -9
-			Title.Size = UDim2.new(0,100,0,20) -- Increase height to 20 from 18
-			Title.BackgroundColor3 = Color3.new(1,1,1)
-			Title.BackgroundTransparency = 1
-			Title.BorderSizePixel = 0
-			Title.BorderColor3 = Color3.new(0,0,0)
-			Title.TextColor3 = Color3.new(1,1,1)
-			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-			Title.TextSize = Library.FontSize + 1 -- Slightly larger text
-			Title.ZIndex = 3
-			Title.TextXAlignment = Enum.TextXAlignment.Left
-			Title.Text = Section.Name
-			Title.TextStrokeTransparency = 0
-			--
-			TextBorder.Name = "TextBorder"
-			TextBorder.Position = UDim2.new(0,6,0,-4) -- Move up to -4 from -3
-			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 10,0,8) -- Increase width padding to 10 and height to 8
-			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
-			TextBorder.BorderSizePixel = 0
-			TextBorder.BorderColor3 = Color3.new(0,0,0)
-			TextBorder.ZIndex = 2 -- Ensure it's behind the text
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			UIListLayout.Padding = UDim.new(0,6)
@@ -2256,6 +2267,9 @@ Library.Sections.__index = Library.Sections;
 					Container.Size = UDim2.new(1, -14, 0, containerHeight)
 				end
 				
+				-- Include title height in overall section size
+				local titleHeight = Title and Title.Visible and Title.Size.Y.Offset or 0
+				
 				-- Set section size to match content
 				if SectionInline then
 					SectionInline.Size = UDim2.new(1, -2, 0, containerHeight + padding)
@@ -2272,7 +2286,7 @@ Library.Sections.__index = Library.Sections;
 			end)
 
 			wait(0.01)
-			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 10,0,8)
+			-- No need to resize TextBorder since we're using a full-width title bar
 			return setmetatable(Section, Library.Sections)
 		end
 		--
