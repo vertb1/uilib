@@ -2112,10 +2112,10 @@ Library.Sections.__index = Library.Sections;
 			
 			local SectionOutline = Instance.new('Frame', parentFrame)
 			local SectionInline = Instance.new('Frame', SectionOutline)
+			local SectionAccent = Instance.new('Frame', SectionOutline) -- Moved parent to SectionOutline
 			local Container = Instance.new('Frame', SectionInline)
 			local UIListLayout = Instance.new('UIListLayout', Container)
 			local Space = Instance.new('Frame', Container)
-			local SectionAccent = Instance.new('Frame', SectionInline)
 			local Title = Instance.new('TextLabel', SectionOutline)
 			local TextBorder = Instance.new('Frame', SectionOutline)	
 			--
@@ -2133,8 +2133,8 @@ Library.Sections.__index = Library.Sections;
 			
 			--
 			SectionInline.Name = "SectionInline"
-			SectionInline.Position = UDim2.new(0,1,0,1)
-			SectionInline.Size = UDim2.new(1,-2,1,-2)
+			SectionInline.Position = UDim2.new(0,1,0,2) -- Shifted down 1px
+			SectionInline.Size = UDim2.new(1,-2,1,-3) -- Adjusted size to account for position change
 			SectionInline.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			SectionInline.BorderSizePixel = 0
 			SectionInline.BorderColor3 = Color3.new(0,0,0)
@@ -2159,15 +2159,15 @@ Library.Sections.__index = Library.Sections;
 			Space.LayoutOrder = 1000
 			--
 			SectionAccent.Name = "SectionAccent"
+			SectionAccent.Position = UDim2.new(0,0,0,0) -- Position at top-left
 			SectionAccent.Size = UDim2.new(1,0,0,1)
 			SectionAccent.BackgroundColor3 = Library.Accent
 			SectionAccent.BorderSizePixel = 0
-			SectionAccent.BorderColor3 = Color3.new(0,0,0)
 			table.insert(Library.ThemeObjects, SectionAccent)
 			table.insert(Library.ThemeObjects, SectionAccent)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,10,0,0) -- Changed Y offset from -8 to 0
+			Title.Position = UDim2.new(0,10,0,1) -- Shifted down 1px
 			Title.Size = UDim2.new(0,100,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
@@ -2182,7 +2182,7 @@ Library.Sections.__index = Library.Sections;
 			Title.TextStrokeTransparency = 0
 			--
 			TextBorder.Name = "TextBorder"
-			TextBorder.Position = UDim2.new(0,6,0,0) -- Changed Y offset from -2 to 0
+			TextBorder.Position = UDim2.new(0,6,0,1) -- Shifted down 1px
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
 			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			TextBorder.BorderSizePixel = 0
