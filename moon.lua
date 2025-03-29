@@ -2792,6 +2792,7 @@ Library.Sections.__index = Library.Sections;
 			ContainerOutline.Visible = false
 			ContainerOutline.AutomaticSize = Enum.AutomaticSize.Y
 			ContainerOutline.ZIndex = 10 -- Higher Z-index to show above other elements
+			ContainerOutline.ClipsDescendants = false -- Don't clip children
 			--
 			ContainerInline.Name = "ContainerInline"
 			ContainerInline.Position = UDim2.new(0,1,0,1)
@@ -2800,6 +2801,7 @@ Library.Sections.__index = Library.Sections;
 			ContainerInline.BorderSizePixel = 0
 			ContainerInline.BorderColor3 = Color3.new(0,0,0)
 			ContainerInline.ZIndex = 11
+			ContainerInline.ClipsDescendants = false -- Don't clip children
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			UIListLayout.Padding = UDim.new(0, 1)
@@ -2853,13 +2855,13 @@ Library.Sections.__index = Library.Sections;
 
 							Value.Text = #chosen == 0 and "" or table.concat(textchosen, ",") .. (cutobject and ", ..." or "")
 
-							text.TextColor3 = Color3.fromRGB(145,145,145)
+							text.TextColor3 = Color3.fromRGB(204, 204, 204) -- Light gray for unselected
 
 							Library.Flags[Dropdown.Flag] = chosen
 							Dropdown.Callback(chosen)
 						else
 							if #chosen == Dropdown.Max then
-								Dropdown.OptionInsts[chosen[1]].text.TextColor3 = Color3.fromRGB(145,145,145)
+								Dropdown.OptionInsts[chosen[1]].text.TextColor3 = Color3.fromRGB(204, 204, 204)
 								table.remove(chosen, 1)
 							end
 
@@ -2874,7 +2876,7 @@ Library.Sections.__index = Library.Sections;
 
 							Value.Text = #chosen == 0 and "" or table.concat(textchosen, ",") .. (cutobject and ", ..." or "")
 
-							text.TextColor3 = Color3.fromRGB(255,255,255)
+							text.TextColor3 = Color3.fromRGB(255, 255, 255) -- White for selected
 
 							Library.Flags[Dropdown.Flag] = chosen
 							Dropdown.Callback(chosen)
@@ -2882,12 +2884,12 @@ Library.Sections.__index = Library.Sections;
 					else
 						for opt, tbl in next, Dropdown.OptionInsts do
 							if opt ~= option then
-								tbl.text.TextColor3 = Color3.fromRGB(145,145,145)
+								tbl.text.TextColor3 = Color3.fromRGB(204, 204, 204) -- Light gray for unselected
 							end
 						end
 						chosen = option
 						Value.Text = option
-						text.TextColor3 = Color3.fromRGB(255,255,255)
+						text.TextColor3 = Color3.fromRGB(255, 255, 255) -- White for selected
 						Library.Flags[Dropdown.Flag] = option
 						Dropdown.Callback(option)
 					end
@@ -2899,34 +2901,44 @@ Library.Sections.__index = Library.Sections;
 					Dropdown.OptionInsts[option] = {}
 					local NewOption = Instance.new('TextButton', ContainerInline)
 					local OptionName = Instance.new('TextLabel', NewOption)
+					
 					NewOption.Name = "NewOption"
-					NewOption.Size = UDim2.new(1,0,0,15)
-					NewOption.BackgroundColor3 = Color3.new(1,1,1)
-					NewOption.BackgroundTransparency = 1
+					NewOption.Size = UDim2.new(1, 0, 0, 18) -- Increased height for better visibility
+					NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294) -- Add background color
+					NewOption.BackgroundTransparency = 0 -- Make background visible
 					NewOption.BorderSizePixel = 0
-					NewOption.BorderColor3 = Color3.new(0,0,0)
+					NewOption.BorderColor3 = Color3.new(0, 0, 0)
 					NewOption.Text = ""
-					NewOption.TextColor3 = Color3.new(0,0,0)
+					NewOption.TextColor3 = Color3.new(0, 0, 0)
 					NewOption.AutoButtonColor = false
 					NewOption.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 					NewOption.TextSize = 14
-					NewOption.ZIndex = 7;
+					NewOption.ZIndex = 12 -- Higher z-index to appear above container
 					Dropdown.OptionInsts[option].button = NewOption
-					--
+					
+					-- Option hover effect
+					Library:Connection(NewOption.MouseEnter, function()
+						NewOption.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15) -- Slightly lighter when hovering
+					end)
+					
+					Library:Connection(NewOption.MouseLeave, function()
+						NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294) -- Back to normal when not hovering
+					end)
+					
 					OptionName.Name = "OptionName"
-					OptionName.Position = UDim2.new(0,2,0,0)
-					OptionName.Size = UDim2.new(1,0,1,0)
-					OptionName.BackgroundColor3 = Color3.new(1,1,1)
+					OptionName.Position = UDim2.new(0, 4, 0, 0) -- More padding on left
+					OptionName.Size = UDim2.new(1, -8, 1, 0) -- Padding on both sides
+					OptionName.BackgroundColor3 = Color3.new(1, 1, 1)
 					OptionName.BackgroundTransparency = 1
 					OptionName.BorderSizePixel = 0
-					OptionName.BorderColor3 = Color3.new(0,0,0)
+					OptionName.BorderColor3 = Color3.new(0, 0, 0)
 					OptionName.Text = option
-					OptionName.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
+					OptionName.TextColor3 = Color3.new(0.8, 0.8, 0.8) -- Brighter text for better visibility
 					OptionName.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 					OptionName.TextSize = Library.FontSize
 					OptionName.TextXAlignment = Enum.TextXAlignment.Left
 					OptionName.TextStrokeTransparency = 0
-					OptionName.ZIndex = 8;
+					OptionName.ZIndex = 13 -- Higher z-index than the button
 					Dropdown.OptionInsts[option].text = OptionName
 
 					handleoptionclick(option, NewOption, OptionName)
