@@ -1844,12 +1844,12 @@ Library.Sections.__index = Library.Sections;
 			Tabs.BackgroundTransparency = 1
 			Tabs.BorderSizePixel = 0
 			Tabs.BorderColor3 = Color3.new(0,0,0)
-			Tabs.ClipsDescendants = true -- Ensure tab buttons don't overflow
-			--
+			Tabs.ClipsDescendants = true
+			
 			UIListLayout.FillDirection = Enum.FillDirection.Horizontal
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0,0) -- Removed padding between tabs
-			UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+			UIListLayout.Padding = UDim.new(0,0) -- No spacing between tabs
+			UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left -- Left alignment instead of center
 			UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
 
 			-- Connect to UIListLayout's size change to ensure proper section sizing
@@ -1925,14 +1925,17 @@ Library.Sections.__index = Library.Sections;
 			-- // Functions
 			function Window:UpdateTabs()
 				for Index, Page in pairs(Window.Pages) do
-					-- Calculate exact width based on number of tabs
+					-- Calculate exact width for each tab
 					local width = 1 / #Window.Pages
-					-- Set button width with exact sizing to prevent overflow
+					
+					-- Set wrapper width (full size)
 					Page.Elements.Button.Size = UDim2.new(width, 0, 1, 0)
 					
-					-- Adjust tab line to fit perfectly within the button
-					if Page.Elements.Button:FindFirstChild("TabLine") then
-						Page.Elements.Button.TabLine.Size = UDim2.new(1, 0, 0, 1)
+					-- If the button text element exists, update it
+					if Page.Elements.ButtonText then
+						-- Button is sized with margins inside the wrapper
+						Page.Elements.ButtonText.Size = UDim2.new(1, -4, 1, 0)
+						Page.Elements.ButtonText.Position = UDim2.new(0, 2, 0, 0)
 					end
 					
 					Page:Turn(Page.Open)
@@ -1957,13 +1960,23 @@ Library.Sections.__index = Library.Sections;
 				Elements = {},
 			}
 			--
-			local TabButton = Instance.new('TextButton', Page.Window.Elements.TabHolder)
-			local TabAccent = Instance.new('Frame', TabButton)
-			local TabLine = Instance.new('Frame', TabButton)
+			-- Create a tab wrapper frame to better contain the tab elements
+			local TabWrapper = Instance.new('Frame', Page.Window.Elements.TabHolder)
+			local TabButton = Instance.new('TextButton', TabWrapper)
+			local TabAccent = Instance.new('Frame', TabWrapper)
+			local TabLine = Instance.new('Frame', TabWrapper)
 			local Left = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
 			local Right = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
 			local UIListLayout = Instance.new('UIListLayout', Left)
 			local UIListLayout_2 = Instance.new('UIListLayout', Right)
+			
+			-- Setup the wrapper frame
+			TabWrapper.Name = "TabWrapper"
+			TabWrapper.BackgroundTransparency = 1
+			TabWrapper.BorderSizePixel = 0
+			TabWrapper.Size = UDim2.new(0.25, 0, 1, 0)
+			TabWrapper.ClipsDescendants = true
+			
 			Left.Name = "Left"
 			Left.Position = UDim2.new(0,5,0,27)
 			Left.Size = UDim2.new(0.5,-10,1,-32)
@@ -1999,7 +2012,8 @@ Library.Sections.__index = Library.Sections;
 			UIListLayout_2.Padding = UDim.new(0,16)
 			--
 			TabButton.Name = "TabButton"
-			TabButton.Size = UDim2.new(0.25,0,1,0)
+			TabButton.Size = UDim2.new(1, -4, 1, 0) -- Small margin on the sides
+			TabButton.Position = UDim2.new(0, 2, 0, 0) -- Centered in wrapper
 			TabButton.BackgroundColor3 = Color3.new(1,1,1)
 			TabButton.BackgroundTransparency = 1
 			TabButton.BorderSizePixel = 0
@@ -2013,20 +2027,22 @@ Library.Sections.__index = Library.Sections;
 			TabButton.LineHeight = 1.1
 			--
 			TabAccent.Name = "TabAccent"
-			TabAccent.Size = UDim2.new(1,0,0,1)
+			TabAccent.Position = UDim2.new(0, 2, 1, -1) -- Match button position
+			TabAccent.Size = UDim2.new(1, -4, 0, 1) -- Match button width
 			TabAccent.BackgroundColor3 = Library.Accent
 			TabAccent.BorderSizePixel = 0
 			TabAccent.BorderColor3 = Color3.new(0,0,0)
 			TabAccent.Visible = false
+			TabAccent.ZIndex = 3
 			table.insert(Library.ThemeObjects, TabAccent)
 			--
 			TabLine.Name = "TabLine"
-			TabLine.Position = UDim2.new(0,0,1,-1)
-			TabLine.Size = UDim2.new(1,0,0,1)
+			TabLine.Position = UDim2.new(0, 2, 1, -1) -- Match button position
+			TabLine.Size = UDim2.new(1, -4, 0, 1) -- Match button width
 			TabLine.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			TabLine.BorderSizePixel = 0
 			TabLine.BorderColor3 = Color3.new(0,0,0)
-			TabLine.ZIndex = 2 -- Ensure the line appears above other elements
+			TabLine.ZIndex = 2
 
 			function Page:Turn(bool)
 				Page.Open = bool
@@ -2064,7 +2080,8 @@ Library.Sections.__index = Library.Sections;
 			Page.Elements = {
 				Left = Left,
 				Right = Right,
-				Button = TabButton,
+				Button = TabWrapper, -- Now store the wrapper instead of just the button
+				ButtonText = TabButton -- Store the actual button separately
 			}
 
 			-- // Drawings
