@@ -1918,7 +1918,7 @@ Library.Sections.__index = Library.Sections;
 			SectionOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			SectionOutline.ZIndex = Section.ZIndex
 			SectionOutline.ClipsDescendants = false
-			SectionOutline.Position = UDim2.new(0, 0, 0, 10) -- Increased top margin from 5 to 10
+			SectionOutline.Position = UDim2.new(0, 0, 0, 15) -- Increased top margin from 10 to 15
 			--
 			
 			--
@@ -2869,13 +2869,13 @@ Library.Sections.__index = Library.Sections;
 			Icon.TextStrokeTransparency = 0
 			--
 			ContainerOutline.Name = "ContainerOutline"
-			ContainerOutline.Position = UDim2.new(0,15,1,2)
+			ContainerOutline.Position = UDim2.new(1, -15, 1, 2) -- Changed from (0,15,1,2) to (1,-15,1,2) for better positioning
 			ContainerOutline.Size = UDim2.new(1,-30,0,10)
 			ContainerOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			ContainerOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			ContainerOutline.Visible = false
 			ContainerOutline.AutomaticSize = Enum.AutomaticSize.Y
-			ContainerOutline.ZIndex = 5
+			ContainerOutline.ZIndex = 15 -- Increased from 5 to 15
 			--
 			ContainerInline.Name = "ContainerInline"
 			ContainerInline.Position = UDim2.new(0,1,0,1)
@@ -2883,7 +2883,7 @@ Library.Sections.__index = Library.Sections;
 			ContainerInline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
 			ContainerInline.BorderSizePixel = 0
 			ContainerInline.BorderColor3 = Color3.new(0,0,0)
-			ContainerInline.ZIndex = 6;
+			ContainerInline.ZIndex = 16 -- Increased from 6 to 16
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			
@@ -2891,7 +2891,7 @@ Library.Sections.__index = Library.Sections;
 			Library:Connection(Outline.MouseButton1Down, function()
 				ContainerOutline.Visible = not ContainerOutline.Visible
 				if ContainerOutline.Visible then
-					NewDrop.ZIndex = 2
+					NewDrop.ZIndex = 12 -- Increased from 2 to 12
 					Icon.Text = "-"
 				else
 					NewDrop.ZIndex = 1
@@ -2993,7 +2993,7 @@ Library.Sections.__index = Library.Sections;
 					NewOption.AutoButtonColor = false
 					NewOption.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 					NewOption.TextSize = 14
-					NewOption.ZIndex = 7;
+					NewOption.ZIndex = 17 -- Increased from 7 to 17
 					Dropdown.OptionInsts[option].button = NewOption
 					--
 					OptionName.Name = "OptionName"
@@ -3009,7 +3009,7 @@ Library.Sections.__index = Library.Sections;
 					OptionName.TextSize = Library.FontSize
 					OptionName.TextXAlignment = Enum.TextXAlignment.Left
 					OptionName.TextStrokeTransparency = 0
-					OptionName.ZIndex = 8;
+					OptionName.ZIndex = 18 -- Increased from 8 to 18
 					Dropdown.OptionInsts[option].text = OptionName
 
 					handleoptionclick(option, NewOption, OptionName)
