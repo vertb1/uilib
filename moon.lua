@@ -824,6 +824,7 @@ Library.Sections.__index = Library.Sections;
 			Background.Size = UDim2.new(1,0,1,0)
 			Background.BackgroundColor3 = Color3.new(0.0588,0.0588,0.0784)
 			Background.BorderColor3 = Color3.new(0.1373,0.1373,0.1569)
+			Background.BackgroundTransparency = 1  -- Start fully transparent for fade-in
 			table.insert(notification.Objects, Background)
 			--
 			Outline.Name = "Outline"
@@ -844,6 +845,7 @@ Library.Sections.__index = Library.Sections;
 			TextLabel.BorderColor3 = Color3.new(0,0,0)
 			TextLabel.Text = message
 			TextLabel.TextColor3 = Color3.new(0.9216,0.9216,0.9216)
+			TextLabel.TextTransparency = 1  -- Start fully transparent for fade-in
 			TextLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			TextLabel.TextSize = Library.FontSize + 2
 			TextLabel.AutomaticSize = Enum.AutomaticSize.X
@@ -855,6 +857,7 @@ Library.Sections.__index = Library.Sections;
 			Accemt.BackgroundColor3 = Library.Accent
 			Accemt.BorderSizePixel = 0
 			Accemt.BorderColor3 = Color3.new(0,0,0)
+			Accemt.BackgroundTransparency = 1  -- Start fully transparent for fade-in
 			table.insert(notification.Objects, Accemt)
 			--
 			Progress.Name = "Progress"
@@ -863,6 +866,7 @@ Library.Sections.__index = Library.Sections;
 			Progress.BackgroundColor3 = Color3.new(1,0,0)
 			Progress.BorderSizePixel = 0
 			Progress.BorderColor3 = Color3.new(0,0,0)
+			Progress.BackgroundTransparency = 1  -- Start fully transparent for fade-in
 			table.insert(notification.Objects, Progress)
 		
 			if color ~= nil then
@@ -881,32 +885,47 @@ Library.Sections.__index = Library.Sections;
 				if position == "Right" then
 					-- For right position, slide in from right
 					Background.AnchorPoint = NewVector2(1,0)
+				elseif position == "Middle" then
+					-- For middle position, start centered
+					Background.AnchorPoint = NewVector2(0.5,0)
 				else
-					-- For other positions, slide in from left
-					Background.AnchorPoint = NewVector2(0,0)
+					-- For left position, slide in from left
+					Background.AnchorPoint = NewVector2(-1,0)
 				end
+
+				-- Fade in all elements first
+				for i,v in next, notification.Objects do
+					game:GetService("TweenService"):Create(v, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
+				end
+				game:GetService("TweenService"):Create(TextLabel, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
 				
-				-- Animate appearance
+				-- Animate appearance (sliding)
 				if position == "Right" then
 					-- Right notifications slide in from right to left
 					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(0,0)}):Play()
+				elseif position == "Middle" then
+					-- Middle notifications fade in at center
+					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(0.5,0)}):Play()
 				else
-					-- Left/middle notifications slide in from left
+					-- Left notifications slide in from left
 					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(0,0)}):Play()
 				end
 				
 				-- Progress bar
-				local Tween2 = game:GetService("TweenService"):Create(Progress, TweenInfo.new(duration or 5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Size = UDim2.new(1,0,0,1)}):Play()
+				game:GetService("TweenService"):Create(Progress, TweenInfo.new(duration or 5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Size = UDim2.new(1,0,0,1)}):Play()
 				game:GetService("TweenService"):Create(Progress, TweenInfo.new(duration or 5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.new(0,1,0)}):Play()
 				
 				task.wait(duration)
 				
-				-- Animate disappearance
+				-- Animate disappearance - use consistent fade out for all positions
 				if position == "Right" then
 					-- For right position, slide out to right
 					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(1,0)}):Play()
+				elseif position == "Middle" then
+					-- For middle position, slide down and fade
+					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(0.5,1)}):Play()
 				else
-					-- For other positions, slide out to left
+					-- For left position, slide out to left
 					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(-1,0)}):Play()
 				end
 				
