@@ -2004,7 +2004,7 @@ Library.Sections.__index = Library.Sections;
 			TabButton.ClipsDescendants = true -- Make sure descendants like accent lines don't extend beyond the button
 			--
 			TabAccent.Name = "TabAccent"
-			TabAccent.Size = UDim2.new(0.95,0,0,1) -- Make accent slightly smaller than parent
+			TabAccent.Size = UDim2.new(0.8,0,0,1) -- Reduce to 80% width
 			TabAccent.Position = UDim2.new(0.5, 0, 0, 0) -- Center the accent
 			TabAccent.AnchorPoint = Vector2.new(0.5, 0) -- Center anchor point
 			TabAccent.BackgroundColor3 = Library.Accent
@@ -2014,8 +2014,7 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, TabAccent)
 			--
 			TabLine.Name = "TabLine"
-			TabLine.Position = UDim2.new(0,0,1,-1)
-			TabLine.Size = UDim2.new(0.95,0,0,1) -- Make line slightly smaller than parent
+			TabLine.Size = UDim2.new(0.8,0,0,1) -- Reduce to 80% width
 			TabLine.Position = UDim2.new(0.5, 0, 1, -1) -- Center the line
 			TabLine.AnchorPoint = Vector2.new(0.5, 0) -- Center anchor point
 			TabLine.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
@@ -2136,7 +2135,7 @@ Library.Sections.__index = Library.Sections;
 			
 			-- Add extra padding at the top of the section if it's the first one
 			if isFirstSection then
-				SectionOutline.Position = UDim2.new(0, 0, 0, 20) -- Add 20 pixels of margin at the top
+				SectionOutline.Position = UDim2.new(0, 0, 0, 25) -- Add 25 pixels of margin at the top
 			end
 						
 			--
@@ -2149,7 +2148,7 @@ Library.Sections.__index = Library.Sections;
 			SectionInline.AutomaticSize = Enum.AutomaticSize.Y -- Add automatic vertical sizing
 			--
 			Container.Name = "Container"
-			Container.Position = UDim2.new(0,7,0,20) -- Start container 20px from top to make room for title
+			Container.Position = UDim2.new(0,7,0,10) -- Return to original position
 			Container.Size = UDim2.new(1,-14,0,15) -- Minimum height for empty sections
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
@@ -2277,6 +2276,11 @@ Library.Sections.__index = Library.Sections;
 				
 				if SectionOutline then
 					SectionOutline.Size = UDim2.new(1, 0, 0, containerHeight + padding + 2)
+				end
+				
+				-- Update TextBorder size for title
+				if Title and TextBorder then
+					TextBorder.Size = UDim2.new(0, Title.TextBounds.X + 10, 0, 8)
 				end
 			end
 
