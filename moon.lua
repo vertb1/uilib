@@ -741,51 +741,60 @@ Library.Sections.__index = Library.Sections;
 				self.Open = Open
 				
 				if Open then
-					-- Make UI visible immediately for fade-in
+					-- For opening: Set UI visible first
 					Library.Holder.Visible = true
 					
-					-- Create fade overlay
+					-- Create fade overlay (starts black, fades to transparent)
 					local fadeOverlay = Instance.new("Frame")
 					fadeOverlay.Name = "FadeOverlay"
 					fadeOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-					fadeOverlay.BackgroundTransparency = 0
+					fadeOverlay.BackgroundTransparency = 0  -- Start fully opaque
 					fadeOverlay.Size = UDim2.new(1, 0, 1, 0)
 					fadeOverlay.ZIndex = 999
 					fadeOverlay.Parent = Library.Holder
 					
-					-- Fade in
+					-- Fade in (black to transparent)
 					local fadeInTween = TweenService:Create(
 						fadeOverlay, 
 						TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-						{BackgroundTransparency = 1}
+						{BackgroundTransparency = 1}  -- Fade to fully transparent
 					)
 					
+					-- Remove overlay when fade completes
 					fadeInTween.Completed:Connect(function()
-						fadeOverlay:Destroy()
+						if fadeOverlay and fadeOverlay.Parent then
+							fadeOverlay:Destroy()
+						end
 					end)
 					
 					fadeInTween:Play()
 				else
-					-- Create fade overlay
+					-- For closing: Keep UI visible during fade
+					
+					-- Create fade overlay (starts transparent, fades to black)
 					local fadeOverlay = Instance.new("Frame")
 					fadeOverlay.Name = "FadeOverlay"
 					fadeOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-					fadeOverlay.BackgroundTransparency = 1
+					fadeOverlay.BackgroundTransparency = 1  -- Start fully transparent
 					fadeOverlay.Size = UDim2.new(1, 0, 1, 0)
 					fadeOverlay.ZIndex = 999
 					fadeOverlay.Parent = Library.Holder
 					
-					-- Fade out
+					-- Fade out (transparent to black)
 					local fadeOutTween = TweenService:Create(
 						fadeOverlay, 
 						TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-						{BackgroundTransparency = 0}
+						{BackgroundTransparency = 0}  -- Fade to fully opaque
 					)
 					
-					-- Hide the UI after fade out completes
+					-- Hide UI only after fade completes
 					fadeOutTween.Completed:Connect(function()
-						Library.Holder.Visible = false
-						fadeOverlay:Destroy()
+						if Library.Holder then
+							Library.Holder.Visible = false
+						end
+						if fadeOverlay and fadeOverlay.Parent then
+							fadeOverlay:Destroy()
+						end
 					end)
 					
 					fadeOutTween:Play()
