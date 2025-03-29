@@ -1629,6 +1629,7 @@ Library.Sections.__index = Library.Sections;
             Left.ZIndex = 3
             Left.ScrollBarThickness = 0
             Left.CanvasSize = UDim2.new(0, 0, 0, 0)
+            Left.CanvasPadding = UDim.new(0, 10) -- Add padding at the top
             Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
             Left.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
@@ -1643,19 +1644,19 @@ Library.Sections.__index = Library.Sections;
             Right.BackgroundTransparency = 1
             Right.ScrollBarThickness = 0
             Right.CanvasSize = UDim2.new(0, 0, 0, 0)
+            Right.CanvasPadding = UDim.new(0, 10) -- Add padding at the top
             Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
             Right.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout.Padding = UDim.new(0, 24) -- Increased padding for better spacing with titles
+            UIListLayout.Padding = UDim.new(0,16)
             --
             UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout_2.Padding = UDim.new(0, 24) -- Increased padding for better spacing with titles
+            UIListLayout_2.Padding = UDim.new(0,16)
 			--
 			TabButton.Name = "TabButton"
 			TabButton.Size = UDim2.new(0.25,0,1,0)
 			TabButton.BackgroundColor3 = Color3.new(1,1,1)
-			
 			TabButton.BackgroundTransparency = 1
 			TabButton.BorderSizePixel = 0
 			TabButton.BorderColor3 = Color3.new(0,0,0)
@@ -1705,20 +1706,32 @@ Library.Sections.__index = Library.Sections;
                     Left.Visible = Page.Open
 				    Right.Visible = Page.Open
                     -- When no icon tab is present, position content just below the tabs
-                    Left.Position = UDim2.new(0, 5, 0, 31)
-                    Right.Position = UDim2.new(1, -5, 0, 31)
-                    Left.Size = UDim2.new(0.5, -10, 1, -36)
-                    Right.Size = UDim2.new(0.5, -5, 1, -36)
+                    Left.Position = UDim2.new(0, 5, 0, 31) -- Increased from 27 to 31
+                    Right.Position = UDim2.new(1, -5, 0, 31) -- Increased from 27 to 31
+                    Left.Size = UDim2.new(0.5, -10, 1, -36) -- Adjusted from -32 to -36
+                    Right.Size = UDim2.new(0.5, -5, 1, -36) -- Adjusted from -32 to -36
+                    
+                    -- Add padding to the scroll frames
+                    Left.CanvasSize = UDim2.new(0, 0, 0, 0)
+                    Left.CanvasPadding = UDim.new(0, 10) -- Add padding at the top of the scroll frame
+                    Right.CanvasSize = UDim2.new(0, 0, 0, 0)
+                    Right.CanvasPadding = UDim.new(0, 10) -- Add padding at the top of the scroll frame
                 else
                     WeaponOutline.Visible = Page.Open
                     for Index, Weapon in pairs(Page.Weapons) do
                         Weapon:Turn(Weapon.Open)
                     end
                     -- When icon tab is present, position content below the weapon selector
-                    Left.Position = UDim2.new(0, 5, 0, 79)
-                    Right.Position = UDim2.new(1, -5, 0, 79)
-                    Left.Size = UDim2.new(0.5, -10, 1, -84)
-                    Right.Size = UDim2.new(0.5, -5, 1, -84)
+                    Left.Position = UDim2.new(0, 5, 0, 79) -- Increased from 75 to 79
+                    Right.Position = UDim2.new(1, -5, 0, 79) -- Increased from 75 to 79
+                    Left.Size = UDim2.new(0.5, -10, 1, -84) -- Adjusted from -80 to -84
+                    Right.Size = UDim2.new(0.5, -5, 1, -84) -- Adjusted from -80 to -84
+                    
+                    -- Add padding to the scroll frames
+                    Left.CanvasSize = UDim2.new(0, 0, 0, 0) 
+                    Left.CanvasPadding = UDim.new(0, 10) -- Add padding at the top of the scroll frame
+                    Right.CanvasSize = UDim2.new(0, 0, 0, 0)
+                    Right.CanvasPadding = UDim.new(0, 10) -- Add padding at the top of the scroll frame
                 end
 				TabAccent.Visible = Page.Open
 				TabLine.Visible = not Page.Open
@@ -1917,8 +1930,8 @@ Library.Sections.__index = Library.Sections;
 			SectionOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			SectionOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			SectionOutline.ZIndex = Section.ZIndex
-			SectionOutline.ClipsDescendants = false
-			SectionOutline.Position = UDim2.new(0, 0, 0, 15) -- Increased top margin from 10 to 15
+			-- Add padding at the top for the title
+			SectionOutline.Position = UDim2.new(0, 0, 0, 5) -- Added margin to the top for the section title
 			--
 			
 			--
@@ -1956,7 +1969,7 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, SectionAccent)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,10,0,-10) -- Changed from -8 to -10
+			Title.Position = UDim2.new(0,10,0,-10) -- Changed from -8 to -10 to position it higher
 			Title.Size = UDim2.new(0,100,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
@@ -1965,18 +1978,18 @@ Library.Sections.__index = Library.Sections;
 			Title.TextColor3 = Color3.new(1,1,1)
 			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Title.TextSize = Library.FontSize
-			Title.ZIndex = 10
+			Title.ZIndex = 10 -- Increased from 3 to 10 to ensure it's above everything
 			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.Text = Section.Name
 			Title.TextStrokeTransparency = 0
 			--
 			TextBorder.Name = "TextBorder"
-			TextBorder.Position = UDim2.new(0,6,0,-4) -- Changed from -2 to -4
-			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,6) -- Increased height from 4 to 6
+			TextBorder.Position = UDim2.new(0,6,0,-4) -- Changed from -2 to -4 to match the adjusted title position
+			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
 			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			TextBorder.BorderSizePixel = 0
-				TextBorder.BorderColor3 = Color3.new(0,0,0)
-			TextBorder.ZIndex = 9
+			TextBorder.BorderColor3 = Color3.new(0,0,0)
+			TextBorder.ZIndex = 9 -- Add ZIndex to make sure it's below the text but above other elements
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			UIListLayout.Padding = UDim.new(0,6)
@@ -1991,7 +2004,7 @@ Library.Sections.__index = Library.Sections;
 			
 			Section.Page.Sections[#Section.Page.Sections + 1] = Section
 			wait(0.01)
-			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,6)
+			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
 			return setmetatable(Section, Library.Sections)
 		end
 		--
@@ -2869,13 +2882,13 @@ Library.Sections.__index = Library.Sections;
 			Icon.TextStrokeTransparency = 0
 			--
 			ContainerOutline.Name = "ContainerOutline"
-			ContainerOutline.Position = UDim2.new(1, -15, 1, 2) -- Changed from (0,15,1,2) to (1,-15,1,2) for better positioning
+			ContainerOutline.Position = UDim2.new(0,15,1,2)
 			ContainerOutline.Size = UDim2.new(1,-30,0,10)
 			ContainerOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			ContainerOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			ContainerOutline.Visible = false
 			ContainerOutline.AutomaticSize = Enum.AutomaticSize.Y
-			ContainerOutline.ZIndex = 15 -- Increased from 5 to 15
+			ContainerOutline.ZIndex = 5
 			--
 			ContainerInline.Name = "ContainerInline"
 			ContainerInline.Position = UDim2.new(0,1,0,1)
@@ -2883,7 +2896,7 @@ Library.Sections.__index = Library.Sections;
 			ContainerInline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
 			ContainerInline.BorderSizePixel = 0
 			ContainerInline.BorderColor3 = Color3.new(0,0,0)
-			ContainerInline.ZIndex = 16 -- Increased from 6 to 16
+			ContainerInline.ZIndex = 6;
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			
@@ -2891,7 +2904,7 @@ Library.Sections.__index = Library.Sections;
 			Library:Connection(Outline.MouseButton1Down, function()
 				ContainerOutline.Visible = not ContainerOutline.Visible
 				if ContainerOutline.Visible then
-					NewDrop.ZIndex = 12 -- Increased from 2 to 12
+					NewDrop.ZIndex = 2
 					Icon.Text = "-"
 				else
 					NewDrop.ZIndex = 1
@@ -2993,7 +3006,7 @@ Library.Sections.__index = Library.Sections;
 					NewOption.AutoButtonColor = false
 					NewOption.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 					NewOption.TextSize = 14
-					NewOption.ZIndex = 17 -- Increased from 7 to 17
+					NewOption.ZIndex = 7;
 					Dropdown.OptionInsts[option].button = NewOption
 					--
 					OptionName.Name = "OptionName"
@@ -3009,7 +3022,7 @@ Library.Sections.__index = Library.Sections;
 					OptionName.TextSize = Library.FontSize
 					OptionName.TextXAlignment = Enum.TextXAlignment.Left
 					OptionName.TextStrokeTransparency = 0
-					OptionName.ZIndex = 18 -- Increased from 8 to 18
+					OptionName.ZIndex = 8;
 					Dropdown.OptionInsts[option].text = OptionName
 
 					handleoptionclick(option, NewOption, OptionName)
@@ -3788,28 +3801,4 @@ Library.Sections.__index = Library.Sections;
 			end
 		end
         return Library
-	end
-
-	function Library:New()
-		local Window = self:Window(self.Properties)
-		--
-		local LibraryUI = {}
-		
-		-- // Example
-		local Home = Window:Tab("Home", "\xee\x8f\xa9")
-		local Left = Home:Section({Name = "Left Section", Side = "Left"})
-		local Right = Home:Section({Name = "Right Section", Side = "Right"})
-		
-		local UIListLayout = Instance.new('UIListLayout', Left.Elements.SectionHolder.Parent)
-		local UIListLayout_2 = Instance.new('UIListLayout', Right.Elements.SectionHolder.Parent)
-		
-		UIListLayout.Padding = UDim.new(0, 24) -- Increase padding from 20 to 24
-		UIListLayout_2.Padding = UDim.new(0, 24) -- Increase padding from 20 to 24
-		
-		-- // Return
-		function LibraryUI:Ready()
-			return Window
-		end
-		
-		return LibraryUI
 	end
