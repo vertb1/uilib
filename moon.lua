@@ -1811,10 +1811,11 @@ Library.Sections.__index = Library.Sections;
 				Name = Properties.Name or "Section",
 				Page = self,
 				Side = (Properties.side or Properties.Side or "left"):lower(),
-				ZIndex = Properties.ZIndex or 1, -- Idfk why
+				ZIndex = Properties.ZIndex or 1,
 				Elements = {},
 				Content = {},
 				Size = Properties.Size or Properties.size or nil,
+				ContentPadding = Properties.Padding or 5, -- Add padding option
 			}
 			--
 			local SectionOutline = Instance.new('Frame', Section.Side == "left" and Section.Page.Elements.Left or Section.Side == "right" and Section.Page.Elements.Right)
@@ -2720,7 +2721,7 @@ Library.Sections.__index = Library.Sections;
 			local UIListLayout = Instance.new('UIListLayout', ContainerInline)
 			--
 			NewDrop.Name = "NewDrop"
-			NewDrop.Size = UDim2.new(1,0,0,16)
+			NewDrop.Size = UDim2.new(1, 0, 0, 42) -- Increased height to accommodate dropdown
 			NewDrop.BackgroundColor3 = Color3.new(1,1,1)
 			NewDrop.BackgroundTransparency = 1
 			NewDrop.BorderSizePixel = 0
@@ -2728,7 +2729,7 @@ Library.Sections.__index = Library.Sections;
 			--
 			Title.Name = "Title"
 			Title.Position = UDim2.new(0,15,0,0)
-			Title.Size = UDim2.new(1,-15,1,0)
+			Title.Size = UDim2.new(1,-15,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
@@ -2741,11 +2742,10 @@ Library.Sections.__index = Library.Sections;
 			Title.TextStrokeTransparency = 0
 			--
 			Outline.Name = "Outline"
-			Outline.Position = UDim2.new(1,0,0.5,12)
+			Outline.Position = UDim2.new(0,15,0,20)
 			Outline.Size = UDim2.new(1,-30,0,16)
 			Outline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-			Outline.BorderColor3 = Color3.fromRGB(10, 10, 10)
-			Outline.AnchorPoint = Vector2.new(1,0)
+				Outline.BorderColor3 = Color3.fromRGB(10, 10, 10)
 			Outline.Text = ""
 			Outline.AutoButtonColor = false
 			--
@@ -2768,7 +2768,7 @@ Library.Sections.__index = Library.Sections;
 			Value.TextSize = Library.FontSize
 			Value.TextXAlignment = Enum.TextXAlignment.Left
 			Value.TextStrokeTransparency = 0
-			Value.TextWrapped = true
+			Value.TextTruncate = Enum.TextTruncate.AtEnd -- Truncate long text
 			--
 			Icon.Name = "Icon"
 			Icon.Position = UDim2.new(0,-5,0,0)
@@ -2785,13 +2785,13 @@ Library.Sections.__index = Library.Sections;
 			Icon.TextStrokeTransparency = 0
 			--
 			ContainerOutline.Name = "ContainerOutline"
-			ContainerOutline.Position = UDim2.new(0,15,1,2)
+			ContainerOutline.Position = UDim2.new(0,15,0,39)
 			ContainerOutline.Size = UDim2.new(1,-30,0,10)
 			ContainerOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			ContainerOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			ContainerOutline.Visible = false
 			ContainerOutline.AutomaticSize = Enum.AutomaticSize.Y
-			ContainerOutline.ZIndex = 5
+			ContainerOutline.ZIndex = 10 -- Higher Z-index to show above other elements
 			--
 			ContainerInline.Name = "ContainerInline"
 			ContainerInline.Position = UDim2.new(0,1,0,1)
@@ -2799,15 +2799,16 @@ Library.Sections.__index = Library.Sections;
 			ContainerInline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
 			ContainerInline.BorderSizePixel = 0
 			ContainerInline.BorderColor3 = Color3.new(0,0,0)
-			ContainerInline.ZIndex = 6;
+			ContainerInline.ZIndex = 11
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout.Padding = UDim.new(0, 1)
 			
 			-- // Connections
 			Library:Connection(Outline.MouseButton1Down, function()
 				ContainerOutline.Visible = not ContainerOutline.Visible
 				if ContainerOutline.Visible then
-					NewDrop.ZIndex = 2
+					NewDrop.ZIndex = 10
 					Icon.Text = "-"
 				else
 					NewDrop.ZIndex = 1
@@ -3680,28 +3681,40 @@ Library.Sections.__index = Library.Sections;
 				Name = Properties.Name or "label",
 				Centered = Properties.Centered or false,
 			}
-			local NewButton = Instance.new('TextLabel', Label.Section.Elements.SectionContent) -- ya im lazy
+			local NewLabel = Instance.new('TextLabel', Label.Section.Elements.SectionContent)
 			--
-			NewButton.Name = "NewButton"
-			NewButton.Size = UDim2.new(1,0,0,24)
-			NewButton.BackgroundColor3 = Color3.new(1,1,1)
-			NewButton.BackgroundTransparency = 1
-			NewButton.BorderSizePixel = 0
-			NewButton.BorderColor3 = Color3.new(0,0,0)
-			NewButton.Text = Label.Name
-			NewButton.TextColor3 = Color3.fromRGB(255,255,255)
-			NewButton.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-			NewButton.TextSize = Library.FontSize
-			NewButton.TextXAlignment = Label.Centered and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
-			NewButton.TextYAlignment = Enum.TextYAlignment.Center
-			NewButton.TextStrokeTransparency = 0
-			NewButton.TextStrokeColor3 = Color3.new(0,0,0)
-			NewButton.TextWrapped = true
+			NewLabel.Name = "NewLabel"
+			NewLabel.Size = UDim2.new(1, -30, 0, 24) -- Increased default height
+			NewLabel.Position = UDim2.new(0, 15, 0, 0)
+			NewLabel.BackgroundColor3 = Color3.new(1,1,1)
+			NewLabel.BackgroundTransparency = 1
+			NewLabel.BorderSizePixel = 0
+			NewLabel.BorderColor3 = Color3.new(0,0,0)
+			NewLabel.Text = Label.Name
+			NewLabel.TextColor3 = Color3.fromRGB(255,255,255)
+			NewLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			NewLabel.TextSize = Library.FontSize
+			NewLabel.TextXAlignment = Label.Centered and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
+			NewLabel.TextYAlignment = Enum.TextYAlignment.Top
+			NewLabel.TextStrokeTransparency = 0
+			NewLabel.TextStrokeColor3 = Color3.new(0,0,0)
+			NewLabel.TextWrapped = true
+			NewLabel.RichText = true -- Enable rich text for formatting
+			NewLabel.AutomaticSize = Enum.AutomaticSize.Y -- Auto adjust height based on content
 			
 			-- Adjust height based on content
 			if string.find(Label.Name, "\n") then
-				NewButton.Size = UDim2.new(1, 0, 0, 36)
+				-- If the text contains line breaks, make sure we have enough height
+				local lineCount = 1
+				for _ in string.gmatch(Label.Name, "\n") do
+					lineCount = lineCount + 1
+				end
+				local baseHeight = 16 -- Height per line
+				local padding = 8 -- Top and bottom padding
+				NewLabel.Size = UDim2.new(1, -30, 0, lineCount * baseHeight + padding)
 			end
+			
+			return Label
 		end
         return Library
 	end
