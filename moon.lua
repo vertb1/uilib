@@ -966,7 +966,7 @@ Library.Sections.__index = Library.Sections;
 			KeyTitle.BorderColor3 = Color3.new(0,0,0)
 			KeyTitle.Text = "Keybinds"
 			KeyTitle.TextColor3 = Color3.new(1,1,1)
-			KeyTitle.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			KeyTitle.Font = Enum.Font.Code
 			KeyTitle.TextSize = 12
 			KeyTitle.TextStrokeTransparency = 0
 			--
@@ -1050,7 +1050,7 @@ Library.Sections.__index = Library.Sections;
 				
 				NewValue.Text = tostring(" ["..displayName.."] " .. displayKey .. " (" .. displayMode ..") ")
 				NewValue.TextColor3 = Color3.new(0.5,0.5,0.5) -- Default inactive color
-				NewValue.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+				NewValue.Font = Enum.Font.Code
 				NewValue.TextSize = 12
 				NewValue.TextXAlignment = Enum.TextXAlignment.Left
 				NewValue.Visible = true
@@ -1089,7 +1089,28 @@ Library.Sections.__index = Library.Sections;
 		function Library:SetFont(textObject)
 			-- Sets the font to Code for any text object
 			textObject.Font = Enum.Font.Code
+			textObject.TextSize = textObject.TextSize or 12
 			return textObject
+		end
+
+		local function ReplaceFont(obj)
+			-- Replace FontFace with Font
+			if obj and typeof(obj) == "Instance" and obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+				obj.Font = Enum.Font.Code
+			end
+		end
+
+		-- Make sure all Text objects in the theme get the Code font
+		function Library:UpdateFonts()
+			-- This function will be called once at initialization to update all fonts
+			for _, obj in pairs(Library.Objects) do
+				ReplaceFont(obj)
+			end
+			
+			-- Also update theme objects
+			for _, obj in pairs(Library.ThemeObjects) do
+				ReplaceFont(obj)
+			end
 		end
 	end
 	-- // Color Picker Functions
@@ -1160,7 +1181,7 @@ Library.Sections.__index = Library.Sections;
 			Color.Text = ""
 			Color.TextColor3 = Color3.new(0,0,0)
 			Color.AutoButtonColor = false
-			Color.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			Color.Font = Enum.Font.Code
 			Color.TextSize = 14
 			Color.ZIndex = 100
 			--
@@ -1281,30 +1302,22 @@ Library.Sections.__index = Library.Sections;
 			--
 			Hold.Name = "Hold"
 			Hold.Size = UDim2.new(1,0,0,15)
-			Hold.BackgroundColor3 = Color3.new(1,1,1)
-			Hold.BackgroundTransparency = 1
-			Hold.BorderSizePixel = 0
-			Hold.BorderColor3 = Color3.new(0,0,0)
-			Hold.Text = "Copy"
-			Hold.TextColor3 = Color3.fromRGB(145,145,145)
+			Hold.BackgroundColor3 = Color3.fromRGB(45,45,45)
+			Hold.BorderColor3 = Color3.fromRGB(10,10,10)
 			Hold.AutoButtonColor = false
-			Hold.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-			Hold.TextSize = Library.FontSize
-			Hold.TextStrokeTransparency = 0
+			Hold.Text = "Hold"
+			Hold.Font = Enum.Font.Code
+			Hold.TextSize = 12
 			Hold.ZIndex = 100
 			--
 			Toggle.Name = "Toggle"
 			Toggle.Size = UDim2.new(1,0,0,15)
-			Toggle.BackgroundColor3 = Color3.new(1,1,1)
-			Toggle.BackgroundTransparency = 1
-			Toggle.BorderSizePixel = 0
-			Toggle.BorderColor3 = Color3.new(0,0,0)
-			Toggle.Text = "Paste"
-			Toggle.TextColor3 = Color3.fromRGB(145,145,145)
+			Toggle.BackgroundColor3 = Color3.fromRGB(45,45,45)
+			Toggle.BorderColor3 = Color3.fromRGB(10,10,10)
 			Toggle.AutoButtonColor = false
-			Toggle.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-			Toggle.TextSize = Library.FontSize
-			Toggle.TextStrokeTransparency = 0
+			Toggle.Text = "Toggle"
+			Toggle.Font = Enum.Font.Code
+			Toggle.TextSize = 12
 			Toggle.ZIndex = 100
 
 			Library:Connection(Icon.MouseEnter, function()
@@ -1473,6 +1486,17 @@ Library.Sections.__index = Library.Sections;
 
 				if slidingalpha then
 					slidingalpha = false
+				end
+				
+				-- Add icon to theme objects when color window opens
+				if ColorWindow.Visible then
+					-- Ensure we're not adding duplicates
+					if not table.find(Library.ThemeObjects, AlphaSlide) then
+						table.insert(Library.ThemeObjects, AlphaSlide)
+					end
+					if not table.find(Library.ThemeObjects, HueSlide) then
+						table.insert(Library.ThemeObjects, HueSlide)
+					end
 				end
 			end)
 			
@@ -2008,6 +2032,7 @@ Library.Sections.__index = Library.Sections;
 			local function SetState()
 				Toggle.Toggled = not Toggle.Toggled
 				if Toggle.Toggled then
+					-- Add to theme objects to ensure it gets the theme color
 					table.insert(Library.ThemeObjects, Inline)
 					Inline.BackgroundColor3 = Library.Accent
 					if Toggle.Risk then
@@ -2016,7 +2041,10 @@ Library.Sections.__index = Library.Sections;
 						Title.TextColor3 = Color3.fromRGB(255,255,255)
 					end
 				else
-					table.remove(Library.ThemeObjects, table.find(Library.ThemeObjects, Inline))
+					-- Remove from theme objects when untoggled
+					if table.find(Library.ThemeObjects, Inline) then
+						table.remove(Library.ThemeObjects, table.find(Library.ThemeObjects, Inline))
+					end
 					Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
 					if Toggle.Risk then
 						Title.TextColor3 = Color3.fromRGB(158, 158, 24)
@@ -3735,5 +3763,13 @@ Library.Sections.__index = Library.Sections;
 			
 			return Label
 		end
-        return Library
+	end
+
+	-- At the end of the Library initialization code, before any return statement
+	do
+		-- Call UpdateFonts to ensure all text objects use Enum.Font.Code
+		Library:UpdateFonts()
+		
+		-- Return the Library
+		return Library
 	end
