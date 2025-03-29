@@ -1815,9 +1815,12 @@ Library.Sections.__index = Library.Sections;
 
 			-- Connect to UIListLayout's size change to ensure proper section sizing
 			UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-				-- Add padding at the bottom
-				local contentSize = UIListLayout.AbsoluteContentSize.Y + Section.ContentPadding * 2
-				Container.Size = UDim2.new(1, -14, 0, contentSize)
+				-- Add padding at the bottom with safety check
+				if Section then
+					local contentPadding = Section.ContentPadding or 5
+					local contentSize = UIListLayout.AbsoluteContentSize.Y + contentPadding * 2
+					Container.Size = UDim2.new(1, -14, 0, contentSize)
+				end
 			end)
 			--
 			DragButton.Name = "DragButton"
@@ -2033,11 +2036,11 @@ Library.Sections.__index = Library.Sections;
 				Name = Properties.Name or "Section",
 				Page = self,
 				Side = (Properties.side or Properties.Side or "left"):lower(),
-				ZIndex = Properties.ZIndex or 1,
+				ZIndex = Properties.ZIndex or 1, -- Idfk why
 				Elements = {},
 				Content = {},
 				Size = Properties.Size or Properties.size or nil,
-				ContentPadding = Properties.Padding or 5, -- Add padding option
+				ContentPadding = Properties.ContentPadding or 5, -- Add default ContentPadding here
 			}
 			--
 			local SectionOutline = Instance.new('Frame', Section.Side == "left" and Section.Page.Elements.Left or Section.Side == "right" and Section.Page.Elements.Right)
@@ -2053,7 +2056,7 @@ Library.Sections.__index = Library.Sections;
 			if Section.Size then
 				SectionOutline.Size = UDim2.new(1,0,0,Section.Size)
 			else
-				SectionOutline.Size = UDim2.new(1,0,0,20)
+				SectionOutline.Size = UDim2.new(1,0,0,40) -- Increased default size for empty sections
 				SectionOutline.AutomaticSize = Enum.AutomaticSize.Y
 			end
 			SectionOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
@@ -2072,7 +2075,7 @@ Library.Sections.__index = Library.Sections;
 			--
 			Container.Name = "Container"
 			Container.Position = UDim2.new(0,7,0,10)
-			Container.Size = UDim2.new(1,-14,0,0) -- Change to 0 initial height
+			Container.Size = UDim2.new(1,-14,0,20) -- Default size of 20 instead of 0
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
 			Container.BorderSizePixel = 0
@@ -2081,7 +2084,7 @@ Library.Sections.__index = Library.Sections;
 			--
 			Space.Name = "Space"
 			Space.Position = UDim2.new(0,0,1,0)
-			Space.Size = UDim2.new(1,0,0,1)
+			Space.Size = UDim2.new(1,0,0,5) -- Add extra spacing for bottom padding
 			Space.BackgroundColor3 = Color3.new(1,1,1)
 			Space.BackgroundTransparency = 1
 			Space.BorderSizePixel = 0
@@ -2125,6 +2128,7 @@ Library.Sections.__index = Library.Sections;
 			Section.Elements = {
 				SectionContent = Container;
 				SectionHolder = SectionOutline;
+				UIListLayout = UIListLayout; -- Store UIListLayout reference
 			}
 
 			-- // Returning
@@ -2135,40 +2139,38 @@ Library.Sections.__index = Library.Sections;
 			function Section:RecalculateSize()
 				-- Safety checks
 				if not Section then return end
-				if not Section.ContentPadding then Section.ContentPadding = 5 end
+				
+				-- Initialize with default if not already set
+				Section.ContentPadding = Section.ContentPadding or 5
 				
 				local padding = 20 -- Additional padding (10 top + 10 bottom)
 				local containerHeight = 0
 				
-				-- Safety check - make sure Container exists
-				if not Container then return end
-				
 				-- Get content height
-				if UIListLayout then
-					-- Calculate height based on children using UIListLayout if available
+				local childCount = 0
+				
+				if Container then
 					for _, child in pairs(Container:GetChildren()) do
-						if not child:IsA("UIListLayout") then
+						if not child:IsA("UIListLayout") and child.Visible then
+							childCount = childCount + 1
 							local childHeight = child.Size.Y.Offset
-							local paddingOffset = UIListLayout.Padding and UIListLayout.Padding.Offset or 0
+							local paddingOffset = 0
+							if Section.Elements and Section.Elements.UIListLayout then
+								paddingOffset = Section.Elements.UIListLayout.Padding and Section.Elements.UIListLayout.Padding.Offset or 0
+							end
 							containerHeight = containerHeight + childHeight + paddingOffset
 						end
 					end
 				else
-					-- Fallback: just count visible children
-					for _, child in pairs(Container:GetChildren()) do
-						if child:IsA("GuiObject") and child.Visible then
-							containerHeight = containerHeight + child.Size.Y.Offset + 6 -- 6 is default padding
-						end
-					end
+					return
 				end
 				
-				-- Set container size with a minimum height (increased for empty sections)
-				containerHeight = math.max(containerHeight, 20) -- Minimum height increased to 20 for empty sections
+				-- Set minimum height based on whether we have children
+				local minHeight = childCount > 0 and 20 or 30
 				
-				-- Set container size
-				if Container then
-					Container.Size = UDim2.new(1, -14, 0, containerHeight)
-				end
+				-- Set container size with a minimum height
+				containerHeight = math.max(containerHeight, minHeight)
+				Container.Size = UDim2.new(1, -14, 0, containerHeight)
 				
 				-- Set section size to match content
 				if SectionInline then
@@ -2188,6 +2190,14 @@ Library.Sections.__index = Library.Sections;
 					end
 				end)
 			end
+
+			-- Force initial calculation
+			task.spawn(function()
+				wait(0.05) -- Short delay to ensure all properties are set
+				if Section and type(Section.RecalculateSize) == "function" then
+					Section:RecalculateSize()
+				end
+			end)
 
 			wait(0.01)
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
