@@ -255,61 +255,17 @@ local TweenService = game:GetService("TweenService");
 local VirtualUser = game:GetService("VirtualUser");
 local PathFindingService = game:GetService("PathfindingService");
 
-local utility = {
-	Circle = nil, 
-	bodyParts = {}, 
-	target = nil, 
-	angle = 0, 
-	drawings = {}, 
-	folders = {}
-};
-local framework = {connections = {}};
 local Flags = {}; 
 local flags = Library.Flags;
 local ESP = {};
 local IgnoreList = {};
 local HitReg = {};
 local loadingTime = tick() 
-local Visuals = {   
-    ["Drawings"] = {},
-	["Bases"] = {},
-	["Base"] = {},
-	["Settings"] = { 
-		["Line"] = {
-		    Thickness = 1,
-		    Color = Color3.fromRGB(0, 255, 0)
-	    },
-		["Text"] = {
-			Size = 13,
-			Center = true,
-			Outline = true,
-			Font = Drawing.Fonts.Plex,
-			Color = Color3.fromRGB(255, 255, 255)
-		},
-		["Square"] = {
-			Thickness = 1,
-			Color = Color3.fromRGB(255, 255, 255),
-			Filled = false,
-		},
-		["Triangle"] = {
-			Color = Color3.fromRGB(255, 255, 255),
-			Filled = true,
-			Visible = false,
-			Thickness = 1,
-		},
-		["Image"] = {
-			Transparency = 1,
-			Data = game:HttpGet("https://raw.githubusercontent.com/portallol/luna/main/Gradient.png")
-		}
-	},
-}
-local sfx = {["Bameware"] = "16910460773",["Skeet"] = "4753603610",["Bonk"] = "3765689841",["Lazer Beam"] = "130791043",["Windows XP Error"] = "160715357",["TF2 Hitsound"] = "3455144981",["TF2 Critical"] = "296102734",["TF2 Bat"] = "3333907347",['Bow Hit'] = "1053296915",['Bow'] = "3442683707",['OSU'] = "7147454322",['Minecraft Hit'] = "4018616850",['Steve'] = "5869422451",['1nn'] = "7349055654",['Rust'] = "3744371091",["TF2 Pan"] = "3431749479",["Neverlose"] = "8679627751",["Mario"] = "5709456554",};
-local sfx_names = {"Bameware", "Skeet", "Bonk", "Lazer Beam", "Windows XP Error", "TF2 Hitsound", "TF2 Critical", "TF2 Bat", "Bow Hit", "Bow", "OSU", "Minecraft Hit", "Steve", "1nn", "Rust", "TF2 Pan", "Neverlose", "Mario"};
+--
 local LocalPlayer = Players.LocalPlayer; 
 local Mouse = LocalPlayer:GetMouse();
 local Camera = Workspace.Camera;
 local viewportSize = game.Workspace.Camera.ViewportSize;
-local hitmodule = game:GetObjects("rbxassetid://7255773215")[1]; hitmodule.Parent = ReplicatedStorage;
 local Offset = game:GetService("GuiService"):GetGuiInset().Y;
 local NotifiactionSGui = Instance.new("ScreenGui", game.CoreGui); NotifiactionSGui.Enabled = true
 local NewVector2 = Vector2.new;
@@ -328,10 +284,6 @@ local Clamp = math.clamp;
 local Ceil = math.ceil; 
 local Pi = math.pi;
 local Sqrt = math.sqrt;
-local Lighting_Save = {["ColorShift_Bottom"] = Lighting.ColorShift_Bottom, ["Ambient"]=Lighting.Ambient, ["OutdoorAmbient"]=Lighting.OutdoorAmbient, ["ColorShift_Top"]=Lighting.ColorShift_Top, ["FogColor"]=Lighting.FogColor, ["FogEnd"]=Lighting.FogEnd, ["FogStart"]=Lighting.FogStart, ["ClockTime"]=Lighting.ClockTime, ["Brightness"]=Lighting.Brightness}
-local bodyClone = game:GetObjects("rbxassetid://8246626421")[1]; bodyClone.Humanoid:Destroy(); bodyClone.Head.Face:Destroy(); bodyClone.Parent = game.Workspace; bodyClone.HumanoidRootPart.Velocity = Vector3.new(); bodyClone.HumanoidRootPart.CFrame = NewCFrame(9999,9999,9999); bodyClone.HumanoidRootPart.Transparency = 1; bodyClone.HumanoidRootPart.CanCollide = false 
-local visualizeChams = Instance.new("Highlight"); visualizeChams.Enabled = true; visualizeChams.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop; visualizeChams.FillColor = Color3.fromRGB(102, 60, 153); visualizeChams.OutlineColor =  Color3.fromRGB(0, 0, 0); visualizeChams.Adornee = bodyClone; visualizeChams.OutlineTransparency = 0.2; visualizeChams.FillTransparency = 0.5; visualizeChams.Parent = game.CoreGui
-local targetHighlight = Instance.new("Highlight", game.CoreGui); targetHighlight.Enabled = true; targetHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop; targetHighlight.FillColor = Color3.fromRGB(0,0,0); targetHighlight.OutlineColor = Color3.fromRGB(255,255,255); targetHighlight.OutlineTransparency = 0.5; targetHighlight.FillTransparency = 0;
 local IgnoreList = {};
 local Tween = {};
 local crosshair_Lines = {}; 
@@ -391,8 +343,6 @@ local utx = {}
 local Messages = {}
 local drawingCache = {} 
 
-utility.folders["Part Chams"] = Instance.new("Folder", Workspace);
-utility.folders["Hit Chams"] = Instance.new("Folder", Workspace);
 Library.__index = Library;
 Library.Pages.__index = Library.Pages;
 Library.Sections.__index = Library.Sections;
