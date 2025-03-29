@@ -392,7 +392,7 @@ Library.Sections.__index = Library.Sections;
 			
 			OutlineFrame.Name = "OutlineFrame"
 			OutlineFrame.Position = UDim2.new(0.5, 0, 0, 5)
-			OutlineFrame.Size = UDim2.new(0, 250, 0, 25)
+			OutlineFrame.Size = UDim2.new(0, 250, 0, 30) -- Increased height from 25 to 30
 			OutlineFrame.BackgroundColor3 = Color3.new(0.1765, 0.1765, 0.1765)
 			OutlineFrame.BorderColor3 = Color3.new(0.0392, 0.0392, 0.0392)
 			OutlineFrame.AnchorPoint = Vector2.new(0.5, 0)
@@ -417,7 +417,7 @@ Library.Sections.__index = Library.Sections;
 			TextLabel.Text = Properties.Text or "Your Watermark"
 			TextLabel.TextColor3 = Color3.new(1, 1, 1)
 			TextLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-			TextLabel.TextSize = Library.FontSize
+			TextLabel.TextSize = Library.FontSize + 2 -- Increased font size to match notifications
 			TextLabel.TextXAlignment = Enum.TextXAlignment.Center
 			TextLabel.TextStrokeTransparency = 0
 			
@@ -739,7 +739,60 @@ Library.Sections.__index = Library.Sections;
 		function Library:SetOpen(bool)
 			if typeof(bool) == 'boolean' then
 				Library.Open = bool;
-				Library.Holder.Visible = bool;
+				
+				-- Add fade effect with transparency tweening
+				if bool then
+					-- Make UI visible to start the animation
+					Library.Holder.Visible = true
+					
+					-- Create a simple transparent overlay for fade effect
+					local fadeOverlay = Instance.new("Frame")
+					fadeOverlay.Name = "FadeOverlay"
+					fadeOverlay.Size = UDim2.new(1, 0, 1, 0)
+					fadeOverlay.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+					fadeOverlay.BackgroundTransparency = 0
+					fadeOverlay.BorderSizePixel = 0
+					fadeOverlay.ZIndex = 10000 -- Ensure it's on top
+					fadeOverlay.Parent = Library.Holder
+					
+					-- Fade in by removing the overlay
+					local fadeInTween = TweenService:Create(
+						fadeOverlay, 
+						TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+						{BackgroundTransparency = 1}
+					)
+					
+					fadeInTween.Completed:Connect(function()
+						fadeOverlay:Destroy()
+					end)
+					
+					fadeInTween:Play()
+				else
+					-- Create a transparent overlay for fade out
+					local fadeOverlay = Instance.new("Frame")
+					fadeOverlay.Name = "FadeOverlay"
+					fadeOverlay.Size = UDim2.new(1, 0, 1, 0)
+					fadeOverlay.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+					fadeOverlay.BackgroundTransparency = 1
+					fadeOverlay.BorderSizePixel = 0
+					fadeOverlay.ZIndex = 10000 -- Ensure it's on top
+					fadeOverlay.Parent = Library.Holder
+					
+					-- Fade out by making the overlay opaque
+					local fadeOutTween = TweenService:Create(
+						fadeOverlay, 
+						TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
+						{BackgroundTransparency = 0}
+					)
+					
+					-- Hide the UI after fade out completes
+					fadeOutTween.Completed:Connect(function()
+						Library.Holder.Visible = false
+						fadeOverlay:Destroy()
+					end)
+					
+					fadeOutTween:Play()
+				end
 			end
 		end;
 		--
