@@ -2135,7 +2135,7 @@ Library.Sections.__index = Library.Sections;
 			
 			-- Add extra padding at the top of the section if it's the first one
 			if isFirstSection then
-				SectionOutline.Position = UDim2.new(0, 0, 0, 25) -- Add 25 pixels of margin at the top
+				SectionOutline.Position = UDim2.new(0, 0, 0, 20) -- Add 20 pixels of margin at the top
 			end
 						
 			--
@@ -2158,32 +2158,34 @@ Library.Sections.__index = Library.Sections;
 			--
 			
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,0,0,0) -- Position at top
-			Title.Size = UDim2.new(1,0,0,20) -- Full width for title bar
-			Title.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294) -- Slightly darker than section inline
-			Title.BackgroundTransparency = 0
+			Title.Position = UDim2.new(0,10,0,-8) -- Position slightly above the section
+			Title.Size = UDim2.new(0,0,0,16) -- Auto-size based on text width
+			Title.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
+			Title.BackgroundTransparency = 0 -- Make background visible
 			Title.BorderSizePixel = 0
-			Title.BorderColor3 = Color3.new(0,0,0)
+			Title.BorderColor3 = Color3.new(0.1765,0.1765,0.1765)
 			Title.TextColor3 = Color3.new(1,1,1)
 			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Title.TextSize = Library.FontSize + 1
-			Title.ZIndex = 5 -- Increased Z-index to ensure it's visible
-			Title.TextXAlignment = Enum.TextXAlignment.Center
+			Title.ZIndex = 5 
+			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.Text = Section.Name
 			Title.TextStrokeTransparency = 0
+			Title.AutomaticSize = Enum.AutomaticSize.X -- Auto-size the title width
 			
-			-- Create a small accent bar at the top of the title
-			local TitleAccent = Instance.new('Frame', Title)
-			TitleAccent.Name = "TitleAccent"
-			TitleAccent.Size = UDim2.new(1,0,0,1)
-			TitleAccent.Position = UDim2.new(0,0,0,0)
-			TitleAccent.BackgroundColor3 = Library.Accent
-			TitleAccent.BorderSizePixel = 0
-			TitleAccent.ZIndex = 6
-			table.insert(Library.ThemeObjects, TitleAccent)
+			-- Add a solid background to the text
+			TextBorder.Name = "TextBorder"
+			TextBorder.Position = UDim2.new(0,-2,0,-1)
+			TextBorder.Size = UDim2.new(1,4,1,2)
+			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
+			TextBorder.BorderSizePixel = 0
+			TextBorder.BorderColor3 = Color3.new(0,0,0)
+			TextBorder.ZIndex = 4 -- Behind the text but above other elements
 			
-			-- Hide the text border since we're using full title bar
-			TextBorder.Visible = false
+			-- Remove TitleAccent if it exists
+			if Title:FindFirstChild("TitleAccent") then
+				Title:FindFirstChild("TitleAccent"):Destroy()
+			end
 			
 			Space.Name = "Space"
 			Space.Position = UDim2.new(0,0,1,0)
@@ -2280,7 +2282,7 @@ Library.Sections.__index = Library.Sections;
 				
 				-- Update TextBorder size for title
 				if Title and TextBorder then
-					TextBorder.Size = UDim2.new(0, Title.TextBounds.X + 10, 0, 8)
+					TextBorder.Size = UDim2.new(1, 4, 1, 2)
 				end
 			end
 
