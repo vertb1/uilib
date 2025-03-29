@@ -1792,29 +1792,31 @@ Library.Sections.__index = Library.Sections;
 			local UIListLayout = Instance.new('UIListLayout', Left)
 			local UIListLayout_2 = Instance.new('UIListLayout', Right)
 			Left.Name = "Left"
-			Left.Position = UDim2.new(0,5,0,27)
-			Left.Size = UDim2.new(0.5,-10,1,-32)
+			Left.Position = UDim2.new(0,16,0,35) -- Increased Y from 25 to 35 to move sections down
+			Left.Size = UDim2.new(0.5,-18,1,-35)
 			Left.BackgroundColor3 = Color3.new(1,1,1)
-			Left.BorderSizePixel = 0
 			Left.BackgroundTransparency = 1
+			Left.BorderSizePixel = 0
 			Left.BorderColor3 = Color3.new(0,0,0)
 			Left.Visible = false
 			Left.ZIndex = 3
 			Left.ScrollBarThickness = 0
+			Left.ScrollBarImageTransparency = 1
 			Left.CanvasSize = UDim2.new(0, 0, 0, 0)
 			Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
 			Left.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			Right.Name = "Right"
-			Right.Position = UDim2.new(1,-5,0,27)
-			Right.Size = UDim2.new(0.5,-5,1,-32)
+			Right.Position = UDim2.new(0.5,3,0,35) -- Increased Y from 25 to 35 to move sections down
+			Right.Size = UDim2.new(0.5,-18,1,-35)
 			Right.BackgroundColor3 = Color3.new(1,1,1)
+			Right.BackgroundTransparency = 1
 			Right.BorderSizePixel = 0
 			Right.BorderColor3 = Color3.new(0,0,0)
 			Right.AnchorPoint = Vector2.new(1,0)
 			Right.Visible = false
-			Right.BackgroundTransparency = 1
 			Right.ScrollBarThickness = 0
+			Right.ScrollBarImageTransparency = 1
 			Right.CanvasSize = UDim2.new(0, 0, 0, 0)
 			Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
 			Right.ElasticBehavior = Enum.ElasticBehavior.Always
@@ -1934,6 +1936,10 @@ Library.Sections.__index = Library.Sections;
 				SectionOutline.Size = UDim2.new(1,0,0,20)
 				SectionOutline.AutomaticSize = Enum.AutomaticSize.Y
 			end
+			-- Add top margin for the first sections
+			if not Properties.NoTopMargin then
+				SectionOutline.Position = UDim2.new(0, 0, 0, 10) -- Add a 10-pixel top margin
+			end
 			SectionOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			SectionOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			SectionOutline.ZIndex = Section.ZIndex
@@ -1948,7 +1954,7 @@ Library.Sections.__index = Library.Sections;
 			SectionInline.BorderColor3 = Color3.new(0,0,0)
 			--
 			Container.Name = "Container"
-			Container.Position = UDim2.new(0,7,0,10)
+			Container.Position = UDim2.new(0,7,0,20) -- Changed from 10 to 20 to add more space at the top
 			Container.Size = UDim2.new(1,-14,1,-14)
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
