@@ -1350,6 +1350,7 @@ Library.Sections.__index = Library.Sections;
 			local UIListLayout = Instance.new('UIListLayout', ModeInline)
 			local Hold = Instance.new('TextButton', ModeInline)
 			local Toggle = Instance.new('TextButton', ModeInline)
+			local Rainbow = Instance.new('TextButton', ModeInline) -- Added Rainbow button instance
 			--
 			Icon.Name = "Icon"
 			Icon.Position = UDim2.new(1, - (count * 20) - (count * 6),0.5,0)
@@ -1549,6 +1550,21 @@ Library.Sections.__index = Library.Sections;
 			Toggle.TextSize = Library.FontSize
 			Toggle.TextStrokeTransparency = 0
 			Toggle.ZIndex = 100
+			--
+			-- Rainbow Button Setup
+			Rainbow.Name = "Rainbow"
+			Rainbow.Size = UDim2.new(1,0,0,15)
+			Rainbow.BackgroundColor3 = Color3.new(1,1,1)
+			Rainbow.BackgroundTransparency = 1
+			Rainbow.BorderSizePixel = 0
+			Rainbow.BorderColor3 = Color3.new(0,0,0)
+			Rainbow.Text = "Rainbow"
+			Rainbow.TextColor3 = Color3.fromRGB(145,145,145) -- Default inactive color
+			Rainbow.AutoButtonColor = false
+			Rainbow.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			Rainbow.TextSize = Library.FontSize
+			Rainbow.TextStrokeTransparency = 0
+			Rainbow.ZIndex = 100
 
 			Library:Connection(Icon.MouseEnter, function()
 				Icon.BorderColor3 = Library.Accent
@@ -1567,8 +1583,13 @@ Library.Sections.__index = Library.Sections;
 			local slidingsaturation = false
 			local slidinghue = false
 			local slidingalpha = false
+			local rainbowActive = false -- State for rainbow mode
+			local rainbowConnection = nil -- Connection for RunService loop
 
 			local function update()
+				-- If rainbow mode is active, hue is controlled by the loop, not mouse input
+				if rainbowActive then return end
+
 				local real_pos = game:GetService("UserInputService"):GetMouseLocation()
 				local mouse_position = NewVector2(real_pos.X, real_pos.Y - 40)
 				local relative_palette = (mouse_position - Color.AbsolutePosition)
@@ -1606,7 +1627,19 @@ Library.Sections.__index = Library.Sections;
 				callback(Color3.fromRGB(hsv.r * 255, hsv.g * 255, hsv.b * 255), alpha)
 			end
 
+			local function deactivateRainbow()
+				if rainbowConnection then
+					rainbowConnection:Disconnect()
+					rainbowConnection = nil
+				end
+				rainbowActive = false
+				Rainbow.TextColor3 = Color3.fromRGB(145,145,145) -- Set button to inactive color
+			end
+
 			local function set(color, a)
+				-- Deactivate rainbow if manually setting color
+				deactivateRainbow()
+
 				if type(color) == "table" then
 					a = color[4]
 					color = Color3.fromHSV(color[1], color[2], color[3])
@@ -1647,6 +1680,7 @@ Library.Sections.__index = Library.Sections;
 			Sat.InputBegan:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 then
 					slidingsaturation = true
+					deactivateRainbow() -- Stop rainbow on manual interaction
 					update()
 				end
 			end)
@@ -1661,6 +1695,7 @@ Library.Sections.__index = Library.Sections;
 			Hue.InputBegan:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 then
 					slidinghue = true
+					deactivateRainbow() -- Stop rainbow on manual interaction
 					update()
 				end
 			end)
@@ -1675,6 +1710,7 @@ Library.Sections.__index = Library.Sections;
 			Alpha.InputBegan:Connect(function(input)
 				if input.UserInputType == Enum.UserInputType.MouseButton1 then
 					slidingalpha = true
+					deactivateRainbow() -- Stop rainbow on manual interaction
 					update()
 				end
 			end)
@@ -1752,6 +1788,45 @@ Library.Sections.__index = Library.Sections;
 						ColorWindow.Visible = false
 						parent.ZIndex = 1
 					end
+				end
+			end)
+
+			-- Rainbow Button Logic
+			Library:Connection(Rainbow.MouseButton1Down, function()
+				rainbowActive = not rainbowActive
+
+				if rainbowActive then
+					Rainbow.TextColor3 = Color3.fromRGB(255,255,255) -- Active color
+					-- Stop manual sliding if it was active
+					slidingsaturation = false
+					slidinghue = false
+					slidingalpha = false
+					
+					if not rainbowConnection then
+						rainbowConnection = game:GetService("RunService").RenderStepped:Connect(function(dt)
+							-- Increment hue (adjust speed as needed)
+							hue = (hue + (dt * 0.2)) % 1 -- Cycle hue over ~5 seconds
+							
+							-- Update color based on new hue
+							hsv = Color3.fromHSV(hue, sat, val)
+							Pointer.Position = UDim2.new(math.clamp(1 - sat, 0.005, 0.995), 0, math.clamp(1 - val, 0.005, 0.995), 0)
+							Color.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
+							Alpha.BackgroundColor3 = Color3.fromHSV(hue, 1, 1)
+							IconInline.BackgroundColor3 = hsv
+							HueSlide.Position = UDim2.new(0,0,math.clamp(hue, 0.005, 0.995),0)
+							AlphaSlide.Position = UDim2.new(0,0,math.clamp(alpha, 0.005, 0.995),0)
+							
+							-- Update flags and call callback
+							if flag then
+								Library.Flags[flag] = {} 
+								Library.Flags[flag]["Color"] = Color3.fromRGB(hsv.r * 255, hsv.g * 255, hsv.b * 255)
+								Library.Flags[flag]["Transparency"] = alpha
+							end
+							callback(Color3.fromRGB(hsv.r * 255, hsv.g * 255, hsv.b * 255), alpha)
+						end)
+					end
+				else
+					deactivateRainbow()
 				end
 			end)
 
