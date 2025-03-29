@@ -2141,7 +2141,7 @@ Library.Sections.__index = Library.Sections;
 			SectionInline.AutomaticSize = Enum.AutomaticSize.Y -- Add automatic vertical sizing
 			--
 			Container.Name = "Container"
-			Container.Position = UDim2.new(0,7,0,10)
+			Container.Position = UDim2.new(0,7,0,18) -- Adjusted Y position from 10 to 18 to make space for Title
 			Container.Size = UDim2.new(1,-14,0,15) -- Minimum height for empty sections
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
@@ -2167,7 +2167,7 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, SectionAccent)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,10,0,-8)
+			Title.Position = UDim2.new(0,10,0,0) -- Changed Y offset from -8 to 0
 			Title.Size = UDim2.new(0,100,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
@@ -2182,7 +2182,7 @@ Library.Sections.__index = Library.Sections;
 			Title.TextStrokeTransparency = 0
 			--
 			TextBorder.Name = "TextBorder"
-			TextBorder.Position = UDim2.new(0,6,0,-2)
+			TextBorder.Position = UDim2.new(0,6,0,0) -- Changed Y offset from -2 to 0
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
 			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			TextBorder.BorderSizePixel = 0
