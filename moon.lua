@@ -1560,8 +1560,8 @@ Library.Sections.__index = Library.Sections;
             local UIListLayout = Instance.new('UIListLayout', Left)
             local UIListLayout_2 = Instance.new('UIListLayout', Right)
             Left.Name = "Left"
-            Left.Position = UDim2.new(0,5,0,75)
-            Left.Size = UDim2.new(0.5,-10,1,-80)
+            Left.Position = UDim2.new(0,5,0,27)  -- Default position when no icon tab is present
+            Left.Size = UDim2.new(0.5,-10,1,-32) -- Adjust size to account for reduced top margin
             Left.BackgroundColor3 = Color3.new(1,1,1)
             Left.BorderSizePixel = 0
             Left.BackgroundTransparency = 1
@@ -1574,14 +1574,14 @@ Library.Sections.__index = Library.Sections;
             Left.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			Right.Name = "Right"
-			Right.Position = UDim2.new(1,-5,0,75)
-			Right.Size = UDim2.new(0.5,-5,1,-80)
-			Right.BackgroundColor3 = Color3.new(1,1,1)
-			Right.BorderSizePixel = 0
-			Right.BorderColor3 = Color3.new(0,0,0)
-			Right.AnchorPoint = Vector2.new(1,0)
-			Right.Visible = false
-			Right.BackgroundTransparency = 1
+			Right.Position = UDim2.new(1,-5,0,27)  -- Default position when no icon tab is present
+			Right.Size = UDim2.new(0.5,-5,1,-32)   -- Adjust size to account for reduced top margin
+            Right.BackgroundColor3 = Color3.new(1,1,1)
+            Right.BorderSizePixel = 0
+            Right.BorderColor3 = Color3.new(0,0,0)
+            Right.AnchorPoint = Vector2.new(1,0)
+            Right.Visible = false
+            Right.BackgroundTransparency = 1
             Right.ScrollBarThickness = 0
             Right.CanvasSize = UDim2.new(0, 0, 0, 0)
             Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -1644,11 +1644,21 @@ Library.Sections.__index = Library.Sections;
 				if not Page.Icons then
                     Left.Visible = Page.Open
 				    Right.Visible = Page.Open
+                    -- When no icon tab is present, position content just below the tabs
+                    Left.Position = UDim2.new(0, 5, 0, 27)
+                    Right.Position = UDim2.new(1, -5, 0, 27)
+                    Left.Size = UDim2.new(0.5, -10, 1, -32)
+                    Right.Size = UDim2.new(0.5, -5, 1, -32)
                 else
                     WeaponOutline.Visible = Page.Open
                     for Index, Weapon in pairs(Page.Weapons) do
                         Weapon:Turn(Weapon.Open)
                     end
+                    -- When icon tab is present, position content below the weapon selector
+                    Left.Position = UDim2.new(0, 5, 0, 75)
+                    Right.Position = UDim2.new(1, -5, 0, 75)
+                    Left.Size = UDim2.new(0.5, -10, 1, -80)
+                    Right.Size = UDim2.new(0.5, -5, 1, -80)
                 end
 				TabAccent.Visible = Page.Open
 				TabLine.Visible = not Page.Open
@@ -1773,6 +1783,15 @@ Library.Sections.__index = Library.Sections;
 				Weapon.Open = bool
 				Left.Visible = Weapon.Open and Weapon.Window.Open
 				Right.Visible = Weapon.Open and Weapon.Window.Open
+				
+				-- Update positions to be beneath the WeaponOutline when a weapon is selected
+				if Weapon.Open then
+					Left.Position = UDim2.new(0, 5, 0, 75)
+					Right.Position = UDim2.new(1, -5, 0, 75)
+					Left.Size = UDim2.new(0.5, -10, 1, -80)
+					Right.Size = UDim2.new(0.5, -5, 1, -80)
+				end
+				
 				New.ImageColor3 = Weapon.Open and Color3.new(1,1,1) or Color3.fromRGB(145,145,145)
 			end
 			--
@@ -1805,19 +1824,20 @@ Library.Sections.__index = Library.Sections;
         end
 		--
 		function Pages:Section(Properties)
-			if not Properties then Properties = {} end
-			
+			if not Properties then
+				Properties = {}
+			end
+			--
 			local Section = {
 				Name = Properties.Name or "Section",
 				Page = self,
 				Side = (Properties.side or Properties.Side or "left"):lower(),
-				ZIndex = Properties.ZIndex or 1,
-				-- Idfk why
+				ZIndex = Properties.ZIndex or 1, -- Idfk why
 				Elements = {},
 				Content = {},
 				Size = Properties.Size or Properties.size or nil,
 			}
-			
+			--
 			local SectionOutline = Instance.new('Frame', Section.Side == "left" and Section.Page.Elements.Left or Section.Side == "right" and Section.Page.Elements.Right)
 			local SectionInline = Instance.new('Frame', SectionOutline)
 			local Container = Instance.new('Frame', SectionInline)
@@ -1825,8 +1845,8 @@ Library.Sections.__index = Library.Sections;
 			local Space = Instance.new('Frame', Container)
 			local SectionAccent = Instance.new('Frame', SectionInline)
 			local Title = Instance.new('TextLabel', SectionOutline)
-			local TextBorder = Instance.new('Frame', SectionOutline)
-			
+			local TextBorder = Instance.new('Frame', SectionOutline)	
+			--
 			SectionOutline.Name = "SectionOutline"
 			if Section.Size then
 				SectionOutline.Size = UDim2.new(1,0,0,Section.Size)
@@ -1837,27 +1857,25 @@ Library.Sections.__index = Library.Sections;
 			SectionOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			SectionOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			SectionOutline.ZIndex = Section.ZIndex
-			SectionOutline.ClipsDescendants = false
+			--
 			
+			--
 			SectionInline.Name = "SectionInline"
 			SectionInline.Position = UDim2.new(0,1,0,1)
 			SectionInline.Size = UDim2.new(1,-2,1,-2)
 			SectionInline.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			SectionInline.BorderSizePixel = 0
 			SectionInline.BorderColor3 = Color3.new(0,0,0)
-			SectionInline.ClipsDescendants = false
-			
+			--
 			Container.Name = "Container"
 			Container.Position = UDim2.new(0,7,0,10)
 			Container.Size = UDim2.new(1,-14,1,-14)
-			
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
 			Container.BorderSizePixel = 0
 			Container.BorderColor3 = Color3.new(0,0,0)
 			Container.AutomaticSize = Enum.AutomaticSize.Y
-			Container.ClipsDescendants = false
-			
+			--
 			Space.Name = "Space"
 			Space.Position = UDim2.new(0,0,1,0)
 			Space.Size = UDim2.new(1,0,0,1)
@@ -1866,7 +1884,7 @@ Library.Sections.__index = Library.Sections;
 			Space.BorderSizePixel = 0
 			Space.BorderColor3 = Color3.new(0,0,0)
 			Space.LayoutOrder = 1000
-			
+			--
 			SectionAccent.Name = "SectionAccent"
 			SectionAccent.Size = UDim2.new(1,0,0,1)
 			SectionAccent.BackgroundColor3 = Library.Accent
@@ -1874,11 +1892,10 @@ Library.Sections.__index = Library.Sections;
 			SectionAccent.BorderColor3 = Color3.new(0,0,0)
 			table.insert(Library.ThemeObjects, SectionAccent)
 			table.insert(Library.ThemeObjects, SectionAccent)
-			
+			--
 			Title.Name = "Title"
 			Title.Position = UDim2.new(0,10,0,-8)
 			Title.Size = UDim2.new(0,100,0,16)
-			
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
@@ -1890,24 +1907,25 @@ Library.Sections.__index = Library.Sections;
 			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.Text = Section.Name
 			Title.TextStrokeTransparency = 0
-			
+			--
 			TextBorder.Name = "TextBorder"
 			TextBorder.Position = UDim2.new(0,6,0,-2)
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
 			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			TextBorder.BorderSizePixel = 0
 			TextBorder.BorderColor3 = Color3.new(0,0,0)
-			
+			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0,8) -- Increased padding between elements
+			UIListLayout.Padding = UDim.new(0,6)
 			
 			-- // Elements
 			Section.Elements = {
 				SectionContent = Container;
 				SectionHolder = SectionOutline;
 			}
-			
+
 			-- // Returning
+			
 			Section.Page.Sections[#Section.Page.Sections + 1] = Section
 			wait(0.01)
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
@@ -2428,26 +2446,56 @@ Library.Sections.__index = Library.Sections;
 		end
 		--
 		function Sections:Slider(Properties)
-			if not Properties then Properties = {} end
-			
+			if not Properties then
+				Properties = {}
+			end
+			--
 			local Slider = {
 				Window = self.Window,
 				Page = self.Page,
 				Section = self,
 				Name = Properties.Name or nil,
 				Min = (Properties.min or Properties.Min or Properties.minimum or Properties.Minimum or 0),
-				State = ( Properties.state or Properties.State or Properties.def or Properties.Def or Properties.default or Properties.Default or 10 ),
+				State = (
+					Properties.state
+						or Properties.State
+						or Properties.def
+						or Properties.Def
+						or Properties.default
+						or Properties.Default
+						or 10
+				),
 				Max = (Properties.max or Properties.Max or Properties.maximum or Properties.Maximum or 100),
-				
-				Sub = ( Properties.suffix or Properties.Suffix or Properties.ending or Properties.Ending or Properties.prefix or Properties.Prefix or Properties.measurement or Properties.Measurement or "" ),
+				Sub = (
+					Properties.suffix
+						or Properties.Suffix
+						or Properties.ending
+						or Properties.Ending
+						or Properties.prefix
+						or Properties.Prefix
+						or Properties.measurement
+						or Properties.Measurement
+						or ""
+				),
 				Decimals = (Properties.decimals or Properties.Decimals or 1),
-				Callback = ( Properties.callback or Properties.Callback or Properties.callBack or Properties.CallBack or function() end ),
-				Flag = ( Properties.flag or Properties.Flag or Properties.pointer or Properties.Pointer or Library.NextFlag() ),
+				Callback = (
+					Properties.callback
+						or Properties.Callback
+						or Properties.callBack
+						or Properties.CallBack
+						or function() end
+				),
+				Flag = (
+					Properties.flag
+						or Properties.Flag
+						or Properties.pointer
+						or Properties.Pointer
+						or Library.NextFlag()
+				),
 				Disabled = (Properties.Disabled or Properties.disable or nil),
 			}
-			
 			local TextValue = ("[value]" .. Slider.Sub)
-			
+			--
 			local NewSlider = Instance.new('TextButton', Slider.Section.Elements.SectionContent)
 			local Outline = Instance.new('Frame', NewSlider)
 			local Inline = Instance.new('Frame', Outline)
@@ -2456,9 +2504,9 @@ Library.Sections.__index = Library.Sections;
 			local Subtract = Instance.new('TextButton', Outline)
 			local Title = Instance.new('TextLabel', NewSlider)
 			local Value = Instance.new('TextLabel', NewSlider)
-			
+			--
 			NewSlider.Name = "NewSlider"
-			NewSlider.Size = UDim2.new(1,0,0,30) -- Increased height
+			NewSlider.Size = UDim2.new(1,0,0,22)
 			NewSlider.BackgroundColor3 = Color3.new(1,1,1)
 			NewSlider.BackgroundTransparency = 1
 			NewSlider.BorderSizePixel = 0
@@ -2468,24 +2516,21 @@ Library.Sections.__index = Library.Sections;
 			NewSlider.AutoButtonColor = false
 			NewSlider.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			NewSlider.TextSize = 14
-			NewSlider.ZIndex = 5 -- Higher Z-index
-			
+			--
 			Outline.Name = "Outline"
-			Outline.Position = UDim2.new(0,15,1,-10) -- Adjusted position
+			Outline.Position = UDim2.new(0,15,1,0)
 			Outline.Size = UDim2.new(1,-30,0,7)
 			Outline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			Outline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			Outline.AnchorPoint = NewVector2(0,1)
-			Outline.ZIndex = 5 -- Higher Z-index
-			
+			--
 			Inline.Name = "Inline"
 			Inline.Position = UDim2.new(0,1,0,1)
 			Inline.Size = UDim2.new(1,-2,1,-2)
 			Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
 			Inline.BorderSizePixel = 0
 			Inline.BorderColor3 = Color3.new(0,0,0)
-			Inline.ZIndex = 5 -- Higher Z-index
-			
+			--
 			Accent.Name = "Accent"
 			Accent.Size = UDim2.new(0,0,1,0)
 			Accent.BackgroundColor3 = Library.Accent
@@ -2496,12 +2541,11 @@ Library.Sections.__index = Library.Sections;
 			Accent.AutoButtonColor = false
 			Accent.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Accent.TextSize = 14
-			Accent.ZIndex = 5 -- Higher Z-index
 			table.insert(Library.ThemeObjects, Accent)
 			table.insert(Library.ThemeObjects, Accent)
-			
+			--
 			Add.Name = "Add"
-			Add.Position = UDim2.new(1,5,0.5,-10) -- Adjusted position
+			Add.Position = UDim2.new(1,5,0.5,0)
 			Add.Size = UDim2.new(0,10,0,10)
 			Add.BackgroundColor3 = Color3.new(1,1,1)
 			Add.BackgroundTransparency = 1
@@ -2514,10 +2558,9 @@ Library.Sections.__index = Library.Sections;
 			Add.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Add.TextSize = Library.FontSize
 			Add.TextStrokeTransparency = 0
-			Add.ZIndex = 5 -- Higher Z-index
-			
+			--
 			Subtract.Name = "Subtract"
-			Subtract.Position = UDim2.new(0,-15,0.5,-10) -- Adjusted position
+			Subtract.Position = UDim2.new(0,-15,0.5,0)
 			Subtract.Size = UDim2.new(0,10,0,10)
 			Subtract.BackgroundColor3 = Color3.new(1,1,1)
 			Subtract.BackgroundTransparency = 1
@@ -2530,11 +2573,10 @@ Library.Sections.__index = Library.Sections;
 			Subtract.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Subtract.TextSize = Library.FontSize
 			Subtract.TextStrokeTransparency = 0
-			Subtract.ZIndex = 5 -- Higher Z-index
-			
+			--
 			Title.Name = "Title"
 			Title.Position = UDim2.new(0,15,0,0)
-			Title.Size = UDim2.new(1,0,0,15) -- Fixed size
+			Title.Size = UDim2.new(1,0,0,10)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
@@ -2545,11 +2587,10 @@ Library.Sections.__index = Library.Sections;
 			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.Text = Slider.Name
 			Title.TextStrokeTransparency = 0
-			Title.ZIndex = 5 -- Higher Z-index
-			
+			--
 			Value.Name = "Value"
 			Value.Position = UDim2.new(0,15,0,0)
-			Value.Size = UDim2.new(1,-30,0,15) -- Fixed size
+			Value.Size = UDim2.new(1,-30,0,10)
 			Value.BackgroundColor3 = Color3.new(1,1,1)
 			Value.BackgroundTransparency = 1
 			Value.BorderSizePixel = 0
@@ -2559,7 +2600,6 @@ Library.Sections.__index = Library.Sections;
 			Value.TextSize = Library.FontSize
 			Value.TextXAlignment = Enum.TextXAlignment.Right
 			Value.TextStrokeTransparency = 0
-			Value.ZIndex = 5 -- Higher Z-index
 			
 			-- // Functions
 			local Sliding = false
@@ -2658,405 +2698,349 @@ Library.Sections.__index = Library.Sections;
 				Section = self,
 				Open = false,
 				Name = Properties.Name or Properties.name or nil,
-				Options = (Properties.options or Properties.Options or Properties.values or Properties.Values or { "1", "2", "3", }),
+				Options = (Properties.options or Properties.Options or Properties.values or Properties.Values or {
+					"1",
+					"2",
+					"3",
+				}),
 				Max = (Properties.Max or Properties.max or nil),
-				State = ( Properties.state or Properties.State or Properties.def or Properties.Def or Properties.default or Properties.Default or nil ),
-				Callback = ( Properties.callback or Properties.Callback or Properties.callBack or Properties.CallBack or function() end ),
-				Flag = ( Properties.flag or Properties.Flag or Properties.pointer or Properties.Pointer or Library.NextFlag() ),
+				State = (
+					Properties.state
+						or Properties.State
+						or Properties.def
+						or Properties.Def
+						or Properties.default
+						or Properties.Default
+						or nil
+				),
+				Callback = (
+					Properties.callback
+						or Properties.Callback
+						or Properties.callBack
+						or Properties.CallBack
+						or function() end
+				),
+				Flag = (
+					Properties.flag
+						or Properties.Flag
+						or Properties.pointer
+						or Properties.Pointer
+						or Library.NextFlag()
+				),
 				OptionInsts = {},
 			}
-			
-			-- Create a separate ScreenGui for dropdowns to avoid z-index issues
-			local dropdownGui = Instance.new("ScreenGui", game.CoreGui)
-			dropdownGui.Name = "DropdownContainer_" .. (Dropdown.Name or "Dropdown")
-			dropdownGui.DisplayOrder = 999
-			dropdownGui.ResetOnSpawn = false
-			
+			--
 			local NewDrop = Instance.new('Frame', Dropdown.Section.Elements.SectionContent)
 			local Outline = Instance.new('TextButton', NewDrop)
 			local Inline = Instance.new('Frame', Outline)
 			local Value = Instance.new('TextLabel', Inline)
 			local Icon = Instance.new('TextLabel', Inline)
 			local Title = Instance.new('TextLabel', NewDrop)
-			local ContainerOutline = Instance.new('Frame', dropdownGui)
+			local ContainerOutline = Instance.new('Frame', NewDrop)
 			local ContainerInline = Instance.new('Frame', ContainerOutline)
 			local UIListLayout = Instance.new('UIListLayout', ContainerInline)
-			
+			--
 			NewDrop.Name = "NewDrop"
-			NewDrop.Size = UDim2.new(1, 0, 0, 36) -- Increased height for better spacing
-			NewDrop.BackgroundColor3 = Color3.new(1, 1, 1)
+			NewDrop.Size = UDim2.new(1,0,0,16)
+			NewDrop.BackgroundColor3 = Color3.new(1,1,1)
 			NewDrop.BackgroundTransparency = 1
 			NewDrop.BorderSizePixel = 0
-			NewDrop.BorderColor3 = Color3.new(0, 0, 0)
-			
+			NewDrop.BorderColor3 = Color3.new(0,0,0)
+			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0, 15, 0, 0)
-			Title.Size = UDim2.new(1, -15, 0, 16) -- Fixed title size
-			Title.BackgroundColor3 = Color3.new(1, 1, 1)
+			Title.Position = UDim2.new(0,15,0,0)
+			Title.Size = UDim2.new(1,-15,1,0)
+			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
-			Title.BorderColor3 = Color3.new(0, 0, 0)
+			Title.BorderColor3 = Color3.new(0,0,0)
 			Title.Text = Dropdown.Name
-			Title.TextColor3 = Color3.new(0.5686, 0.5686, 0.5686)
+			Title.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
 			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Title.TextSize = Library.FontSize
 			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.TextStrokeTransparency = 0
-			
+			--
 			Outline.Name = "Outline"
-			Outline.Position = UDim2.new(1, 0, 0, 20) -- Positioned below title
-			Outline.Size = UDim2.new(1, -30, 0, 16)
+			Outline.Position = UDim2.new(1,0,0.5,12)
+			Outline.Size = UDim2.new(1,-30,0,16)
 			Outline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 			Outline.BorderColor3 = Color3.fromRGB(10, 10, 10)
-			Outline.AnchorPoint = Vector2.new(1, 0)
+			Outline.AnchorPoint = Vector2.new(1,0)
 			Outline.Text = ""
 			Outline.AutoButtonColor = false
-			
+			--
 			Inline.Name = "Inline"
-			Inline.Position = UDim2.new(0, 1, 0, 1)
-			Inline.Size = UDim2.new(1, -2, 1, -2)
-			Inline.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
+			Inline.Position = UDim2.new(0,1,0,1)
+			Inline.Size = UDim2.new(1,-2,1,-2)
+			Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
 			Inline.BorderSizePixel = 0
-			Inline.BorderColor3 = Color3.new(0, 0, 0)
-			
+			Inline.BorderColor3 = Color3.new(0,0,0)
+			--
 			Value.Name = "Value"
-			Value.Position = UDim2.new(0, 2, 0, 0)
-			Value.Size = UDim2.new(1, -30, 1, 0)
-			Value.BackgroundColor3 = Color3.new(1, 1, 1)
+			Value.Position = UDim2.new(0,2,0,0)
+			Value.Size = UDim2.new(1,-30,1,0)
+			Value.BackgroundColor3 = Color3.new(1,1,1)
 			Value.BackgroundTransparency = 1
 			Value.BorderSizePixel = 0
-			Value.BorderColor3 = Color3.new(0, 0, 0)
-			Value.TextColor3 = Color3.new(0.5686, 0.5686, 0.5686)
+			Value.BorderColor3 = Color3.new(0,0,0)
+			Value.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
 			Value.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Value.TextSize = Library.FontSize
 			Value.TextXAlignment = Enum.TextXAlignment.Left
 			Value.TextStrokeTransparency = 0
 			Value.TextWrapped = true
-			
+			--
 			Icon.Name = "Icon"
-			
-			Icon.Position = UDim2.new(0, -5, 0, 0)
-			Icon.Size = UDim2.new(1, 0, 1, 0)
-			Icon.BackgroundColor3 = Color3.new(1, 1, 1)
+			Icon.Position = UDim2.new(0,-5,0,0)
+			Icon.Size = UDim2.new(1,0,1,0)
+			Icon.BackgroundColor3 = Color3.new(1,1,1)
 			Icon.BackgroundTransparency = 1
 			Icon.BorderSizePixel = 0
-			Icon.BorderColor3 = Color3.new(0, 0, 0)
+			Icon.BorderColor3 = Color3.new(0,0,0)
 			Icon.Text = "+"
-			Icon.TextColor3 = Color3.new(0.5686, 0.5686, 0.5686)
+			Icon.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
 			Icon.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Icon.TextSize = Library.FontSize
 			Icon.TextXAlignment = Enum.TextXAlignment.Right
 			Icon.TextStrokeTransparency = 0
-			
+			--
 			ContainerOutline.Name = "ContainerOutline"
-			ContainerOutline.BackgroundColor3 = Color3.new(0.1765, 0.1765, 0.1765)
-			ContainerOutline.BorderColor3 = Color3.new(0.0392, 0.0392, 0.0392)
+			ContainerOutline.Position = UDim2.new(0,15,1,2)
+			ContainerOutline.Size = UDim2.new(1,-30,0,10)
+			ContainerOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
+			ContainerOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			ContainerOutline.Visible = false
 			ContainerOutline.AutomaticSize = Enum.AutomaticSize.Y
-			ContainerOutline.Size = UDim2.new(0, 0, 0, 10) -- Will be updated dynamically
-			
+			ContainerOutline.ZIndex = 5
+			--
 			ContainerInline.Name = "ContainerInline"
-			ContainerInline.Position = UDim2.new(0, 1, 0, 1)
-			ContainerInline.Size = UDim2.new(1, -2, 1, -2)
-			ContainerInline.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
+			ContainerInline.Position = UDim2.new(0,1,0,1)
+			ContainerInline.Size = UDim2.new(1,-2,1,-2)
+			ContainerInline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
 			ContainerInline.BorderSizePixel = 0
-			ContainerInline.BorderColor3 = Color3.new(0, 0, 0)
-			
+			ContainerInline.BorderColor3 = Color3.new(0,0,0)
+			ContainerInline.ZIndex = 6;
+			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0, 2) -- Added padding between options
 			
-			-- Function to update dropdown container position
-			local function updateContainerPosition()
-				local absPos = NewDrop.AbsolutePosition
-				local absSize = NewDrop.AbsoluteSize
-				local outlineAbsPos = Outline.AbsolutePosition
-				local outlineAbsSize = Outline.AbsoluteSize
-				
-				ContainerOutline.Position = UDim2.new(
-					0, outlineAbsPos.X, 
-					0, outlineAbsPos.Y + outlineAbsSize.Y + 2
-				)
-				ContainerOutline.Size = UDim2.new(0, outlineAbsSize.X, 0, 10)
-			end
-			
-			local function createOption(option)
-				local NewOption = Instance.new('TextButton', ContainerInline)
-				local OptionName = Instance.new('TextLabel', NewOption)
-				
-				NewOption.Name = "Option_" .. option
-				NewOption.Size = UDim2.new(1, 0, 0, 15)
-				NewOption.BackgroundColor3 = Color3.new(1, 1, 1)
-				NewOption.BackgroundTransparency = 1
-				NewOption.BorderSizePixel = 0
-				NewOption.BorderColor3 = Color3.new(0, 0, 0)
-				NewOption.Text = ""
-				NewOption.TextColor3 = Color3.new(0, 0, 0)
-				NewOption.AutoButtonColor = false
-				
-				OptionName.Name = "OptionName"
-				OptionName.Position = UDim2.new(0, 2, 0, 0)
-				OptionName.Size = UDim2.new(1, 0, 1, 0)
-				OptionName.BackgroundColor3 = Color3.new(1, 1, 1)
-				OptionName.BackgroundTransparency = 1
-				OptionName.BorderSizePixel = 0
-				OptionName.BorderColor3 = Color3.new(0, 0, 0)
-				OptionName.Text = option
-				OptionName.TextColor3 = Color3.new(0.5686, 0.5686, 0.5686)
-				OptionName.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-				OptionName.TextSize = Library.FontSize
-				OptionName.TextXAlignment = Enum.TextXAlignment.Left
-				OptionName.TextStrokeTransparency = 0
-				
-				Dropdown.OptionInsts[option] = {
-					button = NewOption,
-					text = OptionName
-				}
-				
-				-- Handle option selection
-				NewOption.MouseButton1Down:Connect(function()
-					if Dropdown.Max then
-						if table.find(Dropdown.State or {}, option) then
-							-- Remove from selection
-							table.remove(Dropdown.State, table.find(Dropdown.State, option))
-							OptionName.TextColor3 = Color3.fromRGB(145, 145, 145)
-						else
-							-- Add to selection (with max check)
-							if not Dropdown.State then Dropdown.State = {} end
-							if #Dropdown.State >= Dropdown.Max then
-								local firstOption = Dropdown.State[1]
-								table.remove(Dropdown.State, 1)
-								if Dropdown.OptionInsts[firstOption] then
-									Dropdown.OptionInsts[firstOption].text.TextColor3 = Color3.fromRGB(145, 145, 145)
-								end
-							end
-							table.insert(Dropdown.State, option)
-							OptionName.TextColor3 = Color3.fromRGB(255, 255, 255)
-						end
-						
-						-- Update display value
-						local displayText = ""
-						if #Dropdown.State > 0 then
-							displayText = table.concat(Dropdown.State, ", ")
-							if #displayText > 20 then
-								displayText = string.sub(displayText, 1, 18) .. "..."
-							end
-						end
-						Value.Text = displayText
-						
-						Library.Flags[Dropdown.Flag] = Dropdown.State
-						Dropdown.Callback(Dropdown.State)
-					else
-						-- Single selection
-						for opt, inst in pairs(Dropdown.OptionInsts) do
-							inst.text.TextColor3 = Color3.fromRGB(145, 145, 145)
-						end
-						OptionName.TextColor3 = Color3.fromRGB(255, 255, 255)
-						Dropdown.State = option
-						Value.Text = option
-						Library.Flags[Dropdown.Flag] = option
-						Dropdown.Callback(option)
-						
-						-- Close dropdown after selection
-						ContainerOutline.Visible = false
-						Icon.Text = "+"
-					end
-				end)
-				
-				-- Handle hover effect
-				NewOption.MouseEnter:Connect(function()
-					if (Dropdown.Max and not table.find(Dropdown.State or {}, option)) or 
-					   (not Dropdown.Max and Dropdown.State ~= option) then
-						OptionName.TextColor3 = Color3.fromRGB(200, 200, 200)
-					end
-				end)
-				
-				NewOption.MouseLeave:Connect(function()
-					if (Dropdown.Max and not table.find(Dropdown.State or {}, option)) or 
-					   (not Dropdown.Max and Dropdown.State ~= option) then
-						OptionName.TextColor3 = Color3.fromRGB(145, 145, 145)
-					end
-				end)
-			end
-			
-			-- Create all initial options
-			for _, option in pairs(Dropdown.Options) do
-				createOption(option)
-			end
-			
-			-- Set initial state
-			if Dropdown.State then
-				if Dropdown.Max and type(Dropdown.State) == "table" then
-					for _, option in pairs(Dropdown.State) do
-						if Dropdown.OptionInsts[option] then
-							Dropdown.OptionInsts[option].text.TextColor3 = Color3.fromRGB(255, 255, 255)
-						end
-					end
-					local displayText = table.concat(Dropdown.State, ", ")
-					if #displayText > 20 then
-						displayText = string.sub(displayText, 1, 18) .. "..."
-					end
-					Value.Text = displayText
-				elseif not Dropdown.Max and Dropdown.OptionInsts[Dropdown.State] then
-					Dropdown.OptionInsts[Dropdown.State].text.TextColor3 = Color3.fromRGB(255, 255, 255)
-					Value.Text = Dropdown.State
-				end
-			end
-			
-			-- Toggle dropdown visibility
-			Outline.MouseButton1Down:Connect(function()
-				updateContainerPosition()
+			-- // Connections
+			Library:Connection(Outline.MouseButton1Down, function()
 				ContainerOutline.Visible = not ContainerOutline.Visible
-				Icon.Text = ContainerOutline.Visible and "-" or "+"
-				
-				-- Close other dropdowns
-				for _, otherDropGui in pairs(game.CoreGui:GetChildren()) do
-					if otherDropGui.Name:find("DropdownContainer_") and otherDropGui ~= dropdownGui then
-						for _, child in pairs(otherDropGui:GetChildren()) do
-							if child.Name == "ContainerOutline" then
-								child.Visible = false
-							end
-						end
+				if ContainerOutline.Visible then
+					NewDrop.ZIndex = 2
+					Icon.Text = "-"
+				else
+					NewDrop.ZIndex = 1
+					Icon.Text = "+"
+				end
+			end)
+			Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
+				if ContainerOutline.Visible and Input.UserInputType == Enum.UserInputType.MouseButton1 then
+					if not Library:IsMouseOverFrame(ContainerOutline) and not Library:IsMouseOverFrame(NewDrop) then
+						ContainerOutline.Visible = false
+						NewDrop.ZIndex = 1
+						Icon.Text = "+"
 					end
 				end
 			end)
-			
-			-- Add hover effects
 			Library:Connection(NewDrop.MouseEnter, function()
 				Outline.BorderColor3 = Library.Accent
 				table.insert(Library.ThemeObjects, Title)
 				Title.TextColor3 = Library.Accent
 			end)
-			
+			--
 			Library:Connection(NewDrop.MouseLeave, function()
-				Outline.BorderColor3 = Color3.new(0.0392, 0.0392, 0.0392)
-				local index = table.find(Library.ThemeObjects, Title)
-				if index then
-					table.remove(Library.ThemeObjects, index)
-				end
-				Title.TextColor3 = Color3.new(0.5686, 0.5686, 0.5686)
+				Outline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
+				table.remove(Library.ThemeObjects, table.find(Library.ThemeObjects, Title))
+				Title.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
 			end)
-			
-			-- Close dropdown when clicking elsewhere
-			Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
-				if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-					local mousePos = game:GetService("UserInputService"):GetMouseLocation()
-					if ContainerOutline.Visible then
-						local absPos = ContainerOutline.AbsolutePosition
-						local absSize = ContainerOutline.AbsoluteSize
-						
-						-- Check if click is outside dropdown
-						if mousePos.X < absPos.X or 
-						   mousePos.X > absPos.X + absSize.X or 
-						   mousePos.Y < absPos.Y or 
-						   mousePos.Y > absPos.Y + absSize.Y then
-							
-							-- Also check if not clicking on the dropdown button
-							local outlinePos = Outline.AbsolutePosition
-							local outlineSize = Outline.AbsoluteSize
-							
-							if mousePos.X < outlinePos.X or 
-							   mousePos.X > outlinePos.X + outlineSize.X or 
-							   mousePos.Y < outlinePos.Y or 
-							   mousePos.Y > outlinePos.Y + outlineSize.Y then
-								
-								ContainerOutline.Visible = false
-								Icon.Text = "+"
+			--
+			local chosen = Dropdown.Max and {} or nil
+			--
+			local function handleoptionclick(option, button, text)
+				button.MouseButton1Down:Connect(function()
+					if Dropdown.Max then
+						if table.find(chosen, option) then
+							table.remove(chosen, table.find(chosen, option))
+
+							local textchosen = {}
+							local cutobject = false
+
+							for _, opt in next, chosen do
+								table.insert(textchosen, opt)
+							end
+
+							Value.Text = #chosen == 0 and "" or table.concat(textchosen, ",") .. (cutobject and ", ..." or "")
+
+							text.TextColor3 = Color3.fromRGB(145,145,145)
+
+							Library.Flags[Dropdown.Flag] = chosen
+							Dropdown.Callback(chosen)
+						else
+							if #chosen == Dropdown.Max then
+								Dropdown.OptionInsts[chosen[1]].text.TextColor3 = Color3.fromRGB(145,145,145)
+								table.remove(chosen, 1)
+							end
+
+							table.insert(chosen, option)
+
+							local textchosen = {}
+							local cutobject = false
+
+							for _, opt in next, chosen do
+								table.insert(textchosen, opt)
+							end
+
+							Value.Text = #chosen == 0 and "" or table.concat(textchosen, ",") .. (cutobject and ", ..." or "")
+
+							text.TextColor3 = Color3.fromRGB(255,255,255)
+
+							Library.Flags[Dropdown.Flag] = chosen
+							Dropdown.Callback(chosen)
+						end
+					else
+						for opt, tbl in next, Dropdown.OptionInsts do
+							if opt ~= option then
+								tbl.text.TextColor3 = Color3.fromRGB(145,145,145)
 							end
 						end
+						chosen = option
+						Value.Text = option
+						text.TextColor3 = Color3.fromRGB(255,255,255)
+						Library.Flags[Dropdown.Flag] = option
+						Dropdown.Callback(option)
 					end
-				end
-			end)
-			
-			-- Update position if scrolling occurs
-			Library:Connection(game:GetService("RunService").RenderStepped, function()
-				if ContainerOutline.Visible then
-					updateContainerPosition()
-				end
-			end)
-			
-			-- Public methods for the dropdown
-			function Dropdown:Set(value)
-				if Dropdown.Max and type(value) == "table" then
-					-- Clear all selections
-					for opt, inst in pairs(Dropdown.OptionInsts) do
-						inst.text.TextColor3 = Color3.fromRGB(145, 145, 145)
-					end
-					
-					-- Set new selections
-					Dropdown.State = {}
-					for _, option in pairs(value) do
-						if Dropdown.OptionInsts[option] and #Dropdown.State < Dropdown.Max then
-							table.insert(Dropdown.State, option)
-							Dropdown.OptionInsts[option].text.TextColor3 = Color3.fromRGB(255, 255, 255)
-						end
-					end
-					
-					-- Update display
-					local displayText = ""
-					if #Dropdown.State > 0 then
-						displayText = table.concat(Dropdown.State, ", ")
-						if #displayText > 20 then
-							displayText = string.sub(displayText, 1, 18) .. "..."
-						end
-					end
-					Value.Text = displayText
-					
-					Library.Flags[Dropdown.Flag] = Dropdown.State
-					Dropdown.Callback(Dropdown.State)
-				elseif not Dropdown.Max then
-					-- Clear all selections
-					for opt, inst in pairs(Dropdown.OptionInsts) do
-						inst.text.TextColor3 = Color3.fromRGB(145, 145, 145)
-					end
-					
-					-- Set new selection
-					if Dropdown.OptionInsts[value] then
-						Dropdown.State = value
-						Dropdown.OptionInsts[value].text.TextColor3 = Color3.fromRGB(255, 255, 255)
-						Value.Text = value
-						Library.Flags[Dropdown.Flag] = value
-						Dropdown.Callback(value)
-					else
-						Dropdown.State = nil
-						Value.Text = ""
-						Library.Flags[Dropdown.Flag] = nil
-						Dropdown.Callback(nil)
-					end
+				end)
+			end
+			--
+			local function createoptions(tbl)
+				for _, option in next, tbl do
+					Dropdown.OptionInsts[option] = {}
+					local NewOption = Instance.new('TextButton', ContainerInline)
+					local OptionName = Instance.new('TextLabel', NewOption)
+					NewOption.Name = "NewOption"
+					NewOption.Size = UDim2.new(1,0,0,15)
+					NewOption.BackgroundColor3 = Color3.new(1,1,1)
+					NewOption.BackgroundTransparency = 1
+					NewOption.BorderSizePixel = 0
+					NewOption.BorderColor3 = Color3.new(0,0,0)
+					NewOption.Text = ""
+					NewOption.TextColor3 = Color3.new(0,0,0)
+					NewOption.AutoButtonColor = false
+					NewOption.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+					NewOption.TextSize = 14
+					NewOption.ZIndex = 7;
+					Dropdown.OptionInsts[option].button = NewOption
+					--
+					OptionName.Name = "OptionName"
+					OptionName.Position = UDim2.new(0,2,0,0)
+					OptionName.Size = UDim2.new(1,0,1,0)
+					OptionName.BackgroundColor3 = Color3.new(1,1,1)
+					OptionName.BackgroundTransparency = 1
+					OptionName.BorderSizePixel = 0
+					OptionName.BorderColor3 = Color3.new(0,0,0)
+					OptionName.Text = option
+					OptionName.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
+					OptionName.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+					OptionName.TextSize = Library.FontSize
+					OptionName.TextXAlignment = Enum.TextXAlignment.Left
+					OptionName.TextStrokeTransparency = 0
+					OptionName.ZIndex = 8;
+					Dropdown.OptionInsts[option].text = OptionName
+
+					handleoptionclick(option, NewOption, OptionName)
 				end
 			end
-			
-			function Dropdown:Refresh(options)
-				-- Clear existing options
-				for _, inst in pairs(Dropdown.OptionInsts) do
-					inst.button:Destroy()
-				end
-				Dropdown.OptionInsts = {}
-				
-				-- Add new options
-				Dropdown.Options = options
-				for _, option in pairs(options) do
-					createOption(option)
-				end
-				
-				-- Reset state
+			createoptions(Dropdown.Options)
+			--
+			local set
+			set = function(option)
 				if Dropdown.Max then
-					Dropdown.State = {}
-				else
-					Dropdown.State = nil
+					table.clear(chosen)
+					option = type(option) == "table" and option or {}
+
+					for opt, tbl in next, Dropdown.OptionInsts do
+						if not table.find(option, opt) then
+							tbl.text.TextColor3 = Color3.fromRGB(145,145,145)
+						end
+					end
+
+					for i, opt in next, option do
+						if table.find(Dropdown.Options, opt) and #chosen < Dropdown.Max then
+							table.insert(chosen, opt)
+							Dropdown.OptionInsts[opt].text.TextColor3 = Color3.fromRGB(255,255,255)
+						end
+					end
+
+					local textchosen = {}
+					local cutobject = false
+
+					for _, opt in next, chosen do
+						table.insert(textchosen, opt)
+					end
+
+					Value.Text = #chosen == 0 and "" or table.concat(textchosen, ",") .. (cutobject and ", ..." or "")
+
+					Library.Flags[Dropdown.Flag] = chosen
+					Dropdown.Callback(chosen)
 				end
-				
-				Value.Text = ""
-				Library.Flags[Dropdown.Flag] = Dropdown.State
-				Dropdown.Callback(Dropdown.State)
 			end
-			
-			function Dropdown:SetVisible(visible)
-				NewDrop.Visible = visible
+			--
+			function Dropdown:Set(option)
+				if Dropdown.Max then
+					set(option)
+				else
+					for opt, tbl in next, Dropdown.OptionInsts do
+						if opt ~= option then
+							tbl.text.TextColor3 = Color3.fromRGB(145,145,145)
+						end
+					end
+					if table.find(Dropdown.Options, option) then
+						chosen = option
+						Value.Text = option
+						Dropdown.OptionInsts[option].text.TextColor3 = Color3.fromRGB(255,255,255)
+						Library.Flags[Dropdown.Flag] = chosen
+						Dropdown.Callback(chosen)
+					else
+						chosen = nil
+						Value.Text = ""
+						Library.Flags[Dropdown.Flag] = chosen
+						Dropdown.Callback(chosen)
+					end
+				end
 			end
-			
-			-- Set the initial flag value
-			Library.Flags[Dropdown.Flag] = Dropdown.State
-			
+			--
+			function Dropdown:Refresh(tbl)
+				for _, opt in next, Dropdown.OptionInsts do
+					coroutine.wrap(function()
+						opt.button:Destroy()
+					end)()
+				end
+				table.clear(Dropdown.OptionInsts)
+
+				createoptions(tbl)
+
+				if Dropdown.Max then
+					table.clear(chosen)
+				else
+					chosen = nil
+				end
+
+				Library.Flags[Dropdown.Flag] = chosen
+				Dropdown.Callback(chosen)
+			end
+
+			-- // Returning
+			if Dropdown.Max then
+				Flags[Dropdown.Flag] = set
+			else
+				Flags[Dropdown.Flag] = Dropdown
+			end
+			Dropdown:Set(Dropdown.State)
+			function Dropdown:SetVisible(Bool) 
+				NewDrop.Visible = Bool 
+			end 
 			return Dropdown
 		end
 		--
@@ -3718,7 +3702,7 @@ Library.Sections.__index = Library.Sections;
 				Centered = Properties.Centered or false,
 			}
 			local NewButton = Instance.new('TextLabel', Label.Section.Elements.SectionContent) -- ya im lazy
-			
+			--
 			NewButton.Name = "NewButton"
 			NewButton.Size = UDim2.new(1,0,0,24)
 			NewButton.BackgroundColor3 = Color3.new(1,1,1)
@@ -3734,25 +3718,11 @@ Library.Sections.__index = Library.Sections;
 			NewButton.TextStrokeTransparency = 0
 			NewButton.TextStrokeColor3 = Color3.new(0,0,0)
 			NewButton.TextWrapped = true
-			NewButton.ZIndex = 10 -- Higher Z-index to ensure visibility
 			
 			-- Adjust height based on content
 			if string.find(Label.Name, "\n") then
 				NewButton.Size = UDim2.new(1, 0, 0, 36)
 			end
-			
-			-- Function to adjust label text
-			function Label:SetText(newText)
-				NewButton.Text = newText
-				-- Adjust height based on content
-				if string.find(newText, "\n") then
-					NewButton.Size = UDim2.new(1, 0, 0, 36)
-				else
-					NewButton.Size = UDim2.new(1, 0, 0, 24)
-				end
-			end
-			
-			return Label
 		end
         return Library
 	end
