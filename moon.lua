@@ -736,26 +736,24 @@ Library.Sections.__index = Library.Sections;
 			end
 		end
 		--
-		function Library:SetOpen(bool)
-			if typeof(bool) == 'boolean' then
-				Library.Open = bool;
+		function Library:SetOpen(Open)
+			if Open ~= self.Open and not self.SliderDragging and not self.ColorPickerDragging then
+				self.Open = Open
 				
-				-- Add fade effect with transparency tweening
-				if bool then
-					-- Make UI visible to start the animation
+				if Open then
+					-- Make UI visible immediately for fade-in
 					Library.Holder.Visible = true
 					
-					-- Create a simple transparent overlay for fade effect
+					-- Create fade overlay
 					local fadeOverlay = Instance.new("Frame")
 					fadeOverlay.Name = "FadeOverlay"
-					fadeOverlay.Size = UDim2.new(1, 0, 1, 0)
-					fadeOverlay.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+					fadeOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 					fadeOverlay.BackgroundTransparency = 0
-					fadeOverlay.BorderSizePixel = 0
-					fadeOverlay.ZIndex = 10000 -- Ensure it's on top
+					fadeOverlay.Size = UDim2.new(1, 0, 1, 0)
+					fadeOverlay.ZIndex = 999
 					fadeOverlay.Parent = Library.Holder
 					
-					-- Fade in by removing the overlay
+					-- Fade in
 					local fadeInTween = TweenService:Create(
 						fadeOverlay, 
 						TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
@@ -768,17 +766,16 @@ Library.Sections.__index = Library.Sections;
 					
 					fadeInTween:Play()
 				else
-					-- Create a transparent overlay for fade out
+					-- Create fade overlay
 					local fadeOverlay = Instance.new("Frame")
 					fadeOverlay.Name = "FadeOverlay"
-					fadeOverlay.Size = UDim2.new(1, 0, 1, 0)
-					fadeOverlay.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+					fadeOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 					fadeOverlay.BackgroundTransparency = 1
-					fadeOverlay.BorderSizePixel = 0
-					fadeOverlay.ZIndex = 10000 -- Ensure it's on top
+					fadeOverlay.Size = UDim2.new(1, 0, 1, 0)
+					fadeOverlay.ZIndex = 999
 					fadeOverlay.Parent = Library.Holder
 					
-					-- Fade out by making the overlay opaque
+					-- Fade out
 					local fadeOutTween = TweenService:Create(
 						fadeOverlay, 
 						TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
