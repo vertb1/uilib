@@ -70,8 +70,24 @@ if not LPH_OBFUSCATED then
 end
 
 local font = Enum.Font.Code;
-local Library = {};
 local Library = {
+	FontColor = Color3.fromRGB(255, 255, 255),
+	MainColor = Color3.fromRGB(28, 28, 28),
+	BackgroundColor = Color3.fromRGB(20, 20, 20),
+	AccentColor = Color3.fromRGB(0, 85, 255),
+	OutlineColor = Color3.fromRGB(40, 40, 40),
+	Flags = {},
+	Signals = {},
+	FirstTab = nil,
+	CurrentTab = nil,
+	ThemeObjects = {}, -- Array to track accent colored objects for theme changes
+	TextObjects = {}, -- Array to track text objects for theme changes
+	ElementObjects = {}, -- Array to track element objects (checkboxes, sliders, etc)
+	DarkTextObjects = {}, -- Array to track dark text objects (checkbox/toggle labels)
+	OpenFrames = {},
+	CurrentTheme = "Default",
+	DropdownOptions = {}, -- Array to track dropdown option backgrounds
+	DropdownOptionTexts = {}, -- Array to track dropdown option text labels
 	Open = true;
 	Folders = {
 		main = "test";
@@ -80,9 +96,7 @@ local Library = {
 	Accent = Color3.fromRGB(132,108,188);
 	Pages = {};
 	Sections = {};
-	Flags = {};
 	UnNamedFlags = 0;
-	ThemeObjects = {};
 	Instances = {};
 	Holder = nil;
 	PageHolder = nil;
@@ -265,6 +279,8 @@ local Library = {
 	KeyList = nil;
 	UIKey = Enum.KeyCode.End;
 	ScreenGUI = nil;
+	DropdownOptions = {}; -- Array to track dropdown option backgrounds
+	DropdownOptionTexts = {}; -- Array to track dropdown option text labels
 }
 
 local InputService = game:GetService("UserInputService");
@@ -418,6 +434,24 @@ Library.Sections.__index = Library.Sections;
 				end
 			end
 			
+			-- Update dropdown options
+			for _, option in pairs(self.DropdownOptions) do
+				if option and option.BackgroundColor3 ~= nil then
+					option.BackgroundColor3 = selectedTheme.ElementColor
+				end
+			end
+			
+			-- Update dropdown option text
+			for _, optionText in pairs(self.DropdownOptionTexts) do
+				if optionText and optionText.TextColor3 ~= nil then
+					if optionText.TextColor3 == Color3.fromRGB(255, 255, 255) then
+						-- This is a selected option, leave it white
+					else
+						optionText.TextColor3 = selectedTheme.TextColor
+					end
+				end
+			end
+			
 			-- Update background colors if the Holder exists
 			if self.Holder then
 				-- Update main window
@@ -453,6 +487,16 @@ Library.Sections.__index = Library.Sections;
 								elseif child.Name == "ModeOutline" then
 									child.BackgroundColor3 = selectedTheme.TopBackground
 									child.BorderColor3 = selectedTheme.Border
+								end
+							end
+						elseif descendant.Name == "ContainerOutline" then
+							descendant.BackgroundColor3 = selectedTheme.TopBackground
+							descendant.BorderColor3 = selectedTheme.Border
+							
+							-- Apply theme to dropdown container
+							for _, child in pairs(descendant:GetDescendants()) do
+								if child.Name == "ContainerInline" then
+									child.BackgroundColor3 = selectedTheme.Background
 								end
 							end
 						end
@@ -2969,7 +3013,12 @@ Library.Sections.__index = Library.Sections;
 					
 					NewOption.Name = "NewOption"
 					NewOption.Size = UDim2.new(1, 0, 0, 18) -- Increased height for better visibility
-					NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294) -- Add background color
+					-- Use the theme's ElementColor if available
+					if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
+						NewOption.BackgroundColor3 = Library.Themes[Library.CurrentTheme].ElementColor
+					else
+						NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
+					end
 					NewOption.BackgroundTransparency = 0 -- Make background visible
 					NewOption.BorderSizePixel = 0
 					NewOption.BorderColor3 = Color3.new(0, 0, 0)
@@ -2981,13 +3030,31 @@ Library.Sections.__index = Library.Sections;
 					NewOption.ZIndex = 12 -- Higher z-index to appear above container
 					Dropdown.OptionInsts[option].button = NewOption
 					
+					-- Add to theme update list for background
+					table.insert(Library.DropdownOptions, NewOption)
+					
 					-- Option hover effect
 					Library:Connection(NewOption.MouseEnter, function()
-						NewOption.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15) -- Slightly lighter when hovering
+						-- Use slightly lighter version of theme color for hover
+						if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
+							local elementColor = Library.Themes[Library.CurrentTheme].ElementColor
+							NewOption.BackgroundColor3 = Color3.new(
+								math.min(elementColor.R + 0.02, 1),
+								math.min(elementColor.G + 0.02, 1),
+								math.min(elementColor.B + 0.02, 1)
+							)
+						else
+							NewOption.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+						end
 					end)
 					
 					Library:Connection(NewOption.MouseLeave, function()
-						NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294) -- Back to normal when not hovering
+						-- Return to theme color when not hovering
+						if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
+							NewOption.BackgroundColor3 = Library.Themes[Library.CurrentTheme].ElementColor
+						else
+							NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
+						end
 					end)
 					
 					OptionName.Name = "OptionName"
@@ -2998,13 +3065,21 @@ Library.Sections.__index = Library.Sections;
 					OptionName.BorderSizePixel = 0
 					OptionName.BorderColor3 = Color3.new(0, 0, 0)
 					OptionName.Text = option
-					OptionName.TextColor3 = Color3.new(0.8, 0.8, 0.8) -- Brighter text for better visibility
+					-- Use theme text color if available
+					if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
+						OptionName.TextColor3 = Library.Themes[Library.CurrentTheme].TextColor
+					else
+						OptionName.TextColor3 = Color3.new(0.8, 0.8, 0.8)
+					end
 					OptionName.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 					OptionName.TextSize = Library.FontSize
 					OptionName.TextXAlignment = Enum.TextXAlignment.Left
 					OptionName.TextStrokeTransparency = 0
 					OptionName.ZIndex = 13 -- Higher z-index than the button
 					Dropdown.OptionInsts[option].text = OptionName
+
+					-- Add to theme update list for text
+					table.insert(Library.DropdownOptionTexts, OptionName)
 
 					handleoptionclick(option, NewOption, OptionName)
 				end
