@@ -1919,7 +1919,7 @@ Library.Sections.__index = Library.Sections;
 			SectionOutline.ZIndex = Section.ZIndex
 			SectionOutline.ClipsDescendants = false -- Added to prevent title clipping
 			SectionOutline.Transparency = 0
-			SectionOutline.Position = UDim2.new(0, 0, 0, 5) -- Add some top margin to sections
+			SectionOutline.Position = UDim2.new(0, 0, 0, 12) -- Increased from 5 to 12 to give more space for titles
 			--
 			
 			--
@@ -1957,24 +1957,24 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, SectionAccent)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,10,0,-10) -- Adjusted from -8 to -10 to position it higher
-			Title.Size = UDim2.new(0,0,0,20) -- Changed from fixed width to auto-size
-			Title.AutomaticSize = Enum.AutomaticSize.X -- Added auto-sizing for width
-			Title.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784) -- Added background
-			Title.BackgroundTransparency = 0 -- Made background visible
-			Title.BorderSizePixel = 1
-			Title.BorderColor3 = Color3.new(0.1765,0.1765,0.1765) -- Added border
+			Title.Position = UDim2.new(0,10,0,-12) -- Moved from -10 to -12 to position it higher
+			Title.Size = UDim2.new(0,0,0,20)
+			Title.AutomaticSize = Enum.AutomaticSize.X
+			Title.BackgroundColor3 = Color3.new(1,1,1) 
+			Title.BackgroundTransparency = 1 -- Back to transparent background
+			Title.BorderSizePixel = 0 -- Remove border
+			Title.BorderColor3 = Color3.new(0,0,0)
 			Title.TextColor3 = Color3.new(1,1,1)
 			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Title.TextSize = Library.FontSize
 			Title.ZIndex = 10
 			Title.TextXAlignment = Enum.TextXAlignment.Left
-			Title.Text = "  " .. Section.Name .. "  " -- Added padding
+			Title.Text = Section.Name -- Remove padding
 			Title.TextStrokeTransparency = 0
 			--
 			TextBorder.Name = "TextBorder"
-			TextBorder.Visible = false -- Hide the text border as we now have a background on the title
-			TextBorder.Position = UDim2.new(0,6,0,-2)
+			TextBorder.Visible = true -- Show the text border again
+			TextBorder.Position = UDim2.new(0,6,0,-4) -- Moved from -2 to -4 to align with the title text
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
 			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			TextBorder.BorderSizePixel = 0
