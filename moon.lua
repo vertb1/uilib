@@ -3718,7 +3718,7 @@ Library.Sections.__index = Library.Sections;
 				Centered = Properties.Centered or false,
 			}
 			local NewButton = Instance.new('TextLabel', Label.Section.Elements.SectionContent) -- ya im lazy
-			--
+			
 			NewButton.Name = "NewButton"
 			NewButton.Size = UDim2.new(1,0,0,24)
 			NewButton.BackgroundColor3 = Color3.new(1,1,1)
@@ -3734,11 +3734,25 @@ Library.Sections.__index = Library.Sections;
 			NewButton.TextStrokeTransparency = 0
 			NewButton.TextStrokeColor3 = Color3.new(0,0,0)
 			NewButton.TextWrapped = true
+			NewButton.ZIndex = 10 -- Higher Z-index to ensure visibility
 			
 			-- Adjust height based on content
 			if string.find(Label.Name, "\n") then
 				NewButton.Size = UDim2.new(1, 0, 0, 36)
 			end
+			
+			-- Function to adjust label text
+			function Label:SetText(newText)
+				NewButton.Text = newText
+				-- Adjust height based on content
+				if string.find(newText, "\n") then
+					NewButton.Size = UDim2.new(1, 0, 0, 36)
+				else
+					NewButton.Size = UDim2.new(1, 0, 0, 24)
+				end
+			end
+			
+			return Label
 		end
         return Library
 	end
