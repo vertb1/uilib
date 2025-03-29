@@ -392,7 +392,7 @@ Library.Sections.__index = Library.Sections;
 			
 			OutlineFrame.Name = "OutlineFrame"
 			OutlineFrame.Position = UDim2.new(0.5, 0, 0, 5)
-			OutlineFrame.Size = UDim2.new(0, 250, 0, 30) -- Increased height from 25 to 30
+			OutlineFrame.Size = UDim2.new(0, 250, 0, 25)
 			OutlineFrame.BackgroundColor3 = Color3.new(0.1765, 0.1765, 0.1765)
 			OutlineFrame.BorderColor3 = Color3.new(0.0392, 0.0392, 0.0392)
 			OutlineFrame.AnchorPoint = Vector2.new(0.5, 0)
@@ -417,7 +417,7 @@ Library.Sections.__index = Library.Sections;
 			TextLabel.Text = Properties.Text or "Your Watermark"
 			TextLabel.TextColor3 = Color3.new(1, 1, 1)
 			TextLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-			TextLabel.TextSize = Library.FontSize + 2 -- Increased font size to match notifications
+			TextLabel.TextSize = Library.FontSize
 			TextLabel.TextXAlignment = Enum.TextXAlignment.Center
 			TextLabel.TextStrokeTransparency = 0
 			
@@ -736,69 +736,10 @@ Library.Sections.__index = Library.Sections;
 			end
 		end
 		--
-		function Library:SetOpen(Open)
-			if Open ~= self.Open and not self.SliderDragging and not self.ColorPickerDragging then
-				self.Open = Open
-				
-				if Open then
-					-- For opening: Set UI visible first
-					Library.Holder.Visible = true
-					
-					-- Create fade overlay (starts black, fades to transparent)
-					local fadeOverlay = Instance.new("Frame")
-					fadeOverlay.Name = "FadeOverlay"
-					fadeOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-					fadeOverlay.BackgroundTransparency = 0  -- Start fully opaque
-					fadeOverlay.Size = UDim2.new(1, 0, 1, 0)
-					fadeOverlay.ZIndex = 999
-					fadeOverlay.Parent = Library.Holder
-					
-					-- Fade in (black to transparent)
-					local fadeInTween = TweenService:Create(
-						fadeOverlay, 
-						TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-						{BackgroundTransparency = 1}  -- Fade to fully transparent
-					)
-					
-					-- Remove overlay when fade completes
-					fadeInTween.Completed:Connect(function()
-						if fadeOverlay and fadeOverlay.Parent then
-							fadeOverlay:Destroy()
-						end
-					end)
-					
-					fadeInTween:Play()
-				else
-					-- For closing: Keep UI visible during fade
-					
-					-- Create fade overlay (starts transparent, fades to black)
-					local fadeOverlay = Instance.new("Frame")
-					fadeOverlay.Name = "FadeOverlay"
-					fadeOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-					fadeOverlay.BackgroundTransparency = 1  -- Start fully transparent
-					fadeOverlay.Size = UDim2.new(1, 0, 1, 0)
-					fadeOverlay.ZIndex = 999
-					fadeOverlay.Parent = Library.Holder
-					
-					-- Fade out (transparent to black)
-					local fadeOutTween = TweenService:Create(
-						fadeOverlay, 
-						TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out),
-						{BackgroundTransparency = 0}  -- Fade to fully opaque
-					)
-					
-					-- Hide UI only after fade completes
-					fadeOutTween.Completed:Connect(function()
-						if Library.Holder then
-							Library.Holder.Visible = false
-						end
-						if fadeOverlay and fadeOverlay.Parent then
-							fadeOverlay:Destroy()
-						end
-					end)
-					
-					fadeOutTween:Play()
-				end
+		function Library:SetOpen(bool)
+			if typeof(bool) == 'boolean' then
+				Library.Open = bool;
+				Library.Holder.Visible = bool;
 			end
 		end;
 		--
@@ -1196,7 +1137,6 @@ Library.Sections.__index = Library.Sections;
 			ModeInline.ZIndex = 100
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0,16)
 			--
 			Hold.Name = "Hold"
 			Hold.Size = UDim2.new(1,0,0,15)
@@ -1445,7 +1385,7 @@ Library.Sections.__index = Library.Sections;
 				Elements = {};
 				Dragging = { false, UDim2.new(0, 0, 0, 0) };
 				Size = Options.Size or Options.size or UDim2.new(0, 550,0, 600);
-                Title = Options.Title or Options.title or "";
+				Title = Options.Title or Options.title or "";
 			};
 			--
 			local ScreenGui = Instance.new('ScreenGui', game.CoreGui)
@@ -1486,7 +1426,7 @@ Library.Sections.__index = Library.Sections;
             --
             TitleLabel.Name = "TitleLabel"
             TitleLabel.Position = UDim2.new(0,10,0,1)
-            TitleLabel.Size = UDim2.new(1,-20,0,18) -- Increased from 14 to 18
+            TitleLabel.Size = UDim2.new(1,-20,0,14)
             TitleLabel.BackgroundColor3 = Color3.new(1,1,1)
             TitleLabel.BackgroundTransparency = 1
             TitleLabel.BorderSizePixel = 0
@@ -1494,13 +1434,13 @@ Library.Sections.__index = Library.Sections;
             TitleLabel.Text = Window.Title
             TitleLabel.TextColor3 = Color3.new(1,1,1)
             TitleLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-            TitleLabel.TextSize = Library.FontSize + 2 -- Slightly larger font
+            TitleLabel.TextSize = Library.FontSize
             TitleLabel.TextXAlignment = Enum.TextXAlignment.Center
             TitleLabel.TextStrokeTransparency = 0
 			--
 			HolderOutline.Name = "HolderOutline"
-			HolderOutline.Position = UDim2.new(0,7,0,20) -- Adjusted from 16 to 20
-			HolderOutline.Size = UDim2.new(1,-14,1,-27) -- Adjusted from -23 to -27
+			HolderOutline.Position = UDim2.new(0,7,0,16)
+			HolderOutline.Size = UDim2.new(1,-14,1,-23)
 			HolderOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			HolderOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			--
@@ -1520,7 +1460,6 @@ Library.Sections.__index = Library.Sections;
 			--
 			UIListLayout.FillDirection = Enum.FillDirection.Horizontal
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0,16)
 			--
 			DragButton.Name = "DragButton"
 			DragButton.Size = UDim2.new(1,0,0,10)
@@ -1606,63 +1545,48 @@ Library.Sections.__index = Library.Sections;
 				Open = false,
 				Sections = {},
 				Elements = {},
-                Weapons = {},
-                Icons = Properties.Weapons or Properties.weapons or false,
 			}
 			--
 			local TabButton = Instance.new('TextButton', Page.Window.Elements.TabHolder)
 			local TabAccent = Instance.new('Frame', TabButton)
 			local TabLine = Instance.new('Frame', TabButton)
-            local WeaponOutline = Instance.new("Frame", Page.Window.Elements.Holder)
-            local WeaponInline = Instance.new("Frame", WeaponOutline)
-            local UIListLayout3 = Instance.new("UIListLayout", WeaponInline)
-            local Left = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
-            local Right = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
-            local UIListLayout = Instance.new('UIListLayout', Left)
-            local UIListLayout_2 = Instance.new('UIListLayout', Right)
-            Left.Name = "Left"
-            Left.Position = UDim2.new(0,5,0,31)  -- Default position when no icon tab is present (updated from 27)
-            Left.Size = UDim2.new(0.5,-10,1,-36) -- Adjust size to account for reduced top margin (updated from 32)
-            Left.BackgroundColor3 = Color3.new(1,1,1)
-            Left.BorderSizePixel = 0
-            Left.BackgroundTransparency = 1
-            Left.BorderColor3 = Color3.new(0,0,0)
-            Left.Visible = false
-            Left.ZIndex = 3
-            Left.ScrollBarThickness = 0
-            Left.CanvasSize = UDim2.new(0, 0, 0, 0)
-            Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
-            Left.ElasticBehavior = Enum.ElasticBehavior.Always
-
-            -- Add proper UIPadding to Left
-            local LeftUIPadding = Instance.new("UIPadding", Left)
-            LeftUIPadding.PaddingTop = UDim.new(0, 10)
-
+			local Left = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
+			local Right = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
+			local UIListLayout = Instance.new('UIListLayout', Left)
+			local UIListLayout_2 = Instance.new('UIListLayout', Right)
+			Left.Name = "Left"
+			Left.Position = UDim2.new(0,5,0,27)
+			Left.Size = UDim2.new(0.5,-10,1,-32)
+			Left.BackgroundColor3 = Color3.new(1,1,1)
+			Left.BorderSizePixel = 0
+			Left.BackgroundTransparency = 1
+			Left.BorderColor3 = Color3.new(0,0,0)
+			Left.Visible = false
+			Left.ZIndex = 3
+			Left.ScrollBarThickness = 0
+			Left.CanvasSize = UDim2.new(0, 0, 0, 0)
+			Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
+			Left.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			Right.Name = "Right"
-            Right.Position = UDim2.new(1,-5,0,31)  -- Default position when no icon tab is present (updated from 27)
-            Right.Size = UDim2.new(0.5,-5,1,-36)   -- Adjust size to account for reduced top margin (updated from 32)
-            Right.BackgroundColor3 = Color3.new(1,1,1)
-            Right.BorderSizePixel = 0
-            Right.BorderColor3 = Color3.new(0,0,0)
-            Right.AnchorPoint = Vector2.new(1,0)
-            Right.Visible = false
-            Right.BackgroundTransparency = 1
-            Right.ScrollBarThickness = 0
-            Right.CanvasSize = UDim2.new(0, 0, 0, 0)
-            Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
-            Right.ElasticBehavior = Enum.ElasticBehavior.Always
-
-            -- Add proper UIPadding to Right
-            local RightUIPadding = Instance.new("UIPadding", Right)
-            RightUIPadding.PaddingTop = UDim.new(0, 10)
-
+			Right.Position = UDim2.new(1,-5,0,27)
+			Right.Size = UDim2.new(0.5,-5,1,-32)
+			Right.BackgroundColor3 = Color3.new(1,1,1)
+			Right.BorderSizePixel = 0
+			Right.BorderColor3 = Color3.new(0,0,0)
+			Right.AnchorPoint = Vector2.new(1,0)
+			Right.Visible = false
+			Right.BackgroundTransparency = 1
+			Right.ScrollBarThickness = 0
+			Right.CanvasSize = UDim2.new(0, 0, 0, 0)
+			Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
+			Right.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout.Padding = UDim.new(0,16)
-            --
-            UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout_2.Padding = UDim.new(0,16)
+			UIListLayout.Padding = UDim.new(0,16)
+			--
+			UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout_2.Padding = UDim.new(0,16)
 			--
 			TabButton.Name = "TabButton"
 			TabButton.Size = UDim2.new(0.25,0,1,0)
@@ -1693,52 +1617,10 @@ Library.Sections.__index = Library.Sections;
 			TabLine.BorderSizePixel = 0
 			TabLine.BorderColor3 = Color3.new(0,0,0)
 
-            WeaponOutline.Name = "WeaponOutline"
-            WeaponOutline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-            WeaponOutline.BorderColor3 = Color3.fromRGB(10, 10, 10)
-            WeaponOutline.Position = UDim2.new(0, 5, 0, 31) -- Adjusted from 27 to 31
-            WeaponOutline.Size = UDim2.new(1, -10, 0, 40)
-            WeaponOutline.Visible = false
-            
-            WeaponInline.Name = "WeaponInline"
-            WeaponInline.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-            WeaponInline.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            WeaponInline.BorderSizePixel = 0
-            WeaponInline.Position = UDim2.new(0, 1, 0, 1)
-            WeaponInline.Size = UDim2.new(1, -2, 1, -2)
-            
-            UIListLayout3.FillDirection = Enum.FillDirection.Horizontal
-            UIListLayout3.SortOrder = Enum.SortOrder.LayoutOrder
-			
 			function Page:Turn(bool)
 				Page.Open = bool
-				if not Page.Icons then
-                    Left.Visible = Page.Open
-				    Right.Visible = Page.Open
-                    -- When no icon tab is present, position content just below the tabs
-                    Left.Position = UDim2.new(0, 5, 0, 31) -- Increased from 27 to 31
-                    Right.Position = UDim2.new(1, -5, 0, 31) -- Increased from 27 to 31
-                    Left.Size = UDim2.new(0.5, -10, 1, -36) -- Adjusted from -32 to -36
-                    Right.Size = UDim2.new(0.5, -5, 1, -36) -- Adjusted from -32 to -36
-                    
-                    -- Set CanvasSize to auto-adjust
-                    Left.CanvasSize = UDim2.new(0, 0, 0, 0)
-                    Right.CanvasSize = UDim2.new(0, 0, 0, 0)
-                else
-                    WeaponOutline.Visible = Page.Open
-                    for Index, Weapon in pairs(Page.Weapons) do
-                        Weapon:Turn(Weapon.Open)
-                    end
-                    -- When icon tab is present, position content below the weapon selector
-                    Left.Position = UDim2.new(0, 5, 0, 79) -- Increased from 75 to 79
-                    Right.Position = UDim2.new(1, -5, 0, 79) -- Increased from 75 to 79
-                    Left.Size = UDim2.new(0.5, -10, 1, -84) -- Adjusted from -80 to -84
-                    Right.Size = UDim2.new(0.5, -5, 1, -84) -- Adjusted from -80 to -84
-                    
-                    -- Set CanvasSize to auto-adjust
-                    Left.CanvasSize = UDim2.new(0, 0, 0, 0) 
-                    Right.CanvasSize = UDim2.new(0, 0, 0, 0)
-                end
+				Left.Visible = Page.Open
+				Right.Visible = Page.Open
 				TabAccent.Visible = Page.Open
 				TabLine.Visible = not Page.Open
 				TabButton.TextColor3 = Page.Open and Color3.fromRGB(255,255,255) or Color3.fromRGB(145,145,145)
@@ -1767,24 +1649,14 @@ Library.Sections.__index = Library.Sections;
 				end
 			end)
 
-            -- // Functions
-			function Page:UpdateWeapons()
-				for Index, Weapon in pairs(Page.Weapons) do
-					Weapon.Elements.Button.Size = UDim2.new(1/#Page.Weapons,0,1,0)
-					Weapon:Turn(Weapon.Open)
-				end
-			end
-
-            -- // Elements
+			-- // Elements
 			Page.Elements = {
-                Left = Page.Icons and nil or Left,
-				Right = Page.Icons and nil or Right,
+				Left = Left,
+				Right = Right,
 				Button = TabButton,
-                WeaponOutline = WeaponOutline,
-                WeaponInline = WeaponInline,
 			}
 
-            -- // Drawings
+			-- // Drawings
 			if #Page.Window.Pages == 0 then
 				Page:Turn(true)
 			end
@@ -1792,115 +1664,6 @@ Library.Sections.__index = Library.Sections;
 			Page.Window:UpdateTabs()
 			return setmetatable(Page, Library.Pages)
 		end
-        --
-        function Pages:Weapon(Properties)
-            if not Properties then
-				Properties = {}
-			end
-			--
-			local Weapon = {
-				Icon = Properties.Icon or Properties.icon or "rbxassetid://11127408662",
-				Window = self,
-				Open = false,
-				Sections = {},
-				Elements = {},
-			}
-			--
-            --Weapon.Window.Elements.WeaponOutline.Visible = true
-
-			local Left = Instance.new('ScrollingFrame', Weapon.Window.Window.Elements.Holder)
-			local Right = Instance.new('ScrollingFrame', Weapon.Window.Window.Elements.Holder)
-			local UIListLayout = Instance.new('UIListLayout', Left)
-			local UIListLayout_2 = Instance.new('UIListLayout', Right)
-            local New = Instance.new("ImageButton")
-			--
-			New.Name = "New"
-            New.Parent = Weapon.Window.Elements.WeaponInline
-            New.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            New.BackgroundTransparency = 1.000
-            New.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            New.BorderSizePixel = 0
-            New.Size = UDim2.new(0.200000003, 0, 1, 0)
-            New.Image = Weapon.Icon
-            New.ScaleType = Enum.ScaleType.Fit
-			--
-			Left.Name = "Left"
-			Left.Position = UDim2.new(0,5,0,75)
-			Left.Size = UDim2.new(0.5,-10,1,-80)
-			Left.BackgroundColor3 = Color3.new(1,1,1)
-			Left.BorderSizePixel = 0
-			Left.BackgroundTransparency = 1
-			Left.BorderColor3 = Color3.new(0,0,0)
-			Left.Visible = false
-			Left.ZIndex = 3
-			Left.ScrollBarThickness = 0
-			Left.CanvasSize = UDim2.new(0, 0, 0, 0)
-			Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
-			Left.ElasticBehavior = Enum.ElasticBehavior.Always
-			--
-			Right.Name = "Right"
-			Right.Position = UDim2.new(1,-5,0,75)
-			Right.Size = UDim2.new(0.5,-5,1,-80)
-			Right.BackgroundColor3 = Color3.new(1,1,1)
-			Right.BorderSizePixel = 0
-			Right.BorderColor3 = Color3.new(0,0,0)
-			Right.AnchorPoint = Vector2.new(1,0)
-			Right.Visible = false
-			Right.BackgroundTransparency = 1
-			Right.ScrollBarThickness = 0
-			Right.CanvasSize = UDim2.new(0, 0, 0, 0)
-			Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
-			Right.ElasticBehavior = Enum.ElasticBehavior.Always
-			--
-			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0,16)
-			--
-			UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout_2.Padding = UDim.new(0,16)
-			
-			function Weapon:Turn(bool)
-				Weapon.Open = bool
-				Left.Visible = Weapon.Open and Weapon.Window.Open
-				Right.Visible = Weapon.Open and Weapon.Window.Open
-				
-				-- Update positions to be beneath the WeaponOutline when a weapon is selected
-				if Weapon.Open then
-					Left.Position = UDim2.new(0, 5, 0, 75)
-					Right.Position = UDim2.new(1, -5, 0, 75)
-					Left.Size = UDim2.new(0.5, -10, 1, -80)
-					Right.Size = UDim2.new(0.5, -5, 1, -80)
-				end
-				
-				New.ImageColor3 = Weapon.Open and Color3.new(1,1,1) or Color3.fromRGB(145,145,145)
-			end
-			--
-			Library:Connection(New.MouseButton1Down, function()
-				if not Weapon.Open then
-					Weapon:Turn(true)
-					for _, Weapons in pairs(Weapon.Window.Weapons) do
-						if Weapons.Open and Weapons ~= Weapon then
-							Weapons:Turn(false)
-						end
-					end
-				end
-			end)
-			--
-
-			-- // Elements
-			Weapon.Elements = {
-				Left = Left,
-				Right = Right,
-				Button = New
-			}
-
-			-- // Drawings
-			if #Weapon.Window.Weapons == 0 then
-				Weapon:Turn(true)
-			end
-			Weapon.Window.Weapons[#Weapon.Window.Weapons + 1] = Weapon
-			Weapon.Window:UpdateWeapons()
-			return setmetatable(Weapon, Library.Pages)
-        end
 		--
 		function Pages:Section(Properties)
 			if not Properties then
@@ -1936,8 +1699,6 @@ Library.Sections.__index = Library.Sections;
 			SectionOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			SectionOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			SectionOutline.ZIndex = Section.ZIndex
-			-- Add padding at the top for the title
-			SectionOutline.Position = UDim2.new(0, 0, 0, 5) -- Added margin to the top for the section title
 			--
 			
 			--
@@ -1975,7 +1736,7 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, SectionAccent)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,10,0,-10) -- Changed from -8 to -10 to position it higher
+			Title.Position = UDim2.new(0,10,0,-8)
 			Title.Size = UDim2.new(0,100,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
@@ -1984,18 +1745,17 @@ Library.Sections.__index = Library.Sections;
 			Title.TextColor3 = Color3.new(1,1,1)
 			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Title.TextSize = Library.FontSize
-			Title.ZIndex = 10 -- Increased from 3 to 10 to ensure it's above everything
+			Title.ZIndex = 3
 			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.Text = Section.Name
 			Title.TextStrokeTransparency = 0
 			--
 			TextBorder.Name = "TextBorder"
-			TextBorder.Position = UDim2.new(0,6,0,-4) -- Changed from -2 to -4 to match the adjusted title position
+			TextBorder.Position = UDim2.new(0,6,0,-2)
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
 			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			TextBorder.BorderSizePixel = 0
 			TextBorder.BorderColor3 = Color3.new(0,0,0)
-			TextBorder.ZIndex = 9 -- Add ZIndex to make sure it's below the text but above other elements
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			UIListLayout.Padding = UDim.new(0,6)
