@@ -2133,15 +2133,15 @@ Library.Sections.__index = Library.Sections;
 			
 			--
 			SectionInline.Name = "SectionInline"
-			SectionInline.Position = UDim2.new(0,1,0,2) -- Shifted down 1px
-			SectionInline.Size = UDim2.new(1,-2,1,-3) -- Adjusted size to account for position change
+			SectionInline.Position = UDim2.new(0,1,0,1) -- Reset position to Y=1
+			SectionInline.Size = UDim2.new(1,-2,1,-2) -- Reset size
 			SectionInline.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			SectionInline.BorderSizePixel = 0
 			SectionInline.BorderColor3 = Color3.new(0,0,0)
 			SectionInline.AutomaticSize = Enum.AutomaticSize.Y -- Add automatic vertical sizing
 			--
 			Container.Name = "Container"
-			Container.Position = UDim2.new(0,7,0,12) -- Nudged up again by changing Y from 14 to 12
+			Container.Position = UDim2.new(0,7,0,18) -- Position below Title + Background (Y=18)
 			Container.Size = UDim2.new(1,-14,0,15) -- Minimum height for empty sections
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
@@ -2163,11 +2163,12 @@ Library.Sections.__index = Library.Sections;
 			SectionAccent.Size = UDim2.new(1,0,0,1)
 			SectionAccent.BackgroundColor3 = Library.Accent
 			SectionAccent.BorderSizePixel = 0
-			table.insert(Library.ThemeObjects, SectionAccent)
+			SectionAccent.ZIndex = 1 -- Explicit ZIndex
+			--
 			table.insert(Library.ThemeObjects, SectionAccent)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,10,0,1) -- Shifted down 1px
+			Title.Position = UDim2.new(0,10,0,0) -- Position Y=0
 			Title.Size = UDim2.new(0,100,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
@@ -2176,17 +2177,17 @@ Library.Sections.__index = Library.Sections;
 			Title.TextColor3 = Color3.new(1,1,1)
 			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Title.TextSize = Library.FontSize
-			Title.ZIndex = 3
+			Title.ZIndex = 3 -- Set ZIndex
 			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.Text = Section.Name
 			Title.TextStrokeTransparency = 0
 			--
 			TextBorder.Name = "TextBorder"
-			TextBorder.Position = UDim2.new(0,6,0,1) -- Shifted down 1px
-			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
+			TextBorder.Position = UDim2.new(0,6,0,0) -- Position Y=0
+			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,16) -- Set height to 16
 			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			TextBorder.BorderSizePixel = 0
-			TextBorder.BorderColor3 = Color3.new(0,0,0)
+			TextBorder.ZIndex = 2 -- Set ZIndex
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			UIListLayout.Padding = UDim.new(0,6)
