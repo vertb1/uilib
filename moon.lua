@@ -44,7 +44,7 @@ if not LPH_OBFUSCATED then
     getfenv().LPH_NO_VIRTUALIZE = function(...) return (...) end;
 end
 
-local font = Enum.Font.Ubuntu;
+local font = Enum.Font.Code;
 local Library = {};
 local Library = {
 	Open = true;
