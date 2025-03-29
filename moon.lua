@@ -1919,7 +1919,7 @@ Library.Sections.__index = Library.Sections;
 			SectionOutline.ZIndex = Section.ZIndex
 			SectionOutline.ClipsDescendants = false -- Added to prevent title clipping
 			SectionOutline.Transparency = 0
-			SectionOutline.Position = UDim2.new(0, 0, 0, 12) -- Increased from 5 to 12 to give more space for titles
+			SectionOutline.Position = UDim2.new(0, 0, 0, 10) -- Increase spacing to 10px
 			--
 			
 			--
@@ -1957,136 +1957,36 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, SectionAccent)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,10,0,-12) -- Moved from -10 to -12 to position it higher
-			Title.Size = UDim2.new(0,0,0,20)
-			Title.AutomaticSize = Enum.AutomaticSize.X
-			Title.BackgroundColor3 = Color3.new(1,1,1) 
-			Title.BackgroundTransparency = 1 -- Back to transparent background
-			Title.BorderSizePixel = 0 -- Remove border
-			Title.BorderColor3 = Color3.new(0,0,0)
-			Title.TextColor3 = Color3.new(1,1,1)
-			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-			Title.TextSize = Library.FontSize
-			Title.ZIndex = 10
-			Title.TextXAlignment = Enum.TextXAlignment.Left
-			Title.Text = Section.Name -- Remove padding
-			Title.TextStrokeTransparency = 0
-			--
-			TextBorder.Name = "TextBorder"
-			TextBorder.Visible = true -- Show the text border again
-			TextBorder.Position = UDim2.new(0,6,0,-4) -- Moved from -2 to -4 to align with the title text
-			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
-			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
-			TextBorder.BorderSizePixel = 0
-			TextBorder.BorderColor3 = Color3.new(0,0,0)
-			TextBorder.ZIndex = 9 -- Added ZIndex for better visibility
-			--
-			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0,6)
-			
-			-- // Elements
-			Section.Elements = {
-				SectionContent = Container;
-				SectionHolder = SectionOutline;
-			}
-
-			-- // Returning
-			
-			Section.Page.Sections[#Section.Page.Sections + 1] = Section
-			wait(0.01)
-			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
-			return setmetatable(Section, Library.Sections)
-		end
-		--
-		function Sections:Toggle(Properties)
-			if not Properties then
-				Properties = {}
-			end
-			--
-			local Toggle = {
-				Window = self.Window,
-				Page = self.Page,
-				Section = self,
-				Risk = Properties.Risk or false,
-				Name = Properties.Name or "Toggle",
-				State = (
-					Properties.state
-						or Properties.State
-						or Properties.def
-						or Properties.Def
-						or Properties.default
-						or Properties.Default
-						or false
-				),
-				Callback = (
-					Properties.callback
-						or Properties.Callback
-						or Properties.callBack
-						or Properties.CallBack
-						or function() end
-				),
-				Flag = (
-					Properties.flag
-						or Properties.Flag
-						or Properties.pointer
-						or Properties.Pointer
-						or Library.NextFlag()
-				),
-				Toggled = false,
-				Colorpickers = 0,
-			}
-			--
-			local NewToggle = Instance.new('TextButton', Toggle.Section.Elements.SectionContent)
-			local Outline = Instance.new('Frame', NewToggle)
-			local Inline = Instance.new('Frame', Outline)
-			local Title = Instance.new('TextLabel', NewToggle)
-			--
-			NewToggle.Name = "NewToggle"
-			NewToggle.Size = UDim2.new(1,0,0,10)
-			NewToggle.BackgroundColor3 = Color3.new(1,1,1)
-			NewToggle.BackgroundTransparency = 1
-			NewToggle.BorderSizePixel = 0
-			NewToggle.BorderColor3 = Color3.new(0,0,0)
-			NewToggle.Text = ""
-			NewToggle.TextColor3 = Color3.new(0,0,0)
-			NewToggle.AutoButtonColor = false
-			NewToggle.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-			NewToggle.TextSize = 14
-			--
-			Outline.Name = "Outline"
-			Outline.Size = UDim2.new(0,10,0,10)
-			Outline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
-			Outline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
-			--
-			Inline.Name = "Inline"
-			Inline.Position = UDim2.new(0,1,0,1)
-			Inline.Size = UDim2.new(1,-2,1,-2)
-			Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
-			Inline.BorderSizePixel = 0
-			Inline.BorderColor3 = Color3.new(0,0,0)
-			--
-			--[[local inputText = string.upper(Toggle.Name)
-			local targetLanguage = "Chinese" -- // English, Arabic, Albanian, Japanese, Spanish, Russian, Chinese, Urdu, French, Portuguese, Hindi
-			local translatedText = utility:TranslateString(inputText, targetLanguage)]] 
-			-- 
-			Title.Name = "Title"
-			Title.Position = UDim2.new(0,15,0,0)
-			Title.Size = UDim2.new(1,0,0,10)
+			Title.Position = UDim2.new(0,10,0,-10) -- Position higher to avoid clipping
+			Title.Size = UDim2.new(0,0,0,16) -- Auto width, fixed height
+			Title.AutomaticSize = Enum.AutomaticSize.X -- Allow width to adjust to text
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
 			Title.BorderColor3 = Color3.new(0,0,0)
-			Title.TextColor3 = Toggle.Risk and Color3.fromRGB(158, 158, 24) or Color3.new(0.5686,0.5686,0.5686)
+			Title.TextColor3 = Color3.new(1,1,1)
 			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Title.TextSize = Library.FontSize
 			Title.TextXAlignment = Enum.TextXAlignment.Left
-			Title.Text = Toggle.Name
+			Title.Text = Section.Name
 			Title.TextStrokeTransparency = 0
+			Title.ZIndex = 10 -- Higher ZIndex for visibility
+			--
+			TextBorder.Name = "TextBorder"
+			TextBorder.Position = UDim2.new(0,5,0,-10) -- Match Title position
+			TextBorder.Size = UDim2.new(0,5,0,16) -- Size to match title height
+			TextBorder.AutomaticSize = Enum.AutomaticSize.X -- Auto-size width with title
+			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784) -- Match background
+			TextBorder.BorderSizePixel = 0
+			TextBorder.BorderColor3 = Color3.new(0,0,0)
+			TextBorder.ZIndex = 9 -- Just below title text
+			--
 			
 			-- // Functions
 			local function SetState()
 				Toggle.Toggled = not Toggle.Toggled
 				if Toggle.Toggled then
+					
 					table.insert(Library.ThemeObjects, Inline)
 					Inline.BackgroundColor3 = Library.Accent
 					if Toggle.Risk then
