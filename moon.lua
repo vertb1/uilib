@@ -1955,8 +1955,8 @@ Library.Sections.__index = Library.Sections;
 			local UIListLayout = Instance.new('UIListLayout', Left)
 			local UIListLayout_2 = Instance.new('UIListLayout', Right)
 			Left.Name = "Left"
-			Left.Position = UDim2.new(0,5,0,27)
-			Left.Size = UDim2.new(0.5,-10,1,-32)
+			Left.Position = UDim2.new(0,5,0,35) -- Increase Y position to 35 for more spacing below tabs
+			Left.Size = UDim2.new(0.5,-10,1,-40) -- Adjust size to match the new position
 			Left.BackgroundColor3 = Color3.new(1,1,1)
 			Left.BorderSizePixel = 0
 			Left.BackgroundTransparency = 1
@@ -1969,8 +1969,8 @@ Library.Sections.__index = Library.Sections;
 			Left.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			Right.Name = "Right"
-			Right.Position = UDim2.new(1,-5,0,27)
-			Right.Size = UDim2.new(0.5,-5,1,-32)
+			Right.Position = UDim2.new(1,-5,0,35) -- Increase Y position to 35 for more spacing below tabs
+			Right.Size = UDim2.new(0.5,-5,1,-40) -- Adjust size to match the new position
 			Right.BackgroundColor3 = Color3.new(1,1,1)
 			Right.BorderSizePixel = 0
 			Right.BorderColor3 = Color3.new(0,0,0)
@@ -1983,10 +1983,10 @@ Library.Sections.__index = Library.Sections;
 			Right.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0,16)
+			UIListLayout.Padding = UDim.new(0,22) -- Increase padding from 16 to 22
 			--
 			UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout_2.Padding = UDim.new(0,16)
+			UIListLayout_2.Padding = UDim.new(0,22) -- Increase padding from 16 to 22
 			--
 			TabButton.Name = "TabButton"
 			TabButton.Size = UDim2.new(0.25,0,1,0)
@@ -2120,6 +2120,20 @@ Library.Sections.__index = Library.Sections;
 			SectionOutline.ZIndex = Section.ZIndex
 			--
 			
+			-- Add margin to the first section in each side to prevent title cutoff
+			local isFirstSection = true
+			for _, section in pairs(Section.Page.Sections) do
+				if section.Side == Section.Side then
+					isFirstSection = false
+					break
+				end
+			end
+			
+			-- Add extra padding at the top of the section if it's the first one
+			if isFirstSection then
+				SectionOutline.Position = UDim2.new(0, 0, 0, 12) -- Add 12 pixels of margin at the top (increased from 8)
+			end
+						
 			--
 			SectionInline.Name = "SectionInline"
 			SectionInline.Position = UDim2.new(0,1,0,1)
@@ -2156,26 +2170,27 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, SectionAccent)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,10,0,-8)
-			Title.Size = UDim2.new(0,100,0,16)
+			Title.Position = UDim2.new(0,10,0,-11) -- Move up more to -11 from -9
+			Title.Size = UDim2.new(0,100,0,20) -- Increase height to 20 from 18
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
 			Title.BorderColor3 = Color3.new(0,0,0)
 			Title.TextColor3 = Color3.new(1,1,1)
 			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-			Title.TextSize = Library.FontSize
+			Title.TextSize = Library.FontSize + 1 -- Slightly larger text
 			Title.ZIndex = 3
 			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.Text = Section.Name
 			Title.TextStrokeTransparency = 0
 			--
 			TextBorder.Name = "TextBorder"
-			TextBorder.Position = UDim2.new(0,6,0,-2)
-			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
+			TextBorder.Position = UDim2.new(0,6,0,-4) -- Move up to -4 from -3
+			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 10,0,8) -- Increase width padding to 10 and height to 8
 			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			TextBorder.BorderSizePixel = 0
 			TextBorder.BorderColor3 = Color3.new(0,0,0)
+			TextBorder.ZIndex = 2 -- Ensure it's behind the text
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			UIListLayout.Padding = UDim.new(0,6)
@@ -2257,7 +2272,7 @@ Library.Sections.__index = Library.Sections;
 			end)
 
 			wait(0.01)
-			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
+			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 10,0,8)
 			return setmetatable(Section, Library.Sections)
 		end
 		--
