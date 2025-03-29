@@ -255,61 +255,17 @@ local TweenService = game:GetService("TweenService");
 local VirtualUser = game:GetService("VirtualUser");
 local PathFindingService = game:GetService("PathfindingService");
 
-local utility = {
-	Circle = nil, 
-	bodyParts = {}, 
-	target = nil, 
-	angle = 0, 
-	drawings = {}, 
-	folders = {}
-};
-local framework = {connections = {}};
 local Flags = {}; 
 local flags = Library.Flags;
 local ESP = {};
 local IgnoreList = {};
 local HitReg = {};
 local loadingTime = tick() 
-local Visuals = {   
-    ["Drawings"] = {},
-	["Bases"] = {},
-	["Base"] = {},
-	["Settings"] = { 
-		["Line"] = {
-		    Thickness = 1,
-		    Color = Color3.fromRGB(0, 255, 0)
-	    },
-		["Text"] = {
-			Size = 13,
-			Center = true,
-			Outline = true,
-			Font = Drawing.Fonts.Plex,
-			Color = Color3.fromRGB(255, 255, 255)
-		},
-		["Square"] = {
-			Thickness = 1,
-			Color = Color3.fromRGB(255, 255, 255),
-			Filled = false,
-		},
-		["Triangle"] = {
-			Color = Color3.fromRGB(255, 255, 255),
-			Filled = true,
-			Visible = false,
-			Thickness = 1,
-		},
-		["Image"] = {
-			Transparency = 1,
-			Data = game:HttpGet("https://raw.githubusercontent.com/portallol/luna/main/Gradient.png")
-		}
-	},
-}
-local sfx = {["Bameware"] = "16910460773",["Skeet"] = "4753603610",["Bonk"] = "3765689841",["Lazer Beam"] = "130791043",["Windows XP Error"] = "160715357",["TF2 Hitsound"] = "3455144981",["TF2 Critical"] = "296102734",["TF2 Bat"] = "3333907347",['Bow Hit'] = "1053296915",['Bow'] = "3442683707",['OSU'] = "7147454322",['Minecraft Hit'] = "4018616850",['Steve'] = "5869422451",['1nn'] = "7349055654",['Rust'] = "3744371091",["TF2 Pan"] = "3431749479",["Neverlose"] = "8679627751",["Mario"] = "5709456554",};
-local sfx_names = {"Bameware", "Skeet", "Bonk", "Lazer Beam", "Windows XP Error", "TF2 Hitsound", "TF2 Critical", "TF2 Bat", "Bow Hit", "Bow", "OSU", "Minecraft Hit", "Steve", "1nn", "Rust", "TF2 Pan", "Neverlose", "Mario"};
+--
 local LocalPlayer = Players.LocalPlayer; 
 local Mouse = LocalPlayer:GetMouse();
 local Camera = Workspace.Camera;
 local viewportSize = game.Workspace.Camera.ViewportSize;
-local hitmodule = game:GetObjects("rbxassetid://7255773215")[1]; hitmodule.Parent = ReplicatedStorage;
 local Offset = game:GetService("GuiService"):GetGuiInset().Y;
 local NotifiactionSGui = Instance.new("ScreenGui", game.CoreGui); NotifiactionSGui.Enabled = true
 local NewVector2 = Vector2.new;
@@ -328,10 +284,6 @@ local Clamp = math.clamp;
 local Ceil = math.ceil; 
 local Pi = math.pi;
 local Sqrt = math.sqrt;
-local Lighting_Save = {["ColorShift_Bottom"] = Lighting.ColorShift_Bottom, ["Ambient"]=Lighting.Ambient, ["OutdoorAmbient"]=Lighting.OutdoorAmbient, ["ColorShift_Top"]=Lighting.ColorShift_Top, ["FogColor"]=Lighting.FogColor, ["FogEnd"]=Lighting.FogEnd, ["FogStart"]=Lighting.FogStart, ["ClockTime"]=Lighting.ClockTime, ["Brightness"]=Lighting.Brightness}
-local bodyClone = game:GetObjects("rbxassetid://8246626421")[1]; bodyClone.Humanoid:Destroy(); bodyClone.Head.Face:Destroy(); bodyClone.Parent = game.Workspace; bodyClone.HumanoidRootPart.Velocity = Vector3.new(); bodyClone.HumanoidRootPart.CFrame = NewCFrame(9999,9999,9999); bodyClone.HumanoidRootPart.Transparency = 1; bodyClone.HumanoidRootPart.CanCollide = false 
-local visualizeChams = Instance.new("Highlight"); visualizeChams.Enabled = true; visualizeChams.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop; visualizeChams.FillColor = Color3.fromRGB(102, 60, 153); visualizeChams.OutlineColor =  Color3.fromRGB(0, 0, 0); visualizeChams.Adornee = bodyClone; visualizeChams.OutlineTransparency = 0.2; visualizeChams.FillTransparency = 0.5; visualizeChams.Parent = game.CoreGui
-local targetHighlight = Instance.new("Highlight", game.CoreGui); targetHighlight.Enabled = true; targetHighlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop; targetHighlight.FillColor = Color3.fromRGB(0,0,0); targetHighlight.OutlineColor = Color3.fromRGB(255,255,255); targetHighlight.OutlineTransparency = 0.5; targetHighlight.FillTransparency = 0;
 local IgnoreList = {};
 local Tween = {};
 local crosshair_Lines = {}; 
@@ -391,8 +343,6 @@ local utx = {}
 local Messages = {}
 local drawingCache = {} 
 
-utility.folders["Part Chams"] = Instance.new("Folder", Workspace);
-utility.folders["Hit Chams"] = Instance.new("Folder", Workspace);
 Library.__index = Library;
 Library.Pages.__index = Library.Pages;
 Library.Sections.__index = Library.Sections;
@@ -791,6 +741,15 @@ Library.Sections.__index = Library.Sections;
 				Library.Open = bool;
 				Library.Holder.Visible = bool;
 			end
+		end;
+		--
+		function Library:EnableScrolling(scrollFrame)
+			self:Connection(scrollFrame.InputBegan, function(input)
+				if input.UserInputType == Enum.UserInputType.MouseWheel then
+					local scrollAmount = input.Position.Z > 0 and -30 or 30
+					scrollFrame.CanvasPosition = Vector2.new(0, math.max(0, scrollFrame.CanvasPosition.Y + scrollAmount))
+				end
+			end)
 		end;
 		--
 		function Library:ChangeAccent(Color)
@@ -1596,8 +1555,8 @@ Library.Sections.__index = Library.Sections;
             local WeaponOutline = Instance.new("Frame", Page.Window.Elements.Holder)
             local WeaponInline = Instance.new("Frame", WeaponOutline)
             local UIListLayout3 = Instance.new("UIListLayout", WeaponInline)
-            local Left = Instance.new('Frame', Page.Window.Elements.Holder)
-            local Right = Instance.new('Frame', Page.Window.Elements.Holder)
+            local Left = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
+            local Right = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
             local UIListLayout = Instance.new('UIListLayout', Left)
             local UIListLayout_2 = Instance.new('UIListLayout', Right)
             Left.Name = "Left"
@@ -1609,18 +1568,26 @@ Library.Sections.__index = Library.Sections;
             Left.BorderColor3 = Color3.new(0,0,0)
             Left.Visible = false
             Left.ZIndex = 3
-            --
-            Right.Name = "Right"
-            Right.Position = UDim2.new(1,-5,0,75)
-            Right.Size = UDim2.new(0.5,-5,1,-80)
-            Right.BackgroundColor3 = Color3.new(1,1,1)
-            Right.BorderSizePixel = 0
-            Right.BorderColor3 = Color3.new(0,0,0)
-            Right.AnchorPoint = Vector2.new(1,0)
-            Right.Visible = false
-            Right.BackgroundTransparency = 1
-            --
-            UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            Left.ScrollBarThickness = 0
+            Left.CanvasSize = UDim2.new(0, 0, 0, 0)
+            Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
+            Left.ElasticBehavior = Enum.ElasticBehavior.Always
+			--
+			Right.Name = "Right"
+			Right.Position = UDim2.new(1,-5,0,75)
+			Right.Size = UDim2.new(0.5,-5,1,-80)
+			Right.BackgroundColor3 = Color3.new(1,1,1)
+			Right.BorderSizePixel = 0
+			Right.BorderColor3 = Color3.new(0,0,0)
+			Right.AnchorPoint = Vector2.new(1,0)
+			Right.Visible = false
+			Right.BackgroundTransparency = 1
+            Right.ScrollBarThickness = 0
+            Right.CanvasSize = UDim2.new(0, 0, 0, 0)
+            Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
+            Right.ElasticBehavior = Enum.ElasticBehavior.Always
+			--
+			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
             UIListLayout.Padding = UDim.new(0,16)
             --
             UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
@@ -1752,8 +1719,8 @@ Library.Sections.__index = Library.Sections;
 			--
             --Weapon.Window.Elements.WeaponOutline.Visible = true
 
-			local Left = Instance.new('Frame', Weapon.Window.Window.Elements.Holder)
-			local Right = Instance.new('Frame', Weapon.Window.Window.Elements.Holder)
+			local Left = Instance.new('ScrollingFrame', Weapon.Window.Window.Elements.Holder)
+			local Right = Instance.new('ScrollingFrame', Weapon.Window.Window.Elements.Holder)
 			local UIListLayout = Instance.new('UIListLayout', Left)
 			local UIListLayout_2 = Instance.new('UIListLayout', Right)
             local New = Instance.new("ImageButton")
@@ -1777,6 +1744,10 @@ Library.Sections.__index = Library.Sections;
 			Left.BorderColor3 = Color3.new(0,0,0)
 			Left.Visible = false
 			Left.ZIndex = 3
+			Left.ScrollBarThickness = 0
+			Left.CanvasSize = UDim2.new(0, 0, 0, 0)
+			Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
+			Left.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			Right.Name = "Right"
 			Right.Position = UDim2.new(1,-5,0,75)
@@ -1787,6 +1758,10 @@ Library.Sections.__index = Library.Sections;
 			Right.AnchorPoint = Vector2.new(1,0)
 			Right.Visible = false
 			Right.BackgroundTransparency = 1
+			Right.ScrollBarThickness = 0
+			Right.CanvasSize = UDim2.new(0, 0, 0, 0)
+			Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
+			Right.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			UIListLayout.Padding = UDim.new(0,16)
@@ -1830,20 +1805,19 @@ Library.Sections.__index = Library.Sections;
         end
 		--
 		function Pages:Section(Properties)
-			if not Properties then
-				Properties = {}
-			end
-			--
+			if not Properties then Properties = {} end
+			
 			local Section = {
 				Name = Properties.Name or "Section",
 				Page = self,
 				Side = (Properties.side or Properties.Side or "left"):lower(),
-				ZIndex = Properties.ZIndex or 1, -- Idfk why
+				ZIndex = Properties.ZIndex or 1,
+				-- Idfk why
 				Elements = {},
 				Content = {},
 				Size = Properties.Size or Properties.size or nil,
 			}
-			--
+			
 			local SectionOutline = Instance.new('Frame', Section.Side == "left" and Section.Page.Elements.Left or Section.Side == "right" and Section.Page.Elements.Right)
 			local SectionInline = Instance.new('Frame', SectionOutline)
 			local Container = Instance.new('Frame', SectionInline)
@@ -1851,8 +1825,8 @@ Library.Sections.__index = Library.Sections;
 			local Space = Instance.new('Frame', Container)
 			local SectionAccent = Instance.new('Frame', SectionInline)
 			local Title = Instance.new('TextLabel', SectionOutline)
-			local TextBorder = Instance.new('Frame', SectionOutline)	
-			--
+			local TextBorder = Instance.new('Frame', SectionOutline)
+			
 			SectionOutline.Name = "SectionOutline"
 			if Section.Size then
 				SectionOutline.Size = UDim2.new(1,0,0,Section.Size)
@@ -1863,25 +1837,27 @@ Library.Sections.__index = Library.Sections;
 			SectionOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			SectionOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			SectionOutline.ZIndex = Section.ZIndex
-			--
+			SectionOutline.ClipsDescendants = false
 			
-			--
 			SectionInline.Name = "SectionInline"
 			SectionInline.Position = UDim2.new(0,1,0,1)
 			SectionInline.Size = UDim2.new(1,-2,1,-2)
 			SectionInline.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			SectionInline.BorderSizePixel = 0
 			SectionInline.BorderColor3 = Color3.new(0,0,0)
-			--
+			SectionInline.ClipsDescendants = false
+			
 			Container.Name = "Container"
 			Container.Position = UDim2.new(0,7,0,10)
 			Container.Size = UDim2.new(1,-14,1,-14)
+			
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
 			Container.BorderSizePixel = 0
 			Container.BorderColor3 = Color3.new(0,0,0)
 			Container.AutomaticSize = Enum.AutomaticSize.Y
-			--
+			Container.ClipsDescendants = false
+			
 			Space.Name = "Space"
 			Space.Position = UDim2.new(0,0,1,0)
 			Space.Size = UDim2.new(1,0,0,1)
@@ -1890,7 +1866,7 @@ Library.Sections.__index = Library.Sections;
 			Space.BorderSizePixel = 0
 			Space.BorderColor3 = Color3.new(0,0,0)
 			Space.LayoutOrder = 1000
-			--
+			
 			SectionAccent.Name = "SectionAccent"
 			SectionAccent.Size = UDim2.new(1,0,0,1)
 			SectionAccent.BackgroundColor3 = Library.Accent
@@ -1898,10 +1874,11 @@ Library.Sections.__index = Library.Sections;
 			SectionAccent.BorderColor3 = Color3.new(0,0,0)
 			table.insert(Library.ThemeObjects, SectionAccent)
 			table.insert(Library.ThemeObjects, SectionAccent)
-			--
+			
 			Title.Name = "Title"
 			Title.Position = UDim2.new(0,10,0,-8)
 			Title.Size = UDim2.new(0,100,0,16)
+			
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
@@ -1913,25 +1890,24 @@ Library.Sections.__index = Library.Sections;
 			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.Text = Section.Name
 			Title.TextStrokeTransparency = 0
-			--
+			
 			TextBorder.Name = "TextBorder"
 			TextBorder.Position = UDim2.new(0,6,0,-2)
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
 			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			TextBorder.BorderSizePixel = 0
 			TextBorder.BorderColor3 = Color3.new(0,0,0)
-			--
+			
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0,6)
+			UIListLayout.Padding = UDim.new(0,8) -- Increased padding between elements
 			
 			-- // Elements
 			Section.Elements = {
 				SectionContent = Container;
 				SectionHolder = SectionOutline;
 			}
-
-			-- // Returning
 			
+			-- // Returning
 			Section.Page.Sections[#Section.Page.Sections + 1] = Section
 			wait(0.01)
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
@@ -2452,56 +2428,26 @@ Library.Sections.__index = Library.Sections;
 		end
 		--
 		function Sections:Slider(Properties)
-			if not Properties then
-				Properties = {}
-			end
-			--
+			if not Properties then Properties = {} end
+			
 			local Slider = {
 				Window = self.Window,
 				Page = self.Page,
 				Section = self,
 				Name = Properties.Name or nil,
 				Min = (Properties.min or Properties.Min or Properties.minimum or Properties.Minimum or 0),
-				State = (
-					Properties.state
-						or Properties.State
-						or Properties.def
-						or Properties.Def
-						or Properties.default
-						or Properties.Default
-						or 10
-				),
+				State = ( Properties.state or Properties.State or Properties.def or Properties.Def or Properties.default or Properties.Default or 10 ),
 				Max = (Properties.max or Properties.Max or Properties.maximum or Properties.Maximum or 100),
-				Sub = (
-					Properties.suffix
-						or Properties.Suffix
-						or Properties.ending
-						or Properties.Ending
-						or Properties.prefix
-						or Properties.Prefix
-						or Properties.measurement
-						or Properties.Measurement
-						or ""
-				),
+				
+				Sub = ( Properties.suffix or Properties.Suffix or Properties.ending or Properties.Ending or Properties.prefix or Properties.Prefix or Properties.measurement or Properties.Measurement or "" ),
 				Decimals = (Properties.decimals or Properties.Decimals or 1),
-				Callback = (
-					Properties.callback
-						or Properties.Callback
-						or Properties.callBack
-						or Properties.CallBack
-						or function() end
-				),
-				Flag = (
-					Properties.flag
-						or Properties.Flag
-						or Properties.pointer
-						or Properties.Pointer
-						or Library.NextFlag()
-				),
+				Callback = ( Properties.callback or Properties.Callback or Properties.callBack or Properties.CallBack or function() end ),
+				Flag = ( Properties.flag or Properties.Flag or Properties.pointer or Properties.Pointer or Library.NextFlag() ),
 				Disabled = (Properties.Disabled or Properties.disable or nil),
 			}
+			
 			local TextValue = ("[value]" .. Slider.Sub)
-			--
+			
 			local NewSlider = Instance.new('TextButton', Slider.Section.Elements.SectionContent)
 			local Outline = Instance.new('Frame', NewSlider)
 			local Inline = Instance.new('Frame', Outline)
@@ -2510,9 +2456,9 @@ Library.Sections.__index = Library.Sections;
 			local Subtract = Instance.new('TextButton', Outline)
 			local Title = Instance.new('TextLabel', NewSlider)
 			local Value = Instance.new('TextLabel', NewSlider)
-			--
+			
 			NewSlider.Name = "NewSlider"
-			NewSlider.Size = UDim2.new(1,0,0,22)
+			NewSlider.Size = UDim2.new(1,0,0,30) -- Increased height
 			NewSlider.BackgroundColor3 = Color3.new(1,1,1)
 			NewSlider.BackgroundTransparency = 1
 			NewSlider.BorderSizePixel = 0
@@ -2522,21 +2468,24 @@ Library.Sections.__index = Library.Sections;
 			NewSlider.AutoButtonColor = false
 			NewSlider.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			NewSlider.TextSize = 14
-			--
+			NewSlider.ZIndex = 5 -- Higher Z-index
+			
 			Outline.Name = "Outline"
-			Outline.Position = UDim2.new(0,15,1,0)
+			Outline.Position = UDim2.new(0,15,1,-10) -- Adjusted position
 			Outline.Size = UDim2.new(1,-30,0,7)
 			Outline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			Outline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			Outline.AnchorPoint = NewVector2(0,1)
-			--
+			Outline.ZIndex = 5 -- Higher Z-index
+			
 			Inline.Name = "Inline"
 			Inline.Position = UDim2.new(0,1,0,1)
 			Inline.Size = UDim2.new(1,-2,1,-2)
 			Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
 			Inline.BorderSizePixel = 0
 			Inline.BorderColor3 = Color3.new(0,0,0)
-			--
+			Inline.ZIndex = 5 -- Higher Z-index
+			
 			Accent.Name = "Accent"
 			Accent.Size = UDim2.new(0,0,1,0)
 			Accent.BackgroundColor3 = Library.Accent
@@ -2547,11 +2496,12 @@ Library.Sections.__index = Library.Sections;
 			Accent.AutoButtonColor = false
 			Accent.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Accent.TextSize = 14
+			Accent.ZIndex = 5 -- Higher Z-index
 			table.insert(Library.ThemeObjects, Accent)
 			table.insert(Library.ThemeObjects, Accent)
-			--
+			
 			Add.Name = "Add"
-			Add.Position = UDim2.new(1,5,0.5,0)
+			Add.Position = UDim2.new(1,5,0.5,-10) -- Adjusted position
 			Add.Size = UDim2.new(0,10,0,10)
 			Add.BackgroundColor3 = Color3.new(1,1,1)
 			Add.BackgroundTransparency = 1
@@ -2564,9 +2514,10 @@ Library.Sections.__index = Library.Sections;
 			Add.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Add.TextSize = Library.FontSize
 			Add.TextStrokeTransparency = 0
-			--
+			Add.ZIndex = 5 -- Higher Z-index
+			
 			Subtract.Name = "Subtract"
-			Subtract.Position = UDim2.new(0,-15,0.5,0)
+			Subtract.Position = UDim2.new(0,-15,0.5,-10) -- Adjusted position
 			Subtract.Size = UDim2.new(0,10,0,10)
 			Subtract.BackgroundColor3 = Color3.new(1,1,1)
 			Subtract.BackgroundTransparency = 1
@@ -2579,10 +2530,11 @@ Library.Sections.__index = Library.Sections;
 			Subtract.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Subtract.TextSize = Library.FontSize
 			Subtract.TextStrokeTransparency = 0
-			--
+			Subtract.ZIndex = 5 -- Higher Z-index
+			
 			Title.Name = "Title"
 			Title.Position = UDim2.new(0,15,0,0)
-			Title.Size = UDim2.new(1,0,0,10)
+			Title.Size = UDim2.new(1,0,0,15) -- Fixed size
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
@@ -2593,10 +2545,11 @@ Library.Sections.__index = Library.Sections;
 			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.Text = Slider.Name
 			Title.TextStrokeTransparency = 0
-			--
+			Title.ZIndex = 5 -- Higher Z-index
+			
 			Value.Name = "Value"
 			Value.Position = UDim2.new(0,15,0,0)
-			Value.Size = UDim2.new(1,-30,0,10)
+			Value.Size = UDim2.new(1,-30,0,15) -- Fixed size
 			Value.BackgroundColor3 = Color3.new(1,1,1)
 			Value.BackgroundTransparency = 1
 			Value.BorderSizePixel = 0
@@ -2606,6 +2559,7 @@ Library.Sections.__index = Library.Sections;
 			Value.TextSize = Library.FontSize
 			Value.TextXAlignment = Enum.TextXAlignment.Right
 			Value.TextStrokeTransparency = 0
+			Value.ZIndex = 5 -- Higher Z-index
 			
 			-- // Functions
 			local Sliding = false
@@ -2704,58 +2658,34 @@ Library.Sections.__index = Library.Sections;
 				Section = self,
 				Open = false,
 				Name = Properties.Name or Properties.name or nil,
-				Options = (Properties.options or Properties.Options or Properties.values or Properties.Values or {
-					"1",
-					"2",
-					"3",
-				}),
+				Options = (Properties.options or Properties.Options or Properties.values or Properties.Values or { "1", "2", "3", }),
 				Max = (Properties.Max or Properties.max or nil),
-				State = (
-					Properties.state
-						or Properties.State
-						or Properties.def
-						or Properties.Def
-						or Properties.default
-						or Properties.Default
-						or nil
-				),
-				Callback = (
-					Properties.callback
-						or Properties.Callback
-						or Properties.callBack
-						or Properties.CallBack
-						or function() end
-				),
-				Flag = (
-					Properties.flag
-						or Properties.Flag
-						or Properties.pointer
-						or Properties.Pointer
-						or Library.NextFlag()
-				),
+				State = ( Properties.state or Properties.State or Properties.def or Properties.Def or Properties.default or Properties.Default or nil ),
+				Callback = ( Properties.callback or Properties.Callback or Properties.callBack or Properties.CallBack or function() end ),
+				Flag = ( Properties.flag or Properties.Flag or Properties.pointer or Properties.Pointer or Library.NextFlag() ),
 				OptionInsts = {},
 			}
-			--
+			
 			local NewDrop = Instance.new('Frame', Dropdown.Section.Elements.SectionContent)
 			local Outline = Instance.new('TextButton', NewDrop)
 			local Inline = Instance.new('Frame', Outline)
 			local Value = Instance.new('TextLabel', Inline)
 			local Icon = Instance.new('TextLabel', Inline)
 			local Title = Instance.new('TextLabel', NewDrop)
-			local ContainerOutline = Instance.new('Frame', NewDrop)
+			local ContainerOutline = Instance.new('Frame', game.CoreGui) -- Place in CoreGui to avoid scrollframe issues
 			local ContainerInline = Instance.new('Frame', ContainerOutline)
 			local UIListLayout = Instance.new('UIListLayout', ContainerInline)
-			--
+			
 			NewDrop.Name = "NewDrop"
-			NewDrop.Size = UDim2.new(1,0,0,16)
+			NewDrop.Size = UDim2.new(1,0,0,32) -- Increased height for better spacing
 			NewDrop.BackgroundColor3 = Color3.new(1,1,1)
 			NewDrop.BackgroundTransparency = 1
 			NewDrop.BorderSizePixel = 0
 			NewDrop.BorderColor3 = Color3.new(0,0,0)
-			--
+			
 			Title.Name = "Title"
 			Title.Position = UDim2.new(0,15,0,0)
-			Title.Size = UDim2.new(1,-15,1,0)
+			Title.Size = UDim2.new(1,-15,0,16) -- Fixed title size
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
@@ -2766,7 +2696,7 @@ Library.Sections.__index = Library.Sections;
 			Title.TextSize = Library.FontSize
 			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.TextStrokeTransparency = 0
-			--
+			
 			Outline.Name = "Outline"
 			Outline.Position = UDim2.new(1,0,0.5,12)
 			Outline.Size = UDim2.new(1,-30,0,16)
@@ -2775,14 +2705,14 @@ Library.Sections.__index = Library.Sections;
 			Outline.AnchorPoint = Vector2.new(1,0)
 			Outline.Text = ""
 			Outline.AutoButtonColor = false
-			--
+			
 			Inline.Name = "Inline"
 			Inline.Position = UDim2.new(0,1,0,1)
 			Inline.Size = UDim2.new(1,-2,1,-2)
 			Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
 			Inline.BorderSizePixel = 0
 			Inline.BorderColor3 = Color3.new(0,0,0)
-			--
+			
 			Value.Name = "Value"
 			Value.Position = UDim2.new(0,2,0,0)
 			Value.Size = UDim2.new(1,-30,1,0)
@@ -2796,7 +2726,7 @@ Library.Sections.__index = Library.Sections;
 			Value.TextXAlignment = Enum.TextXAlignment.Left
 			Value.TextStrokeTransparency = 0
 			Value.TextWrapped = true
-			--
+			
 			Icon.Name = "Icon"
 			Icon.Position = UDim2.new(0,-5,0,0)
 			Icon.Size = UDim2.new(1,0,1,0)
@@ -2810,37 +2740,54 @@ Library.Sections.__index = Library.Sections;
 			Icon.TextSize = Library.FontSize
 			Icon.TextXAlignment = Enum.TextXAlignment.Right
 			Icon.TextStrokeTransparency = 0
-			--
+			
 			ContainerOutline.Name = "ContainerOutline"
-			ContainerOutline.Position = UDim2.new(0,15,1,2)
-			ContainerOutline.Size = UDim2.new(1,-30,0,10)
 			ContainerOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			ContainerOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			ContainerOutline.Visible = false
 			ContainerOutline.AutomaticSize = Enum.AutomaticSize.Y
-			ContainerOutline.ZIndex = 5
-			--
+			ContainerOutline.ZIndex = 100
+			
 			ContainerInline.Name = "ContainerInline"
 			ContainerInline.Position = UDim2.new(0,1,0,1)
 			ContainerInline.Size = UDim2.new(1,-2,1,-2)
 			ContainerInline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
 			ContainerInline.BorderSizePixel = 0
 			ContainerInline.BorderColor3 = Color3.new(0,0,0)
-			ContainerInline.ZIndex = 6;
-			--
+			ContainerInline.ZIndex = 101
+			
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout.Padding = UDim.new(0, 2) -- Added small padding between options
 			
 			-- // Connections
+			local function updateDropdownPosition()
+				local newPosition = NewDrop.AbsolutePosition
+				local newSize = NewDrop.AbsoluteSize
+				ContainerOutline.Position = UDim2.new(0, newPosition.X + 15, 0, newPosition.Y + newSize.Y + 2)
+				ContainerOutline.Size = UDim2.new(0, newSize.X - 30, 0, 10)
+			end
+			
 			Library:Connection(Outline.MouseButton1Down, function()
+				updateDropdownPosition()
 				ContainerOutline.Visible = not ContainerOutline.Visible
 				if ContainerOutline.Visible then
-					NewDrop.ZIndex = 2
+					NewDrop.ZIndex = 10
 					Icon.Text = "-"
+					
+					-- Bring dropdown to front when opened
+					for _, droplist in pairs(Dropdowns) do
+						if droplist ~= ContainerOutline then
+							droplist.Visible = false
+						end
+					end
 				else
 					NewDrop.ZIndex = 1
 					Icon.Text = "+"
 				end
 			end)
+			
+			table.insert(Dropdowns, ContainerOutline)
+			
 			Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
 				if ContainerOutline.Visible and Input.UserInputType == Enum.UserInputType.MouseButton1 then
 					if not Library:IsMouseOverFrame(ContainerOutline) and not Library:IsMouseOverFrame(NewDrop) then
@@ -2850,20 +2797,16 @@ Library.Sections.__index = Library.Sections;
 					end
 				end
 			end)
-			Library:Connection(NewDrop.MouseEnter, function()
-				Outline.BorderColor3 = Library.Accent
-				table.insert(Library.ThemeObjects, Title)
-				Title.TextColor3 = Library.Accent
+			
+			-- Track scrolling to update dropdown position
+			Library:Connection(game:GetService("RunService").RenderStepped, function()
+				if ContainerOutline.Visible then
+					updateDropdownPosition()
+				end
 			end)
-			--
-			Library:Connection(NewDrop.MouseLeave, function()
-				Outline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
-				table.remove(Library.ThemeObjects, table.find(Library.ThemeObjects, Title))
-				Title.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
-			end)
-			--
+			
 			local chosen = Dropdown.Max and {} or nil
-			--
+			
 			local function handleoptionclick(option, button, text)
 				button.MouseButton1Down:Connect(function()
 					if Dropdown.Max then
@@ -2936,9 +2879,9 @@ Library.Sections.__index = Library.Sections;
 					NewOption.AutoButtonColor = false
 					NewOption.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 					NewOption.TextSize = 14
-					NewOption.ZIndex = 7;
+					NewOption.ZIndex = 52 -- Much higher Z-index
 					Dropdown.OptionInsts[option].button = NewOption
-					--
+					
 					OptionName.Name = "OptionName"
 					OptionName.Position = UDim2.new(0,2,0,0)
 					OptionName.Size = UDim2.new(1,0,1,0)
@@ -2952,9 +2895,8 @@ Library.Sections.__index = Library.Sections;
 					OptionName.TextSize = Library.FontSize
 					OptionName.TextXAlignment = Enum.TextXAlignment.Left
 					OptionName.TextStrokeTransparency = 0
-					OptionName.ZIndex = 8;
+					OptionName.ZIndex = 53 -- Much higher Z-index
 					Dropdown.OptionInsts[option].text = OptionName
-
 					handleoptionclick(option, NewOption, OptionName)
 				end
 			end
