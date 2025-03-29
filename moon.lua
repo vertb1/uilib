@@ -591,6 +591,74 @@ Library.Sections.__index = Library.Sections;
 					end
 				end
 			end
+
+			-- Track all toggle elements and maintain their states
+			local toggleElements = {}
+
+			-- First pass: identify all toggle elements and their current states
+			if self.Holder then
+				for _, descendant in pairs(self.Holder:GetDescendants()) do
+					if descendant:IsA("Frame") and descendant.Name == "Inline" then
+						-- This might be a toggle element
+						local parentOutline = descendant.Parent
+						if parentOutline and parentOutline.Name == "Outline" and parentOutline.Size.X.Offset == 10 and parentOutline.Size.Y.Offset == 10 then
+							-- This is likely a toggle, check if it's active (using accent color or in ThemeObjects)
+							local isActive = false
+							if descendant.BackgroundColor3 == self.Accent or table.find(self.ThemeObjects, descendant) then
+								isActive = true
+							end
+							
+							-- Also check for any related title elements to see if they're active
+							local toggleButton = parentOutline.Parent
+							if toggleButton and toggleButton:IsA("TextButton") then
+								for _, child in pairs(toggleButton:GetChildren()) do
+									if child:IsA("TextLabel") and child.Name == "Title" then
+										if child.TextColor3 == Color3.fromRGB(255, 255, 255) or 
+										   child.TextColor3 == Color3.fromRGB(227, 227, 34) then
+											isActive = true
+										end
+									end
+								end
+							end
+							
+							table.insert(toggleElements, {
+								element = descendant,
+								active = isActive
+							})
+						end
+					end
+				end
+			end
+
+			-- After all theme updates are applied, restore active toggle states
+			for _, toggleData in pairs(toggleElements) do
+				if toggleData.active then
+					-- This was an active toggle, restore its state
+					toggleData.element.BackgroundColor3 = selectedTheme.Accent
+					
+					-- Also handle the title label (next to the toggle)
+					local toggleButton = toggleData.element.Parent.Parent
+					if toggleButton and toggleButton:IsA("TextButton") then
+						for _, child in pairs(toggleButton:GetChildren()) do
+							if child:IsA("TextLabel") and child.Name == "Title" then
+								-- Restore text color for the title
+								child.TextColor3 = Color3.fromRGB(255, 255, 255)
+								
+								-- If it's a risk toggle, use yellow instead
+								if child.TextColor3 == Color3.fromRGB(158, 158, 24) or 
+								   child.TextColor3 == Color3.fromRGB(227, 227, 34) then
+									child.TextColor3 = Color3.fromRGB(227, 227, 34)
+								end
+								
+								-- Make sure it's in the theme objects
+								if not table.find(self.ThemeObjects, toggleData.element) then
+									table.insert(self.ThemeObjects, toggleData.element)
+								end
+							end
+						end
+					end
+				end
+			end
 		end
 
 		function Library:Connection(Signal, Callback)
