@@ -392,7 +392,7 @@ Library.Sections.__index = Library.Sections;
 			
 			OutlineFrame.Name = "OutlineFrame"
 			OutlineFrame.Position = UDim2.new(0.5, 0, 0, 5)
-			OutlineFrame.Size = UDim2.new(0, 250, 0, 25)
+			OutlineFrame.Size = UDim2.new(0, 260, 0, 28) -- Slightly increased size
 			OutlineFrame.BackgroundColor3 = Color3.new(0.1765, 0.1765, 0.1765)
 			OutlineFrame.BorderColor3 = Color3.new(0.0392, 0.0392, 0.0392)
 			OutlineFrame.AnchorPoint = Vector2.new(0.5, 0)
@@ -416,8 +416,8 @@ Library.Sections.__index = Library.Sections;
 			TextLabel.BackgroundTransparency = 1
 			TextLabel.Text = Properties.Text or "Your Watermark"
 			TextLabel.TextColor3 = Color3.new(1, 1, 1)
-			TextLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-			TextLabel.TextSize = Library.FontSize
+			TextLabel.FontFace = Font.new("Code") -- Changed to code font
+			TextLabel.TextSize = Library.FontSize + 1 -- Slightly increased text size
 			TextLabel.TextXAlignment = Enum.TextXAlignment.Center
 			TextLabel.TextStrokeTransparency = 0
 			
@@ -467,7 +467,7 @@ Library.Sections.__index = Library.Sections;
 			function Watermark:SetText(text)
 				TextLabel.Text = text
 				local textBounds = TextLabel.TextBounds
-				OutlineFrame.Size = UDim2.new(0, math.max(textBounds.X + 20, 100), 0, 25)
+				OutlineFrame.Size = UDim2.new(0, math.max(textBounds.X + 20, 100), 0, 28) -- Maintain height when resizing
 			end
 			
 			-- Store references
