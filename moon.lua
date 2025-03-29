@@ -2129,22 +2129,49 @@ Library.Sections.__index = Library.Sections;
 
 			-- Add a recalculation function to ensure proper section sizing when elements are added
 			function Section:RecalculateSize()
+				-- Safety checks
+				if not Section then return end
+				if not Section.ContentPadding then Section.ContentPadding = 5 end
+				
 				local padding = 20 -- Additional padding (10 top + 10 bottom)
 				local containerHeight = 0
 				
-				-- Calculate height based on children
-				for _, child in pairs(Container:GetChildren()) do
-					if not child:IsA("UIListLayout") then
-						containerHeight = containerHeight + child.Size.Y.Offset + UIListLayout.Padding.Offset
+				-- Safety check - make sure Container and UIListLayout exist
+				if not Container then return end
+				
+				-- Get content height
+				if UIListLayout then
+					-- Calculate height based on children using UIListLayout if available
+					for _, child in pairs(Container:GetChildren()) do
+						if not child:IsA("UIListLayout") then
+							local childHeight = child.Size.Y.Offset
+							local paddingOffset = UIListLayout.Padding and UIListLayout.Padding.Offset or 0
+							containerHeight = containerHeight + childHeight + paddingOffset
+						end
+					end
+				else
+					-- Fallback: just count visible children
+					for _, child in pairs(Container:GetChildren()) do
+						if child:IsA("GuiObject") and child.Visible then
+							containerHeight = containerHeight + child.Size.Y.Offset + 6 -- 6 is default padding
+						end
 					end
 				end
 				
-				-- Set container size
-				Container.Size = UDim2.new(1, -14, 0, containerHeight)
+				-- Set container size with a minimum height
+				containerHeight = math.max(containerHeight, 10)
+				if Container then
+					Container.Size = UDim2.new(1, -14, 0, containerHeight)
+				end
 				
 				-- Set section size to match content
-				SectionInline.Size = UDim2.new(1, -2, 0, containerHeight + padding)
-				SectionOutline.Size = UDim2.new(1, 0, 0, containerHeight + padding + 2)
+				if SectionInline then
+					SectionInline.Size = UDim2.new(1, -2, 0, containerHeight + padding)
+				end
+				
+				if SectionOutline then
+					SectionOutline.Size = UDim2.new(1, 0, 0, containerHeight + padding + 2)
+				end
 			end
 
 			-- Connect list layout changes to trigger resize
