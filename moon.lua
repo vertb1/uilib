@@ -669,10 +669,20 @@ Library.Sections.__index = Library.Sections;
 		function Library:updateNotifsPositions(position)
 			for i, v in pairs(Library.Notifs) do 
 				local Position
+				local textElement = v["Objects"] and v["Objects"][3]
+				local textWidth = 100 -- Default if TextBounds is not available
+				
+				if textElement and textElement.TextBounds then
+					textWidth = textElement.TextBounds.X
+				elseif textElement and textElement.Text then
+					-- Fallback: estimate width based on text length
+					textWidth = string.len(textElement.Text) * 7
+				end
+				
 				if position == "Middle" then
-					Position = NewVector2(viewportSize.X/2 - (v["Objects"][3].TextBounds.X + 10)/2, 600)
+					Position = NewVector2(viewportSize.X/2 - (textWidth + 10)/2, 600)
 				elseif position == "Right" then
-					Position = NewVector2(viewportSize.X - v["Objects"][3].TextBounds.X - 30, 20)
+					Position = NewVector2(viewportSize.X - textWidth - 30, 20)
 				else
 					Position = NewVector2(20, 20)
 				end
@@ -802,14 +812,39 @@ Library.Sections.__index = Library.Sections;
 			local Progress = Instance.new('Frame', Background)
 			--
 			local Position
+			-- Create TextLabel before using TextBounds
+			TextLabel.Name = "TextLabel"
+			TextLabel.Position = UDim2.new(0,5,0,0)
+			TextLabel.Size = UDim2.new(1,-10,1,0)
+			TextLabel.BackgroundColor3 = Color3.new(1,1,1)
+			TextLabel.BackgroundTransparency = 1
+			TextLabel.BorderSizePixel = 0
+			TextLabel.BorderColor3 = Color3.new(0,0,0)
+			TextLabel.Text = message
+			TextLabel.TextColor3 = Color3.new(0.9216,0.9216,0.9216)
+			TextLabel.TextTransparency = 0
+			TextLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			TextLabel.TextSize = Library.FontSize + 2
+			TextLabel.AutomaticSize = Enum.AutomaticSize.X
+			TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+			
+			-- Use a default text bounds or get from TextLabel
+			local textWidth = 0
+			if TextLabel and TextLabel.TextBounds then
+				textWidth = TextLabel.TextBounds.X
+			else
+				-- Default width if TextBounds is nil
+				textWidth = (message and string.len(message) * 7) or 100
+			end
+			
 			if position == "Middle" then
-				Position = NewVector2(viewportSize.X/2 - (TextLabel.TextBounds.X + 10)/2, 600)
+				Position = NewVector2(viewportSize.X/2 - (textWidth + 10)/2, 600)
 			elseif position == "Right" then
-				Position = NewVector2(viewportSize.X - TextLabel.TextBounds.X - 30, 20)
+				Position = NewVector2(viewportSize.X - textWidth - 30, 20)
 			else
 				Position = NewVector2(20, 20)
 			end
-			--
+			
 			NotifContainer.Name = "NotifContainer"
 			NotifContainer.Position = UDim2.new(0,Position.X, 0, Position.Y)
 			NotifContainer.Size = UDim2.new(0,TextLabel.TextBounds.X + 10,0,25)
@@ -928,7 +963,7 @@ Library.Sections.__index = Library.Sections;
 		
 			table.insert(Library.Notifs, notification)
 			NotifContainer.Position = UDim2.new(0,Position.X,0,Position.Y + (table.find(Library.Notifs, notification) * 35))
-			NotifContainer.Size = UDim2.new(0,TextLabel.TextBounds.X + 10,0,25)
+			NotifContainer.Size = UDim2.new(0,textWidth + 10,0,25)
 			Library:updateNotifsPositions(position)
 
 			return notification
@@ -2041,13 +2076,27 @@ Library.Sections.__index = Library.Sections;
 				Page = self,
 				Side = Properties.Side == "Right" and "Right" or "Left",
 				ContentPadding = Properties.Padding or 5, -- Add padding option with default value
+				ZIndex = Properties.ZIndex or 1,
+				Size = Properties.Size or nil,
 			}
-			--
-			local parentFrame
-			if Section.Side == "Right" then
-				parentFrame = Section.Page.Elements.Right
-			else
-				parentFrame = Section.Page.Elements.Left
+			
+			-- Safely get parent frame
+			local parentFrame = nil
+			if Section.Page and Section.Page.Elements then
+				if Section.Side == "Right" and Section.Page.Elements.Right then
+					parentFrame = Section.Page.Elements.Right
+				elseif Section.Page.Elements.Left then
+					parentFrame = Section.Page.Elements.Left
+				end
+			end
+			
+			-- Fallback to creating a placeholder if parent frame doesn't exist
+			if not parentFrame then
+				warn("Parent frame missing, creating placeholder")
+				parentFrame = Instance.new("Frame")
+				parentFrame.Size = UDim2.new(1, 0, 1, 0)
+				parentFrame.BackgroundTransparency = 1
+				parentFrame.Name = "PlaceholderParent"
 			end
 			
 			local SectionOutline = Instance.new('Frame', parentFrame)
@@ -2082,7 +2131,7 @@ Library.Sections.__index = Library.Sections;
 			--
 			Container.Name = "Container"
 			Container.Position = UDim2.new(0,7,0,10)
-			Container.Size = UDim2.new(1,-14,0,0) -- Change to 0 initial height
+			Container.Size = UDim2.new(1,-14,0,15) -- Minimum height for empty sections
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
 			Container.BorderSizePixel = 0
@@ -2237,7 +2286,7 @@ Library.Sections.__index = Library.Sections;
 						or Properties.Callback
 						or Properties.callBack
 						or Properties.CallBack
-						or function() end
+							or function() end
 				),
 				Flag = (
 					Properties.flag
