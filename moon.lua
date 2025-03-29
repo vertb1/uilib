@@ -1426,7 +1426,7 @@ Library.Sections.__index = Library.Sections;
             --
             TitleLabel.Name = "TitleLabel"
             TitleLabel.Position = UDim2.new(0,10,0,1)
-            TitleLabel.Size = UDim2.new(1,-20,0,14)
+            TitleLabel.Size = UDim2.new(1,-20,0,18) -- Increased from 14 to 18
             TitleLabel.BackgroundColor3 = Color3.new(1,1,1)
             TitleLabel.BackgroundTransparency = 1
             TitleLabel.BorderSizePixel = 0
@@ -1434,13 +1434,13 @@ Library.Sections.__index = Library.Sections;
             TitleLabel.Text = Window.Title
             TitleLabel.TextColor3 = Color3.new(1,1,1)
             TitleLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-            TitleLabel.TextSize = Library.FontSize
+            TitleLabel.TextSize = Library.FontSize + 2 -- Slightly larger font
             TitleLabel.TextXAlignment = Enum.TextXAlignment.Center
             TitleLabel.TextStrokeTransparency = 0
 			--
 			HolderOutline.Name = "HolderOutline"
-			HolderOutline.Position = UDim2.new(0,7,0,16)
-			HolderOutline.Size = UDim2.new(1,-14,1,-23)
+			HolderOutline.Position = UDim2.new(0,7,0,20) -- Adjusted from 16 to 20
+			HolderOutline.Size = UDim2.new(1,-14,1,-27) -- Adjusted from -23 to -27
 			HolderOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			HolderOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			--
@@ -1560,8 +1560,8 @@ Library.Sections.__index = Library.Sections;
             local UIListLayout = Instance.new('UIListLayout', Left)
             local UIListLayout_2 = Instance.new('UIListLayout', Right)
             Left.Name = "Left"
-            Left.Position = UDim2.new(0,5,0,27)  -- Default position when no icon tab is present
-            Left.Size = UDim2.new(0.5,-10,1,-32) -- Adjust size to account for reduced top margin
+            Left.Position = UDim2.new(0,5,0,31)  -- Default position when no icon tab is present (updated from 27)
+            Left.Size = UDim2.new(0.5,-10,1,-36) -- Adjust size to account for reduced top margin (updated from 32)
             Left.BackgroundColor3 = Color3.new(1,1,1)
             Left.BorderSizePixel = 0
             Left.BackgroundTransparency = 1
@@ -1574,8 +1574,8 @@ Library.Sections.__index = Library.Sections;
             Left.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			Right.Name = "Right"
-			Right.Position = UDim2.new(1,-5,0,27)  -- Default position when no icon tab is present
-			Right.Size = UDim2.new(0.5,-5,1,-32)   -- Adjust size to account for reduced top margin
+			Right.Position = UDim2.new(1,-5,0,31)  -- Default position when no icon tab is present (updated from 27)
+			Right.Size = UDim2.new(0.5,-5,1,-36)   -- Adjust size to account for reduced top margin (updated from 32)
             Right.BackgroundColor3 = Color3.new(1,1,1)
             Right.BorderSizePixel = 0
             Right.BorderColor3 = Color3.new(0,0,0)
@@ -1625,7 +1625,7 @@ Library.Sections.__index = Library.Sections;
             WeaponOutline.Name = "WeaponOutline"
             WeaponOutline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
             WeaponOutline.BorderColor3 = Color3.fromRGB(10, 10, 10)
-            WeaponOutline.Position = UDim2.new(0, 5, 0, 27)
+            WeaponOutline.Position = UDim2.new(0, 5, 0, 31) -- Adjusted from 27 to 31
             WeaponOutline.Size = UDim2.new(1, -10, 0, 40)
             WeaponOutline.Visible = false
             
@@ -1645,20 +1645,20 @@ Library.Sections.__index = Library.Sections;
                     Left.Visible = Page.Open
 				    Right.Visible = Page.Open
                     -- When no icon tab is present, position content just below the tabs
-                    Left.Position = UDim2.new(0, 5, 0, 27)
-                    Right.Position = UDim2.new(1, -5, 0, 27)
-                    Left.Size = UDim2.new(0.5, -10, 1, -32)
-                    Right.Size = UDim2.new(0.5, -5, 1, -32)
+                    Left.Position = UDim2.new(0, 5, 0, 31) -- Increased from 27 to 31
+                    Right.Position = UDim2.new(1, -5, 0, 31) -- Increased from 27 to 31
+                    Left.Size = UDim2.new(0.5, -10, 1, -36) -- Adjusted from -32 to -36
+                    Right.Size = UDim2.new(0.5, -5, 1, -36) -- Adjusted from -32 to -36
                 else
                     WeaponOutline.Visible = Page.Open
                     for Index, Weapon in pairs(Page.Weapons) do
                         Weapon:Turn(Weapon.Open)
                     end
                     -- When icon tab is present, position content below the weapon selector
-                    Left.Position = UDim2.new(0, 5, 0, 75)
-                    Right.Position = UDim2.new(1, -5, 0, 75)
-                    Left.Size = UDim2.new(0.5, -10, 1, -80)
-                    Right.Size = UDim2.new(0.5, -5, 1, -80)
+                    Left.Position = UDim2.new(0, 5, 0, 79) -- Increased from 75 to 79
+                    Right.Position = UDim2.new(1, -5, 0, 79) -- Increased from 75 to 79
+                    Left.Size = UDim2.new(0.5, -10, 1, -84) -- Adjusted from -80 to -84
+                    Right.Size = UDim2.new(0.5, -5, 1, -84) -- Adjusted from -80 to -84
                 end
 				TabAccent.Visible = Page.Open
 				TabLine.Visible = not Page.Open
