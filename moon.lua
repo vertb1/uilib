@@ -4,6 +4,31 @@ end
 
 writefile("ProggyClean.ttf", game:HttpGet("https://github.com/f1nobe7650/other/raw/main/ProggyClean.ttf"))
 
+-- GUI protection function to work across different exploit environments
+local protectgui = protectgui or (syn and syn.protect_gui)
+
+if not protectgui then
+    protectgui = function(Gui)
+        local _game = cloneref and cloneref(game) or game
+        local success, err = pcall(function()
+            Gui.Parent = 
+                gethui and gethui() 
+                or cloneref and cloneref(_game:GetService("CoreGui")) 
+                or _game:GetService("CoreGui")
+        end)
+
+        if success then
+            return Gui
+        else
+            warn("Failed to protect GUI: " .. tostring(err))
+            Gui.Parent = game:GetService("CoreGui")
+            return Gui
+        end
+    end
+
+    protectgui = newcclosure and newcclosure(protectgui) or protectgui
+end
+
 -- // Custom Font
 do
 	getsynasset = getcustomasset or getsynasset
@@ -267,7 +292,9 @@ local Mouse = LocalPlayer:GetMouse();
 local Camera = Workspace.Camera;
 local viewportSize = game.Workspace.Camera.ViewportSize;
 local Offset = game:GetService("GuiService"):GetGuiInset().Y;
-local NotifiactionSGui = Instance.new("ScreenGui", game.CoreGui); NotifiactionSGui.Enabled = true
+local NotifiactionSGui = Instance.new("ScreenGui"); 
+NotifiactionSGui.Enabled = true
+protectgui(NotifiactionSGui) -- Apply protection
 local NewVector2 = Vector2.new;
 local NewVector3 = Vector3.new;
 local NewCFrame = CFrame.new; 
@@ -306,11 +333,12 @@ local crosshair_LineAmount = 4;
 local crosshair_SpinAngle = 0; 
 local crosshair_tick = 0;
 local buying = false; 
-local PlaceHolderUI = Instance.new("ScreenGui", game.CoreGui);
+local PlaceHolderUI = Instance.new("ScreenGui");
 PlaceHolderUI.Name = "KeybindListGui"
 PlaceHolderUI.DisplayOrder = 100
 PlaceHolderUI.ResetOnSpawn = false
 PlaceHolderUI.Enabled = false
+protectgui(PlaceHolderUI) -- Apply protection
 local Messages = {}
 local drawingCache = {} 
 
@@ -517,10 +545,11 @@ Library.Sections.__index = Library.Sections;
 			end
 			
 			-- Create watermark UI
-			local WatermarkGui = Instance.new("ScreenGui", game.CoreGui)
+			local WatermarkGui = Instance.new("ScreenGui")
 			WatermarkGui.Name = "Watermark"
 			WatermarkGui.DisplayOrder = 100
 			WatermarkGui.ResetOnSpawn = false
+			protectgui(WatermarkGui) -- Apply protection
 			
 			local OutlineFrame = Instance.new("Frame", WatermarkGui)
 			local InlineFrame = Instance.new("Frame", OutlineFrame)
@@ -708,11 +737,17 @@ Library.Sections.__index = Library.Sections;
 					Background.AnchorPoint = NewVector2(1,0)
 				else
 					-- For other positions, slide in from left
-					Background.AnchorPoint = NewVector2(1,0)
+					Background.AnchorPoint = NewVector2(0,0)
 				end
 				
 				-- Animate appearance
-				game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(0,0)}):Play()
+				if position == "Right" then
+					-- Right notifications slide in from right to left
+					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(0,0)}):Play()
+				else
+					-- Left/middle notifications slide in from left
+					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(0,0)}):Play()
+				end
 				
 				-- Progress bar
 				local Tween2 = game:GetService("TweenService"):Create(Progress, TweenInfo.new(duration or 5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Size = UDim2.new(1,0,0,1)}):Play()
@@ -726,7 +761,7 @@ Library.Sections.__index = Library.Sections;
 					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(1,0)}):Play()
 				else
 					-- For other positions, slide out to left
-					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(1,0)}):Play()
+					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(-1,0)}):Play()
 				end
 				
 				-- Fade out all elements
@@ -1525,7 +1560,10 @@ Library.Sections.__index = Library.Sections;
 				Title = Options.Title or Options.title or "";
 			};
 			--
-			local ScreenGui = Instance.new('ScreenGui', game.CoreGui)
+			local ScreenGui = Instance.new('ScreenGui')
+			ScreenGui.DisplayOrder = 2
+			protectgui(ScreenGui) -- Apply protection
+			
 			local Outline = Instance.new('Frame', ScreenGui)
 			local Inline = Instance.new('Frame', Outline)
 			local Accent = Instance.new('Frame', Inline)
