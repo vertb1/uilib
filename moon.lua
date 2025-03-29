@@ -2,8 +2,6 @@ if isfile("menu_plex.font") then
 	delfile("menu_plex.font")
 end
 
-writefile("ProggyClean.ttf", game:HttpGet("https://github.com/f1nobe7650/other/raw/main/ProggyClean.ttf"))
-
 -- GUI protection function to work across different exploit environments
 local protectgui = protectgui or (syn and syn.protect_gui)
 
@@ -27,42 +25,6 @@ if not protectgui then
     end
 
     protectgui = newcclosure and newcclosure(protectgui) or protectgui
-end
-
--- // Custom Font
-do
-	getsynasset = getcustomasset or getsynasset
-	Font = setreadonly(Font, false);
-	function Font:Register(Name, Weight, Style, Asset)
-		if not isfile(Name .. ".font") then
-			if not isfile(Asset.Id) then
-				writefile(Asset.Id, Asset.Font);
-			end;
-			--
-			local Data = {
-				name = Name,
-				faces = {{
-					name = "Regular",
-					weight = Weight,
-					style = Style,
-					assetId = getsynasset(Asset.Id);
-				}}
-			};
-			--
-			writefile(Name .. ".font", game:GetService("HttpService"):JSONEncode(Data));
-			return getsynasset(Name .. ".font");
-		else 
-			warn("Font already registered");
-		end;
-	end;
-	--
-	function Font:GetRegistry(Name)
-		if isfile(Name .. ".font") then
-			return getsynasset(Name .. ".font");
-		end;
-	end;
-
-	Font:Register("menu_plex", 400, "normal", {Id = "ProggyClean.ttf", Font = ""});
 end
 
 if not LPH_OBFUSCATED then
@@ -582,7 +544,7 @@ Library.Sections.__index = Library.Sections;
 			TextLabel.BackgroundTransparency = 1
 			TextLabel.Text = Properties.Text or "Your Watermark"
 			TextLabel.TextColor3 = Color3.new(1, 1, 1)
-			TextLabel.FontFace = Font.new("Code") -- Changed to code font
+			TextLabel.Font = Enum.Font.Code -- Use standard Code font
 			TextLabel.TextSize = Library.FontSize + 1 -- Slightly increased text size
 			TextLabel.TextXAlignment = Enum.TextXAlignment.Center
 			TextLabel.TextStrokeTransparency = 0
@@ -1121,6 +1083,13 @@ Library.Sections.__index = Library.Sections;
 				return KeyValue
 			end;
 			return KeyList
+		end
+
+		-- Add this helper function at the beginning of the Library Functions section
+		function Library:SetFont(textObject)
+			-- Sets the font to Code for any text object
+			textObject.Font = Enum.Font.Code
+			return textObject
 		end
 	end
 	-- // Color Picker Functions
@@ -2774,15 +2743,15 @@ Library.Sections.__index = Library.Sections;
 			Title.BorderColor3 = Color3.new(0,0,0)
 			Title.Text = Dropdown.Name
 			Title.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
-			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			Title.Font = Enum.Font.Code
 			Title.TextSize = Library.FontSize
 			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.TextStrokeTransparency = 0
 			--
 			Outline.Name = "Outline"
-			Outline.Position = UDim2.new(0,15,0,20)
-			Outline.Size = UDim2.new(1,-30,0,16)
-			Outline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+				Outline.Position = UDim2.new(0,15,0,20)
+				Outline.Size = UDim2.new(1,-30,0,16)
+				Outline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 				Outline.BorderColor3 = Color3.fromRGB(10, 10, 10)
 			Outline.Text = ""
 			Outline.AutoButtonColor = false
@@ -3675,7 +3644,7 @@ Library.Sections.__index = Library.Sections;
 			NewButton.Text = ""
 			NewButton.TextColor3 = Color3.new(0,0,0)
 			NewButton.AutoButtonColor = false
-			NewButton.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			NewButton.Font = Enum.Font.Code
 			NewButton.TextSize = 14
 			--
 			Outline.Name = "Outline"
@@ -3742,7 +3711,7 @@ Library.Sections.__index = Library.Sections;
 			NewLabel.BorderColor3 = Color3.new(0,0,0)
 			NewLabel.Text = Label.Name
 			NewLabel.TextColor3 = Color3.fromRGB(255,255,255)
-			NewLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			Library:SetFont(NewLabel) -- Use the helper function
 			NewLabel.TextSize = Library.FontSize
 			NewLabel.TextXAlignment = Label.Centered and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
 			NewLabel.TextYAlignment = Enum.TextYAlignment.Top
