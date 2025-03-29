@@ -1479,8 +1479,9 @@ Library.Sections.__index = Library.Sections;
 
 			-- Connect to UIListLayout's size change to ensure proper section sizing
 			UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-				-- Add padding at the bottom
-				local contentSize = UIListLayout.AbsoluteContentSize.Y + Section.ContentPadding * 2
+				-- Add padding at the bottom with safety check
+				local padding = Section and Section.ContentPadding or 5
+				local contentSize = UIListLayout.AbsoluteContentSize.Y + padding * 2
 				Container.Size = UDim2.new(1, -14, 0, contentSize)
 			end)
 			--
@@ -1816,11 +1817,9 @@ Library.Sections.__index = Library.Sections;
 			-- Connect to UIListLayout's size change to ensure proper section sizing
 			UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 				-- Add padding at the bottom with safety check
-				if Section then
-					local contentPadding = Section.ContentPadding or 5
-					local contentSize = UIListLayout.AbsoluteContentSize.Y + contentPadding * 2
-					Container.Size = UDim2.new(1, -14, 0, contentSize)
-				end
+				local padding = Section and Section.ContentPadding or 5
+				local contentSize = UIListLayout.AbsoluteContentSize.Y + padding * 2
+				Container.Size = UDim2.new(1, -14, 0, contentSize)
 			end)
 			--
 			DragButton.Name = "DragButton"
@@ -2034,13 +2033,10 @@ Library.Sections.__index = Library.Sections;
 			--
 			local Section = {
 				Name = Properties.Name or "Section",
+				Window = self.Window,
 				Page = self,
-				Side = (Properties.side or Properties.Side or "left"):lower(),
-				ZIndex = Properties.ZIndex or 1, -- Idfk why
-				Elements = {},
-				Content = {},
-				Size = Properties.Size or Properties.size or nil,
-				ContentPadding = Properties.ContentPadding or 5, -- Add default ContentPadding here
+				Side = Properties.Side == "Right" and "Right" or "Left",
+				ContentPadding = Properties.Padding or 5, -- Add padding option with default value
 			}
 			--
 			local SectionOutline = Instance.new('Frame', Section.Side == "left" and Section.Page.Elements.Left or Section.Side == "right" and Section.Page.Elements.Right)
@@ -2056,7 +2052,7 @@ Library.Sections.__index = Library.Sections;
 			if Section.Size then
 				SectionOutline.Size = UDim2.new(1,0,0,Section.Size)
 			else
-				SectionOutline.Size = UDim2.new(1,0,0,40) -- Increased default size for empty sections
+				SectionOutline.Size = UDim2.new(1,0,0,20)
 				SectionOutline.AutomaticSize = Enum.AutomaticSize.Y
 			end
 			SectionOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
@@ -2075,7 +2071,7 @@ Library.Sections.__index = Library.Sections;
 			--
 			Container.Name = "Container"
 			Container.Position = UDim2.new(0,7,0,10)
-			Container.Size = UDim2.new(1,-14,0,20) -- Default size of 20 instead of 0
+			Container.Size = UDim2.new(1,-14,0,0) -- Change to 0 initial height
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
 			Container.BorderSizePixel = 0
@@ -2084,7 +2080,7 @@ Library.Sections.__index = Library.Sections;
 			--
 			Space.Name = "Space"
 			Space.Position = UDim2.new(0,0,1,0)
-			Space.Size = UDim2.new(1,0,0,5) -- Add extra spacing for bottom padding
+			Space.Size = UDim2.new(1,0,0,1)
 			Space.BackgroundColor3 = Color3.new(1,1,1)
 			Space.BackgroundTransparency = 1
 			Space.BorderSizePixel = 0
@@ -2128,7 +2124,6 @@ Library.Sections.__index = Library.Sections;
 			Section.Elements = {
 				SectionContent = Container;
 				SectionHolder = SectionOutline;
-				UIListLayout = UIListLayout; -- Store UIListLayout reference
 			}
 
 			-- // Returning
@@ -2139,38 +2134,52 @@ Library.Sections.__index = Library.Sections;
 			function Section:RecalculateSize()
 				-- Safety checks
 				if not Section then return end
-				
-				-- Initialize with default if not already set
-				Section.ContentPadding = Section.ContentPadding or 5
+				if not Section.ContentPadding then Section.ContentPadding = 5 end
 				
 				local padding = 20 -- Additional padding (10 top + 10 bottom)
 				local containerHeight = 0
 				
-				-- Get content height
-				local childCount = 0
+				-- Safety check - make sure Container and UIListLayout exist
+				if not Container then return end
 				
-				if Container then
+				-- Get content height
+				if UIListLayout then
+					-- Calculate height based on children using UIListLayout if available
+					local hasVisibleChildren = false
 					for _, child in pairs(Container:GetChildren()) do
-						if not child:IsA("UIListLayout") and child.Visible then
-							childCount = childCount + 1
+						if not child:IsA("UIListLayout") then
 							local childHeight = child.Size.Y.Offset
-							local paddingOffset = 0
-							if Section.Elements and Section.Elements.UIListLayout then
-								paddingOffset = Section.Elements.UIListLayout.Padding and Section.Elements.UIListLayout.Padding.Offset or 0
-							end
+							local paddingOffset = UIListLayout.Padding and UIListLayout.Padding.Offset or 0
 							containerHeight = containerHeight + childHeight + paddingOffset
+							hasVisibleChildren = true
 						end
 					end
+					
+					-- If no visible children, set a minimum size
+					if not hasVisibleChildren then
+						containerHeight = 15 -- Minimum height for empty sections
+					end
 				else
-					return
+					-- Fallback: just count visible children
+					local hasVisibleChildren = false
+					for _, child in pairs(Container:GetChildren()) do
+						if child:IsA("GuiObject") and child.Visible then
+							containerHeight = containerHeight + child.Size.Y.Offset + 6 -- 6 is default padding
+							hasVisibleChildren = true
+						end
+					end
+					
+					-- If no visible children, set a minimum size
+					if not hasVisibleChildren then
+						containerHeight = 15 -- Minimum height for empty sections
+					end
 				end
 				
-				-- Set minimum height based on whether we have children
-				local minHeight = childCount > 0 and 20 or 30
-				
 				-- Set container size with a minimum height
-				containerHeight = math.max(containerHeight, minHeight)
-				Container.Size = UDim2.new(1, -14, 0, containerHeight)
+				containerHeight = math.max(containerHeight, 15)
+				if Container then
+					Container.Size = UDim2.new(1, -14, 0, containerHeight)
+				end
 				
 				-- Set section size to match content
 				if SectionInline then
@@ -2183,20 +2192,8 @@ Library.Sections.__index = Library.Sections;
 			end
 
 			-- Connect list layout changes to trigger resize
-			if UIListLayout then
-				UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-					if Section and type(Section.RecalculateSize) == "function" then
-						Section:RecalculateSize()
-					end
-				end)
-			end
-
-			-- Force initial calculation
-			task.spawn(function()
-				wait(0.05) -- Short delay to ensure all properties are set
-				if Section and type(Section.RecalculateSize) == "function" then
-					Section:RecalculateSize()
-				end
+			UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+				Section:RecalculateSize()
 			end)
 
 			wait(0.01)
@@ -2730,10 +2727,8 @@ Library.Sections.__index = Library.Sections;
 					end
 				end
 				
-				-- Recalculate section size with safety check
-				if Toggle and Toggle.Section and type(Toggle.Section.RecalculateSize) == "function" then
-					Toggle.Section:RecalculateSize()
-				end
+				-- Recalculate section size
+				Toggle.Section:RecalculateSize()
 			end
 			Toggle.Set(Toggle.State)
 			Library.Flags[Toggle.Flag] = Toggle.State
@@ -2974,10 +2969,8 @@ Library.Sections.__index = Library.Sections;
 			--
 			function Slider:Set(Value)
 				Set(Value)
-				-- Recalculate section size with safety check
-				if Slider and Slider.Section and type(Slider.Section.RecalculateSize) == "function" then
-					Slider.Section:RecalculateSize()
-				end
+				-- Recalculate section size
+				Slider.Section:RecalculateSize()
 			end
 			-- 
 			function Slider:SetVisible(Bool) 
@@ -3356,10 +3349,8 @@ Library.Sections.__index = Library.Sections;
 					end
 				end
 				
-				-- Recalculate section size with safety check
-				if Dropdown and Dropdown.Section and type(Dropdown.Section.RecalculateSize) == "function" then
-					Dropdown.Section:RecalculateSize()
-				end
+				-- Recalculate section size
+				Dropdown.Section:RecalculateSize()
 			end
 			--
 			function Dropdown:Refresh(tbl)
