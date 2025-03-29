@@ -1196,6 +1196,7 @@ Library.Sections.__index = Library.Sections;
 			ModeInline.ZIndex = 100
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout.Padding = UDim.new(0,16)
 			--
 			Hold.Name = "Hold"
 			Hold.Size = UDim2.new(1,0,0,15)
@@ -1519,6 +1520,7 @@ Library.Sections.__index = Library.Sections;
 			--
 			UIListLayout.FillDirection = Enum.FillDirection.Horizontal
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout.Padding = UDim.new(0,16)
 			--
 			DragButton.Name = "DragButton"
 			DragButton.Size = UDim2.new(1,0,0,10)
@@ -1629,13 +1631,17 @@ Library.Sections.__index = Library.Sections;
             Left.ZIndex = 3
             Left.ScrollBarThickness = 0
             Left.CanvasSize = UDim2.new(0, 0, 0, 0)
-            Left.CanvasPadding = UDim.new(0, 10) -- Add padding at the top
             Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
             Left.ElasticBehavior = Enum.ElasticBehavior.Always
+
+            -- Add proper UIPadding to Left
+            local LeftUIPadding = Instance.new("UIPadding", Left)
+            LeftUIPadding.PaddingTop = UDim.new(0, 10)
+
 			--
 			Right.Name = "Right"
-			Right.Position = UDim2.new(1,-5,0,31)  -- Default position when no icon tab is present (updated from 27)
-			Right.Size = UDim2.new(0.5,-5,1,-36)   -- Adjust size to account for reduced top margin (updated from 32)
+            Right.Position = UDim2.new(1,-5,0,31)  -- Default position when no icon tab is present (updated from 27)
+            Right.Size = UDim2.new(0.5,-5,1,-36)   -- Adjust size to account for reduced top margin (updated from 32)
             Right.BackgroundColor3 = Color3.new(1,1,1)
             Right.BorderSizePixel = 0
             Right.BorderColor3 = Color3.new(0,0,0)
@@ -1644,9 +1650,13 @@ Library.Sections.__index = Library.Sections;
             Right.BackgroundTransparency = 1
             Right.ScrollBarThickness = 0
             Right.CanvasSize = UDim2.new(0, 0, 0, 0)
-            Right.CanvasPadding = UDim.new(0, 10) -- Add padding at the top
             Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
             Right.ElasticBehavior = Enum.ElasticBehavior.Always
+
+            -- Add proper UIPadding to Right
+            local RightUIPadding = Instance.new("UIPadding", Right)
+            RightUIPadding.PaddingTop = UDim.new(0, 10)
+
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
             UIListLayout.Padding = UDim.new(0,16)
@@ -1711,11 +1721,9 @@ Library.Sections.__index = Library.Sections;
                     Left.Size = UDim2.new(0.5, -10, 1, -36) -- Adjusted from -32 to -36
                     Right.Size = UDim2.new(0.5, -5, 1, -36) -- Adjusted from -32 to -36
                     
-                    -- Add padding to the scroll frames
+                    -- Set CanvasSize to auto-adjust
                     Left.CanvasSize = UDim2.new(0, 0, 0, 0)
-                    Left.CanvasPadding = UDim.new(0, 10) -- Add padding at the top of the scroll frame
                     Right.CanvasSize = UDim2.new(0, 0, 0, 0)
-                    Right.CanvasPadding = UDim.new(0, 10) -- Add padding at the top of the scroll frame
                 else
                     WeaponOutline.Visible = Page.Open
                     for Index, Weapon in pairs(Page.Weapons) do
@@ -1727,11 +1735,9 @@ Library.Sections.__index = Library.Sections;
                     Left.Size = UDim2.new(0.5, -10, 1, -84) -- Adjusted from -80 to -84
                     Right.Size = UDim2.new(0.5, -5, 1, -84) -- Adjusted from -80 to -84
                     
-                    -- Add padding to the scroll frames
+                    -- Set CanvasSize to auto-adjust
                     Left.CanvasSize = UDim2.new(0, 0, 0, 0) 
-                    Left.CanvasPadding = UDim.new(0, 10) -- Add padding at the top of the scroll frame
                     Right.CanvasSize = UDim2.new(0, 0, 0, 0)
-                    Right.CanvasPadding = UDim.new(0, 10) -- Add padding at the top of the scroll frame
                 end
 				TabAccent.Visible = Page.Open
 				TabLine.Visible = not Page.Open
