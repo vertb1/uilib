@@ -4,6 +4,31 @@ end
 
 writefile("ProggyClean.ttf", game:HttpGet("https://github.com/f1nobe7650/other/raw/main/ProggyClean.ttf"))
 
+-- GUI protection function to work across different exploit environments
+local protectgui = protectgui or (syn and syn.protect_gui)
+
+if not protectgui then
+    protectgui = function(Gui)
+        local _game = cloneref and cloneref(game) or game
+        local success, err = pcall(function()
+            Gui.Parent = 
+                gethui and gethui() 
+                or cloneref and cloneref(_game:GetService("CoreGui")) 
+                or _game:GetService("CoreGui")
+        end)
+
+        if success then
+            return Gui
+        else
+            warn("Failed to protect GUI: " .. tostring(err))
+            Gui.Parent = game:GetService("CoreGui")
+            return Gui
+        end
+    end
+
+    protectgui = newcclosure and newcclosure(protectgui) or protectgui
+end
+
 -- // Custom Font
 do
 	getsynasset = getcustomasset or getsynasset
@@ -44,9 +69,25 @@ if not LPH_OBFUSCATED then
     getfenv().LPH_NO_VIRTUALIZE = function(...) return (...) end;
 end
 
-local font = Enum.Font.Ubuntu;
-local Library = {};
+local font = Enum.Font.Code;
 local Library = {
+	FontColor = Color3.fromRGB(255, 255, 255),
+	MainColor = Color3.fromRGB(28, 28, 28),
+	BackgroundColor = Color3.fromRGB(20, 20, 20),
+	AccentColor = Color3.fromRGB(0, 85, 255),
+	OutlineColor = Color3.fromRGB(40, 40, 40),
+	Flags = {},
+	Signals = {},
+	FirstTab = nil,
+	CurrentTab = nil,
+	ThemeObjects = {}, -- Array to track accent colored objects for theme changes
+	TextObjects = {}, -- Array to track text objects for theme changes
+	ElementObjects = {}, -- Array to track element objects (checkboxes, sliders, etc)
+	DarkTextObjects = {}, -- Array to track dark text objects (checkbox/toggle labels)
+	OpenFrames = {},
+	CurrentTheme = "Default",
+	DropdownOptions = {}, -- Array to track dropdown option backgrounds
+	DropdownOptionTexts = {}, -- Array to track dropdown option text labels
 	Open = true;
 	Folders = {
 		main = "test";
@@ -55,9 +96,7 @@ local Library = {
 	Accent = Color3.fromRGB(132,108,188);
 	Pages = {};
 	Sections = {};
-	Flags = {};
 	UnNamedFlags = 0;
-	ThemeObjects = {};
 	Instances = {};
 	Holder = nil;
 	PageHolder = nil;
@@ -240,6 +279,8 @@ local Library = {
 	KeyList = nil;
 	UIKey = Enum.KeyCode.End;
 	ScreenGUI = nil;
+	DropdownOptions = {}; -- Array to track dropdown option backgrounds
+	DropdownOptionTexts = {}; -- Array to track dropdown option text labels
 }
 
 local InputService = game:GetService("UserInputService");
@@ -267,7 +308,9 @@ local Mouse = LocalPlayer:GetMouse();
 local Camera = Workspace.Camera;
 local viewportSize = game.Workspace.Camera.ViewportSize;
 local Offset = game:GetService("GuiService"):GetGuiInset().Y;
-local NotifiactionSGui = Instance.new("ScreenGui", game.CoreGui); NotifiactionSGui.Enabled = true
+local NotifiactionSGui = Instance.new("ScreenGui"); 
+NotifiactionSGui.Enabled = true
+protectgui(NotifiactionSGui) -- Apply protection
 local NewVector2 = Vector2.new;
 local NewVector3 = Vector3.new;
 local NewCFrame = CFrame.new; 
@@ -306,40 +349,12 @@ local crosshair_LineAmount = 4;
 local crosshair_SpinAngle = 0; 
 local crosshair_tick = 0;
 local buying = false; 
-local PlaceHolderUI = Instance.new("ScreenGui", game.CoreGui);
+local PlaceHolderUI = Instance.new("ScreenGui");
 PlaceHolderUI.Name = "KeybindListGui"
 PlaceHolderUI.DisplayOrder = 100
 PlaceHolderUI.ResetOnSpawn = false
 PlaceHolderUI.Enabled = false
-local Languages = {
-    A = {English = "A", Arabic = "أ", Albanian = "A", Japanese = "あ", Spanish = "A", Russian = "А", Chinese = "阿", Urdu = "ا", French = "A", Portuguese = "A", Hindi = "अ"},
-    B = {English = "B", Arabic = "ب", Albanian = "B", Japanese = "い", Spanish = "B", Russian = "Б", Chinese = "波", Urdu = "ب", French = "B", Portuguese = "B", Hindi = "ब"},
-    C = {English = "C", Arabic = "ت", Albanian = "C", Japanese = "う", Spanish = "C", Russian = "Ц", Chinese = "西", Urdu = "س", French = "C", Portuguese = "C", Hindi = "स"},
-    D = {English = "D", Arabic = "د", Albanian = "D", Japanese = "え", Spanish = "D", Russian = "Д", Chinese = "德", Urdu = "ڈ", French = "D", Portuguese = "D", Hindi = "ड"},
-    E = {English = "E", Arabic = "إ", Albanian = "E", Japanese = "お", Spanish = "E", Russian = "Е", Chinese = "俄", Urdu = "اے", French = "E", Portuguese = "E", Hindi = "ए"},
-    F = {English = "F", Arabic = "ف", Albanian = "F", Japanese = "か", Spanish = "F", Russian = "Ф", Chinese = "夫", Urdu = "ف", French = "F", Portuguese = "F", Hindi = "फ"},
-    G = {English = "G", Arabic = "ج", Albanian = "G", Japanese = "き", Spanish = "G", Russian = "Г", Chinese = "吉", Urdu = "ج", French = "G", Portuguese = "G", Hindi = "ग"},
-    H = {English = "H", Arabic = "ح", Albanian = "H", Japanese = "く", Spanish = "H", Russian = "Х", Chinese = "艾尺", Urdu = "ح", French = "H", Portuguese = "H", Hindi = "ह"},
-    I = {English = "I", Arabic = "ي", Albanian = "I", Japanese = "け", Spanish = "I", Russian = "И", Chinese = "伊", Urdu = "آئی", French = "I", Portuguese = "I", Hindi = "इ"},
-    J = {English = "J", Arabic = "ج", Albanian = "J", Japanese = "こ", Spanish = "J", Russian = "Й", Chinese = "杰", Urdu = "جے", French = "J", Portuguese = "J", Hindi = "ज"},
-    K = {English = "K", Arabic = "ك", Albanian = "K", Japanese = "さ", Spanish = "K", Russian = "К", Chinese = "开", Urdu = "کے", French = "K", Portuguese = "K", Hindi = "क"},
-    L = {English = "L", Arabic = "ل", Albanian = "L", Japanese = "し", Spanish = "L", Russian = "Л", Chinese = "艾勒", Urdu = "ل", French = "L", Portuguese = "L", Hindi = "ल"},
-    M = {English = "M", Arabic = "م", Albanian = "M", Japanese = "す", Spanish = "M", Russian = "М", Chinese = "艾马", Urdu = "م", French = "M", Portuguese = "M", Hindi = "म"},
-    N = {English = "N", Arabic = "ن", Albanian = "N", Japanese = "せ", Spanish = "N", Russian = "Н", Chinese = "艾娜", Urdu = "ن", French = "N", Portuguese = "N", Hindi = "न"},
-    O = {English = "O", Arabic = "أو", Albanian = "O", Japanese = "そ", Spanish = "O", Russian = "О", Chinese = "哦", Urdu = "او", French = "O", Portuguese = "O", Hindi = "ओ"},
-    P = {English = "P", Arabic = "ب", Albanian = "P", Japanese = "た", Spanish = "P", Russian = "П", Chinese = "屁", Urdu = "پ", French = "P", Portuguese = "P", Hindi = "प"},
-    Q = {English = "Q", Arabic = "ق", Albanian = "Q", Japanese = "ち", Spanish = "Q", Russian = "К", Chinese = "丘", Urdu = "ق", French = "Q", Portuguese = "Q", Hindi = "क्यू"},
-    R = {English = "R", Arabic = "ر", Albanian = "R", Japanese = "つ", Spanish = "R", Russian = "Р", Chinese = "艾儿", Urdu = "ر", French = "R", Portuguese = "R", Hindi = "र"},
-    S = {English = "S", Arabic = "س", Albanian = "S", Japanese = "て", Spanish = "S", Russian = "С", Chinese = "艾丝", Urdu = "س", French = "S", Portuguese = "S", Hindi = "एस"},
-    T = {English = "T", Arabic = "ت", Albanian = "T", Japanese = "と", Spanish = "T", Russian = "Т", Chinese = "提", Urdu = "ٹ", French = "T", Portuguese = "T", Hindi = "ट"},
-    U = {English = "U", Arabic = "أو", Albanian = "U", Japanese = "な", Spanish = "U", Russian = "У", Chinese = "优", Urdu = "یو", French = "U", Portuguese = "U", Hindi = "यू"},
-    V = {English = "V", Arabic = "ف", Albanian = "V", Japanese = "に", Spanish = "V", Russian = "В", Chinese = "维", Urdu = "وی", French = "V", Portuguese = "V", Hindi = "व"},
-    W = {English = "W", Arabic = "و", Albanian = "W", Japanese = "ぬ", Spanish = "W", Russian = "В", Chinese = "豆贝尔维", Urdu = "ڈبلیو", French = "W", Portuguese = "W", Hindi = "डब्ल्यू"},
-    X = {English = "X", Arabic = "إكس", Albanian = "X", Japanese = "ね", Spanish = "X", Russian = "Х", Chinese = "艾克斯", Urdu = "اکس", French = "X", Portuguese = "X", Hindi = "एक्स"},
-    Y = {English = "Y", Arabic = "ي", Albanian = "Y", Japanese = "の", Spanish = "Y", Russian = "У", Chinese = "伊儿", Urdu = "وائی", French = "Y", Portuguese = "Y", Hindi = "वाई"},
-    Z = {English = "Z", Arabic = "ز", Albanian = "Z", Japanese = "は", Spanish = "Z", Russian = "З", Chinese = "贼德", Urdu = "زیڈ", French = "Z", Portuguese = "Z", Hindi = "जेड"}
-}
-local utx = {} 
+protectgui(PlaceHolderUI) -- Apply protection
 local Messages = {}
 local drawingCache = {} 
 
@@ -350,6 +365,302 @@ Library.Sections.__index = Library.Sections;
 -- // Functions
 	-- // Library Functions
 	do
+		-- Add predefined themes
+		Library.Themes = {
+			Default = {
+				Accent = Color3.fromRGB(132, 108, 188),
+				Background = Color3.new(0.0784, 0.0784, 0.0784),
+				TopBackground = Color3.new(0.1765, 0.1765, 0.1765),
+				Border = Color3.new(0.0392, 0.0392, 0.0392),
+				TextColor = Color3.new(1, 1, 1),
+				ElementColor = Color3.new(0.1294, 0.1294, 0.1294)
+			},
+			Midnight = {
+				Accent = Color3.fromRGB(36, 150, 255),
+				Background = Color3.fromRGB(10, 10, 15),
+				TopBackground = Color3.fromRGB(20, 20, 30),
+				Border = Color3.fromRGB(0, 0, 0),
+				TextColor = Color3.fromRGB(255, 255, 255),
+				ElementColor = Color3.fromRGB(20, 20, 30)
+			},
+			Blood = {
+				Accent = Color3.fromRGB(255, 0, 0),
+				Background = Color3.fromRGB(10, 0, 0),
+				TopBackground = Color3.fromRGB(25, 0, 0),
+				Border = Color3.fromRGB(50, 0, 0),
+				TextColor = Color3.fromRGB(255, 255, 255),
+				ElementColor = Color3.fromRGB(40, 0, 0)
+			},
+			Ocean = {
+				Accent = Color3.fromRGB(0, 200, 255),
+				Background = Color3.fromRGB(0, 15, 30),
+				TopBackground = Color3.fromRGB(0, 30, 60),
+				Border = Color3.fromRGB(0, 50, 70),
+				TextColor = Color3.fromRGB(255, 255, 255),
+				ElementColor = Color3.fromRGB(0, 40, 60)
+			},
+			Forest = {
+				Accent = Color3.fromRGB(25, 255, 70),
+				Background = Color3.fromRGB(5, 20, 10),
+				TopBackground = Color3.fromRGB(15, 40, 20),
+				Border = Color3.fromRGB(20, 70, 40),
+				TextColor = Color3.fromRGB(255, 255, 255),
+				ElementColor = Color3.fromRGB(15, 50, 25)
+			},
+			Sunset = {
+				Accent = Color3.fromRGB(255, 150, 0),
+				Background = Color3.fromRGB(30, 15, 5),
+				TopBackground = Color3.fromRGB(60, 30, 10),
+				Border = Color3.fromRGB(80, 40, 10),
+				TextColor = Color3.fromRGB(255, 255, 255),
+				ElementColor = Color3.fromRGB(70, 35, 10)
+			}
+		}
+
+		-- Apply theme function
+		function Library:ApplyTheme(theme)
+			local selectedTheme = self.Themes[theme] or self.Themes.Default
+			
+			-- Save the current theme name
+			self.CurrentTheme = theme
+			
+			-- Update accent color
+			self.Accent = selectedTheme.Accent
+			
+			-- Update all UI elements with the theme
+			for _, obj in pairs(self.ThemeObjects) do
+				if obj and obj.BackgroundColor3 ~= nil then
+					obj.BackgroundColor3 = selectedTheme.Accent
+				end
+			end
+			
+			-- Update dropdown options
+			for _, option in pairs(self.DropdownOptions) do
+				if option and option.BackgroundColor3 ~= nil then
+					option.BackgroundColor3 = selectedTheme.ElementColor
+				end
+			end
+			
+			-- Update dropdown option text
+			for _, optionText in pairs(self.DropdownOptionTexts) do
+				if optionText and optionText.TextColor3 ~= nil then
+					if optionText.TextColor3 == Color3.fromRGB(255, 255, 255) then
+						-- This is a selected option, leave it white
+					else
+						optionText.TextColor3 = selectedTheme.TextColor
+					end
+				end
+			end
+			
+			-- Update background colors if the Holder exists
+			if self.Holder then
+				-- Update main window
+				self.Holder.BackgroundColor3 = selectedTheme.TopBackground
+				self.Holder.BorderColor3 = selectedTheme.Border
+				
+				-- Update all descendants with proper names and types
+				for _, descendant in pairs(self.Holder:GetDescendants()) do
+					-- Frame updates
+					if descendant:IsA("Frame") then
+						-- Handle different frame types
+						if descendant.Name == "Inline" or descendant.Name == "HolderInline" or
+						   descendant.Name == "SectionInline" or descendant.Name == "ContainerInline" then
+							descendant.BackgroundColor3 = selectedTheme.Background
+						elseif descendant.Name == "Outline" or descendant.Name == "HolderOutline" or 
+							   descendant.Name == "SectionOutline" or descendant.Name == "ContainerOutline" then
+							descendant.BackgroundColor3 = selectedTheme.TopBackground
+							descendant.BorderColor3 = selectedTheme.Border
+						elseif descendant.Name == "TabLine" then
+							descendant.BackgroundColor3 = selectedTheme.TopBackground
+						elseif descendant.Name == "SectionAccent" or descendant.Name == "TabAccent" then
+							descendant.BackgroundColor3 = selectedTheme.Accent
+						elseif descendant.Name == "ColorWindow" then
+							descendant.BackgroundColor3 = selectedTheme.TopBackground
+							descendant.BorderColor3 = selectedTheme.Border
+							
+							-- Update colorpicker internal elements
+							for _, child in pairs(descendant:GetDescendants()) do
+								if child.Name == "Inline" then
+									child.BackgroundColor3 = selectedTheme.Background
+								elseif child:IsA("TextLabel") or child:IsA("TextButton") then
+									child.TextColor3 = selectedTheme.TextColor
+								elseif child.Name == "ModeOutline" then
+									child.BackgroundColor3 = selectedTheme.TopBackground
+									child.BorderColor3 = selectedTheme.Border
+								end
+							end
+						elseif descendant.Name == "ContainerOutline" then
+							descendant.BackgroundColor3 = selectedTheme.TopBackground
+							descendant.BorderColor3 = selectedTheme.Border
+							
+							-- Apply theme to dropdown container
+							for _, child in pairs(descendant:GetDescendants()) do
+								if child.Name == "ContainerInline" then
+									child.BackgroundColor3 = selectedTheme.Background
+								end
+							end
+						end
+					end
+					
+					-- Update text elements
+					if descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox") then
+						-- Preserve white text for open tabs
+						if descendant.Name == "TabButton" and descendant.TextColor3 == Color3.fromRGB(255, 255, 255) then
+							-- This is an active tab, keep it white
+						else
+							-- Other text elements
+							if descendant.TextColor3 == Color3.fromRGB(145, 145, 145) then
+								-- Don't change inactive element colors
+							elseif descendant.TextColor3 == Library.Accent then
+								-- Update text that was using the old accent
+								descendant.TextColor3 = selectedTheme.Accent
+							elseif descendant.TextColor3 == Color3.fromRGB(255, 255, 255) or 
+								  descendant.TextColor3 == Color3.new(1, 1, 1) then
+								-- Only update white text that isn't an active tab
+								if descendant.Name ~= "TabButton" then
+									descendant.TextColor3 = selectedTheme.TextColor
+								end
+							end
+						end
+					end
+				end
+			end
+			
+			-- Update keybinds list if it exists
+			if self.KeyList and self.KeyList.Outline then
+				self.KeyList.Outline.BackgroundColor3 = selectedTheme.TopBackground
+				self.KeyList.Outline.BorderColor3 = selectedTheme.Border
+				
+				for _, child in pairs(self.KeyList.Outline:GetDescendants()) do
+					if child:IsA("Frame") then
+						if child.Name == "Inline" then
+							child.BackgroundColor3 = selectedTheme.Background
+						elseif child.Name == "Accent" then
+							child.BackgroundColor3 = selectedTheme.Accent
+						end
+					elseif child:IsA("TextLabel") and child.Name == "NewValue" then
+						-- For keybind entries, only update if it's not meant to be highlighted
+						-- Preserve the accent color for active keybinds
+						if not table.find(self.ThemeObjects, child) then
+							child.TextColor3 = selectedTheme.TextColor
+						else
+							child.TextColor3 = selectedTheme.Accent -- Keep accent for active keybinds
+						end
+					elseif child:IsA("TextLabel") then
+						child.TextColor3 = selectedTheme.TextColor
+					end
+				end
+				
+				-- Also explicitly maintain states for all keybinds
+				for _, keybind in pairs(self.KeyList.Keybinds) do
+					if keybind.IsActive then
+						-- This ensures active keybinds stay visually active
+						keybind:SetVisible(true)
+					end
+				end
+			end
+			
+			-- Update watermark if it exists
+			if self.WatermarkFrame then
+				self.WatermarkFrame.BackgroundColor3 = selectedTheme.TopBackground
+				self.WatermarkFrame.BorderColor3 = selectedTheme.Border
+				
+				for _, child in pairs(self.WatermarkFrame:GetDescendants()) do
+					if child:IsA("Frame") then
+						if child.Name == "InlineFrame" then
+							child.BackgroundColor3 = selectedTheme.Background
+						elseif child.Name == "AccentBar" then
+							child.BackgroundColor3 = selectedTheme.Accent
+						end
+					elseif child:IsA("TextLabel") then
+						child.TextColor3 = selectedTheme.TextColor
+					end
+				end
+			end
+			
+			-- Update notifications
+			for _, notification in pairs(self.Notifs) do
+				for _, obj in pairs(notification.Objects) do
+					if obj.Name == "Background" then
+						obj.BackgroundColor3 = selectedTheme.Background
+						obj.BorderColor3 = selectedTheme.Border
+					elseif obj.Name == "Accemt" then
+						obj.BackgroundColor3 = selectedTheme.Accent
+					elseif obj.Name == "TextLabel" then
+						obj.TextColor3 = selectedTheme.TextColor
+					end
+				end
+			end
+
+			-- Track all toggle elements and maintain their states
+			local toggleElements = {}
+
+			-- First pass: identify all toggle elements and their current states
+			if self.Holder then
+				for _, descendant in pairs(self.Holder:GetDescendants()) do
+					if descendant:IsA("Frame") and descendant.Name == "Inline" then
+						-- This might be a toggle element
+						local parentOutline = descendant.Parent
+						if parentOutline and parentOutline.Name == "Outline" and parentOutline.Size.X.Offset == 10 and parentOutline.Size.Y.Offset == 10 then
+							-- This is likely a toggle, check if it's active (using accent color or in ThemeObjects)
+							local isActive = false
+							if descendant.BackgroundColor3 == self.Accent or table.find(self.ThemeObjects, descendant) then
+								isActive = true
+							end
+							
+							-- Also check for any related title elements to see if they're active
+							local toggleButton = parentOutline.Parent
+							if toggleButton and toggleButton:IsA("TextButton") then
+								for _, child in pairs(toggleButton:GetChildren()) do
+									if child:IsA("TextLabel") and child.Name == "Title" then
+										if child.TextColor3 == Color3.fromRGB(255, 255, 255) or 
+										   child.TextColor3 == Color3.fromRGB(227, 227, 34) then
+											isActive = true
+										end
+									end
+								end
+							end
+							
+							table.insert(toggleElements, {
+								element = descendant,
+								active = isActive
+							})
+						end
+					end
+				end
+			end
+
+			-- After all theme updates are applied, restore active toggle states
+			for _, toggleData in pairs(toggleElements) do
+				if toggleData.active then
+					-- This was an active toggle, restore its state
+					toggleData.element.BackgroundColor3 = selectedTheme.Accent
+					
+					-- Also handle the title label (next to the toggle)
+					local toggleButton = toggleData.element.Parent.Parent
+					if toggleButton and toggleButton:IsA("TextButton") then
+						for _, child in pairs(toggleButton:GetChildren()) do
+							if child:IsA("TextLabel") and child.Name == "Title" then
+								-- Restore text color for the title
+								child.TextColor3 = Color3.fromRGB(255, 255, 255)
+								
+								-- If it's a risk toggle, use yellow instead
+								if child.TextColor3 == Color3.fromRGB(158, 158, 24) or 
+								   child.TextColor3 == Color3.fromRGB(227, 227, 34) then
+									child.TextColor3 = Color3.fromRGB(227, 227, 34)
+								end
+								
+								-- Make sure it's in the theme objects
+								if not table.find(self.ThemeObjects, toggleData.element) then
+									table.insert(self.ThemeObjects, toggleData.element)
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+
 		function Library:Connection(Signal, Callback)
 			local Con = Signal:Connect(Callback)
 			return Con
@@ -358,10 +669,20 @@ Library.Sections.__index = Library.Sections;
 		function Library:updateNotifsPositions(position)
 			for i, v in pairs(Library.Notifs) do 
 				local Position
+				local textElement = v["Objects"] and v["Objects"][3]
+				local textWidth = 100 -- Default if TextBounds is not available
+				
+				if textElement and textElement.TextBounds then
+					textWidth = textElement.TextBounds.X
+				elseif textElement and textElement.Text then
+					-- Fallback: estimate width based on text length
+					textWidth = string.len(textElement.Text) * 7
+				end
+				
 				if position == "Middle" then
-					Position = NewVector2(viewportSize.X/2 - (v["Objects"][3].TextBounds.X + 10)/2, 600)
+					Position = NewVector2(viewportSize.X/2 - (textWidth + 10)/2, 600)
 				elseif position == "Right" then
-					Position = NewVector2(viewportSize.X - v["Objects"][3].TextBounds.X - 30, 20)
+					Position = NewVector2(viewportSize.X - textWidth - 30, 20)
 				else
 					Position = NewVector2(20, 20)
 				end
@@ -380,10 +701,11 @@ Library.Sections.__index = Library.Sections;
 			end
 			
 			-- Create watermark UI
-			local WatermarkGui = Instance.new("ScreenGui", game.CoreGui)
+			local WatermarkGui = Instance.new("ScreenGui")
 			WatermarkGui.Name = "Watermark"
 			WatermarkGui.DisplayOrder = 100
 			WatermarkGui.ResetOnSpawn = false
+			protectgui(WatermarkGui) -- Apply protection
 			
 			local OutlineFrame = Instance.new("Frame", WatermarkGui)
 			local InlineFrame = Instance.new("Frame", OutlineFrame)
@@ -392,7 +714,7 @@ Library.Sections.__index = Library.Sections;
 			
 			OutlineFrame.Name = "OutlineFrame"
 			OutlineFrame.Position = UDim2.new(0.5, 0, 0, 5)
-			OutlineFrame.Size = UDim2.new(0, 250, 0, 25)
+			OutlineFrame.Size = UDim2.new(0, 260, 0, 28) -- Slightly increased size
 			OutlineFrame.BackgroundColor3 = Color3.new(0.1765, 0.1765, 0.1765)
 			OutlineFrame.BorderColor3 = Color3.new(0.0392, 0.0392, 0.0392)
 			OutlineFrame.AnchorPoint = Vector2.new(0.5, 0)
@@ -416,8 +738,8 @@ Library.Sections.__index = Library.Sections;
 			TextLabel.BackgroundTransparency = 1
 			TextLabel.Text = Properties.Text or "Your Watermark"
 			TextLabel.TextColor3 = Color3.new(1, 1, 1)
-			TextLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-			TextLabel.TextSize = Library.FontSize
+			TextLabel.FontFace = Font.new("Code") -- Changed to code font
+			TextLabel.TextSize = Library.FontSize + 1 -- Slightly increased text size
 			TextLabel.TextXAlignment = Enum.TextXAlignment.Center
 			TextLabel.TextStrokeTransparency = 0
 			
@@ -467,7 +789,7 @@ Library.Sections.__index = Library.Sections;
 			function Watermark:SetText(text)
 				TextLabel.Text = text
 				local textBounds = TextLabel.TextBounds
-				OutlineFrame.Size = UDim2.new(0, math.max(textBounds.X + 20, 100), 0, 25)
+				OutlineFrame.Size = UDim2.new(0, math.max(textBounds.X + 20, 100), 0, 28) -- Maintain height when resizing
 			end
 			
 			-- Store references
@@ -490,14 +812,39 @@ Library.Sections.__index = Library.Sections;
 			local Progress = Instance.new('Frame', Background)
 			--
 			local Position
+			-- Create TextLabel before using TextBounds
+			TextLabel.Name = "TextLabel"
+			TextLabel.Position = UDim2.new(0,5,0,0)
+			TextLabel.Size = UDim2.new(1,-10,1,0)
+			TextLabel.BackgroundColor3 = Color3.new(1,1,1)
+			TextLabel.BackgroundTransparency = 1
+			TextLabel.BorderSizePixel = 0
+			TextLabel.BorderColor3 = Color3.new(0,0,0)
+			TextLabel.Text = message
+			TextLabel.TextColor3 = Color3.new(0.9216,0.9216,0.9216)
+			TextLabel.TextTransparency = 0
+			TextLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			TextLabel.TextSize = Library.FontSize + 2
+			TextLabel.AutomaticSize = Enum.AutomaticSize.X
+			TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+			
+			-- Use a default text bounds or get from TextLabel
+			local textWidth = 0
+			if TextLabel and TextLabel.TextBounds then
+				textWidth = TextLabel.TextBounds.X
+			else
+				-- Default width if TextBounds is nil
+				textWidth = (message and string.len(message) * 7) or 100
+			end
+			
 			if position == "Middle" then
-				Position = NewVector2(viewportSize.X/2 - (TextLabel.TextBounds.X + 10)/2, 600)
+				Position = NewVector2(viewportSize.X/2 - (textWidth + 10)/2, 600)
 			elseif position == "Right" then
-				Position = NewVector2(viewportSize.X - TextLabel.TextBounds.X - 30, 20)
+				Position = NewVector2(viewportSize.X - textWidth - 30, 20)
 			else
 				Position = NewVector2(20, 20)
 			end
-			--
+			
 			NotifContainer.Name = "NotifContainer"
 			NotifContainer.Position = UDim2.new(0,Position.X, 0, Position.Y)
 			NotifContainer.Size = UDim2.new(0,TextLabel.TextBounds.X + 10,0,25)
@@ -512,6 +859,7 @@ Library.Sections.__index = Library.Sections;
 			Background.Size = UDim2.new(1,0,1,0)
 			Background.BackgroundColor3 = Color3.new(0.0588,0.0588,0.0784)
 			Background.BorderColor3 = Color3.new(0.1373,0.1373,0.1569)
+			Background.BackgroundTransparency = 0
 			table.insert(notification.Objects, Background)
 			--
 			Outline.Name = "Outline"
@@ -532,6 +880,7 @@ Library.Sections.__index = Library.Sections;
 			TextLabel.BorderColor3 = Color3.new(0,0,0)
 			TextLabel.Text = message
 			TextLabel.TextColor3 = Color3.new(0.9216,0.9216,0.9216)
+			TextLabel.TextTransparency = 0
 			TextLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			TextLabel.TextSize = Library.FontSize + 2
 			TextLabel.AutomaticSize = Enum.AutomaticSize.X
@@ -543,6 +892,7 @@ Library.Sections.__index = Library.Sections;
 			Accemt.BackgroundColor3 = Library.Accent
 			Accemt.BorderSizePixel = 0
 			Accemt.BorderColor3 = Color3.new(0,0,0)
+			Accemt.BackgroundTransparency = 0
 			table.insert(notification.Objects, Accemt)
 			--
 			Progress.Name = "Progress"
@@ -551,6 +901,7 @@ Library.Sections.__index = Library.Sections;
 			Progress.BackgroundColor3 = Color3.new(1,0,0)
 			Progress.BorderSizePixel = 0
 			Progress.BorderColor3 = Color3.new(0,0,0)
+			Progress.BackgroundTransparency = 0
 			table.insert(notification.Objects, Progress)
 		
 			if color ~= nil then
@@ -565,31 +916,37 @@ Library.Sections.__index = Library.Sections;
 			end
 		
 			task.spawn(function()
-				-- Set initial state based on position
+				-- Set initial position and transparency based on notification position
 				if position == "Right" then
-					-- For right position, slide in from right
-					Background.AnchorPoint = NewVector2(1,0)
-				else
-					-- For other positions, slide in from left
-					Background.AnchorPoint = NewVector2(1,0)
+					-- Start offscreen to the right
+					Background.Position = UDim2.new(1, 0, 0, 0)
+				elseif position == "Middle" then
+					-- Start below for middle
+					Background.Position = UDim2.new(0, 0, 1, 0)
+				else -- Left
+					-- Start offscreen to the left
+					Background.Position = UDim2.new(-1, 0, 0, 0)
 				end
 				
-				-- Animate appearance
-				game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(0,0)}):Play()
+				-- Slide in animation
+				game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0, 0, 0, 0)}):Play()
 				
 				-- Progress bar
-				local Tween2 = game:GetService("TweenService"):Create(Progress, TweenInfo.new(duration or 5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Size = UDim2.new(1,0,0,1)}):Play()
+				game:GetService("TweenService"):Create(Progress, TweenInfo.new(duration or 5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Size = UDim2.new(1,0,0,1)}):Play()
 				game:GetService("TweenService"):Create(Progress, TweenInfo.new(duration or 5, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.new(0,1,0)}):Play()
 				
 				task.wait(duration)
 				
-				-- Animate disappearance
+				-- Slide out animation based on position
 				if position == "Right" then
-					-- For right position, slide out to right
-					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(1,0)}):Play()
-				else
-					-- For other positions, slide out to left
-					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {AnchorPoint = NewVector2(1,0)}):Play()
+					-- Slide out to the right
+					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(1, 0, 0, 0)}):Play()
+				elseif position == "Middle" then
+					-- Slide out to the bottom
+					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(0, 0, 1, 0)}):Play()
+				else -- Left
+					-- Slide out to the left
+					game:GetService("TweenService"):Create(Background, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Position = UDim2.new(-1, 0, 0, 0)}):Play()
 				end
 				
 				-- Fade out all elements
@@ -606,7 +963,7 @@ Library.Sections.__index = Library.Sections;
 		
 			table.insert(Library.Notifs, notification)
 			NotifContainer.Position = UDim2.new(0,Position.X,0,Position.Y + (table.find(Library.Notifs, notification) * 35))
-			NotifContainer.Size = UDim2.new(0,TextLabel.TextBounds.X + 10,0,25)
+			NotifContainer.Size = UDim2.new(0,textWidth + 10,0,25)
 			Library:updateNotifsPositions(position)
 
 			return notification
@@ -906,26 +1263,35 @@ Library.Sections.__index = Library.Sections;
 				NewValue.BackgroundColor3 = Color3.new(1,1,1)
 				NewValue.BackgroundTransparency = 1
 				NewValue.BorderSizePixel = 0
-				
 				NewValue.BorderColor3 = Color3.new(0,0,0)
+				
 				-- Handle nil values with proper defaults
 				local displayKey = Key or "None"
 				if type(displayKey) == "nil" then displayKey = "None" end
 				local displayName = Name or "Keybind"
 				local displayMode = Mode or "Toggle"
 				
-				NewValue.Text = tostring(" ["..displayName.."] " .. displayKey .. " (" .. displayMode ..") ")
+				-- Format the keybind text to clearly show the label name
+				NewValue.Text = string.format(" [%s] %s (%s)", displayName, displayKey, displayMode)
 				NewValue.TextColor3 = Color3.new(0.5,0.5,0.5) -- Default inactive color
 				NewValue.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 				NewValue.TextSize = 12
 				NewValue.TextXAlignment = Enum.TextXAlignment.Left
 				NewValue.Visible = true
+				
+				-- Store the current state
+				KeyValue.IsActive = false
+				
 				--
 				function KeyValue:SetVisible(State)
+					KeyValue.IsActive = State
+					
 					if State then
-						-- Active keybind - use accent color instead of white
+						-- Active keybind - use accent color 
 						NewValue.TextColor3 = Library.Accent
-						table.insert(Library.ThemeObjects, NewValue)
+						if not table.find(Library.ThemeObjects, NewValue) then
+							table.insert(Library.ThemeObjects, NewValue)
+						end
 					else
 						-- Inactive keybind
 						NewValue.TextColor3 = Color3.new(0.5,0.5,0.5)
@@ -934,6 +1300,7 @@ Library.Sections.__index = Library.Sections;
 						end
 					end
 				end;
+				
 				--
 				function KeyValue:Update(NewName, NewKey, NewMode)
 					-- Handle nil values with proper defaults
@@ -942,7 +1309,11 @@ Library.Sections.__index = Library.Sections;
 					local displayName = NewName or "Keybind"
 					local displayMode = NewMode or "Toggle"
 					
-					NewValue.Text = tostring(" ["..displayName.."] " .. displayKey .. " (" .. displayMode ..") ")
+					-- Format the keybind text to clearly show the label name
+					NewValue.Text = string.format(" [%s] %s (%s)", displayName, displayKey, displayMode)
+					
+					-- Maintain the active state when updating
+					KeyValue:SetVisible(KeyValue.IsActive)
 				end;
 				
 				table.insert(KeyList.Keybinds, KeyValue)
@@ -1137,6 +1508,19 @@ Library.Sections.__index = Library.Sections;
 			ModeInline.ZIndex = 100
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout.Padding = UDim.new(0,6)
+			UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+			UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+
+			-- Connect to UIListLayout's size change to ensure proper section sizing
+			UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+				-- Add padding at the bottom with safety check
+				local padding = Section and Section.ContentPadding or 5
+				local contentSize = UIListLayout.AbsoluteContentSize.Y + padding * 2
+				if Container and Container:IsA("GuiObject") then
+					Container.Size = UDim2.new(1, -14, 0, contentSize)
+				end
+			end)
 			--
 			Hold.Name = "Hold"
 			Hold.Size = UDim2.new(1,0,0,15)
@@ -1385,10 +1769,13 @@ Library.Sections.__index = Library.Sections;
 				Elements = {};
 				Dragging = { false, UDim2.new(0, 0, 0, 0) };
 				Size = Options.Size or Options.size or UDim2.new(0, 550,0, 600);
-                Title = Options.Title or Options.title or "";
+				Title = Options.Title or Options.title or "";
 			};
 			--
-			local ScreenGui = Instance.new('ScreenGui', game.CoreGui)
+			local ScreenGui = Instance.new('ScreenGui')
+			ScreenGui.DisplayOrder = 2
+			protectgui(ScreenGui) -- Apply protection
+			
 			local Outline = Instance.new('Frame', ScreenGui)
 			local Inline = Instance.new('Frame', Outline)
 			local Accent = Instance.new('Frame', Inline)
@@ -1457,9 +1844,23 @@ Library.Sections.__index = Library.Sections;
 			Tabs.BackgroundTransparency = 1
 			Tabs.BorderSizePixel = 0
 			Tabs.BorderColor3 = Color3.new(0,0,0)
+			Tabs.ClipsDescendants = true -- Ensure tab buttons don't overflow
 			--
 			UIListLayout.FillDirection = Enum.FillDirection.Horizontal
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout.Padding = UDim.new(0,0) -- Removed padding between tabs
+			UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left -- Changed from Center to Left
+			UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+
+			-- Connect to UIListLayout's size change to ensure proper section sizing
+			UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+				-- Add padding at the bottom with safety check
+				local padding = Section and Section.ContentPadding or 5
+				local contentSize = UIListLayout.AbsoluteContentSize.Y + padding * 2
+				if Container and Container:IsA("GuiObject") then
+					Container.Size = UDim2.new(1, -14, 0, contentSize)
+				end
+			end)
 			--
 			DragButton.Name = "DragButton"
 			DragButton.Size = UDim2.new(1,0,0,10)
@@ -1524,7 +1925,16 @@ Library.Sections.__index = Library.Sections;
 			-- // Functions
 			function Window:UpdateTabs()
 				for Index, Page in pairs(Window.Pages) do
-					Page.Elements.Button.Size = UDim2.new(1/#Window.Pages,0,1,0)
+					-- Calculate exact width based on number of tabs
+					local width = 1 / #Window.Pages
+					-- Set button width with exact sizing to prevent overflow
+					Page.Elements.Button.Size = UDim2.new(width, 0, 1, 0)
+					
+					-- Adjust tab line to fit perfectly within the button
+					if Page.Elements.Button:FindFirstChild("TabLine") then
+						Page.Elements.Button.TabLine.Size = UDim2.new(1, 0, 0, 1)
+					end
+					
 					Page:Turn(Page.Open)
 				end
 			end
@@ -1545,53 +1955,48 @@ Library.Sections.__index = Library.Sections;
 				Open = false,
 				Sections = {},
 				Elements = {},
-                Weapons = {},
-                Icons = Properties.Weapons or Properties.weapons or false,
 			}
 			--
 			local TabButton = Instance.new('TextButton', Page.Window.Elements.TabHolder)
 			local TabAccent = Instance.new('Frame', TabButton)
 			local TabLine = Instance.new('Frame', TabButton)
-            local WeaponOutline = Instance.new("Frame", Page.Window.Elements.Holder)
-            local WeaponInline = Instance.new("Frame", WeaponOutline)
-            local UIListLayout3 = Instance.new("UIListLayout", WeaponInline)
-            local Left = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
-            local Right = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
-            local UIListLayout = Instance.new('UIListLayout', Left)
-            local UIListLayout_2 = Instance.new('UIListLayout', Right)
-            Left.Name = "Left"
-            Left.Position = UDim2.new(0,5,0,75)
-            Left.Size = UDim2.new(0.5,-10,1,-80)
-            Left.BackgroundColor3 = Color3.new(1,1,1)
-            Left.BorderSizePixel = 0
-            Left.BackgroundTransparency = 1
-            Left.BorderColor3 = Color3.new(0,0,0)
-            Left.Visible = false
-            Left.ZIndex = 3
-            Left.ScrollBarThickness = 0
-            Left.CanvasSize = UDim2.new(0, 0, 0, 0)
-            Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
-            Left.ElasticBehavior = Enum.ElasticBehavior.Always
+			local Left = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
+			local Right = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
+			local UIListLayout = Instance.new('UIListLayout', Left)
+			local UIListLayout_2 = Instance.new('UIListLayout', Right)
+			Left.Name = "Left"
+			Left.Position = UDim2.new(0,5,0,27)
+			Left.Size = UDim2.new(0.5,-10,1,-32)
+			Left.BackgroundColor3 = Color3.new(1,1,1)
+			Left.BorderSizePixel = 0
+			Left.BackgroundTransparency = 1
+			Left.BorderColor3 = Color3.new(0,0,0)
+			Left.Visible = false
+			Left.ZIndex = 3
+			Left.ScrollBarThickness = 0
+			Left.CanvasSize = UDim2.new(0, 0, 0, 0)
+			Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
+			Left.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			Right.Name = "Right"
-			Right.Position = UDim2.new(1,-5,0,75)
-			Right.Size = UDim2.new(0.5,-5,1,-80)
+			Right.Position = UDim2.new(1,-5,0,27)
+			Right.Size = UDim2.new(0.5,-5,1,-32)
 			Right.BackgroundColor3 = Color3.new(1,1,1)
 			Right.BorderSizePixel = 0
 			Right.BorderColor3 = Color3.new(0,0,0)
 			Right.AnchorPoint = Vector2.new(1,0)
 			Right.Visible = false
 			Right.BackgroundTransparency = 1
-            Right.ScrollBarThickness = 0
-            Right.CanvasSize = UDim2.new(0, 0, 0, 0)
-            Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
-            Right.ElasticBehavior = Enum.ElasticBehavior.Always
+			Right.ScrollBarThickness = 0
+			Right.CanvasSize = UDim2.new(0, 0, 0, 0)
+			Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
+			Right.ElasticBehavior = Enum.ElasticBehavior.Always
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout.Padding = UDim.new(0,16)
-            --
-            UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-            UIListLayout_2.Padding = UDim.new(0,16)
+			UIListLayout.Padding = UDim.new(0,16)
+			--
+			UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout_2.Padding = UDim.new(0,16)
 			--
 			TabButton.Name = "TabButton"
 			TabButton.Size = UDim2.new(0.25,0,1,0)
@@ -1621,35 +2026,12 @@ Library.Sections.__index = Library.Sections;
 			TabLine.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			TabLine.BorderSizePixel = 0
 			TabLine.BorderColor3 = Color3.new(0,0,0)
+			TabLine.ZIndex = 2 -- Ensure the line appears above other elements
 
-            WeaponOutline.Name = "WeaponOutline"
-            WeaponOutline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-            WeaponOutline.BorderColor3 = Color3.fromRGB(10, 10, 10)
-            WeaponOutline.Position = UDim2.new(0, 5, 0, 27)
-            WeaponOutline.Size = UDim2.new(1, -10, 0, 40)
-            WeaponOutline.Visible = false
-            
-            WeaponInline.Name = "WeaponInline"
-            WeaponInline.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-            WeaponInline.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            WeaponInline.BorderSizePixel = 0
-            WeaponInline.Position = UDim2.new(0, 1, 0, 1)
-            WeaponInline.Size = UDim2.new(1, -2, 1, -2)
-            
-            UIListLayout3.FillDirection = Enum.FillDirection.Horizontal
-            UIListLayout3.SortOrder = Enum.SortOrder.LayoutOrder
-			
 			function Page:Turn(bool)
 				Page.Open = bool
-				if not Page.Icons then
-                    Left.Visible = Page.Open
-				    Right.Visible = Page.Open
-                else
-                    WeaponOutline.Visible = Page.Open
-                    for Index, Weapon in pairs(Page.Weapons) do
-                        Weapon:Turn(Weapon.Open)
-                    end
-                end
+				Left.Visible = Page.Open
+				Right.Visible = Page.Open
 				TabAccent.Visible = Page.Open
 				TabLine.Visible = not Page.Open
 				TabButton.TextColor3 = Page.Open and Color3.fromRGB(255,255,255) or Color3.fromRGB(145,145,145)
@@ -1678,24 +2060,14 @@ Library.Sections.__index = Library.Sections;
 				end
 			end)
 
-            -- // Functions
-			function Page:UpdateWeapons()
-				for Index, Weapon in pairs(Page.Weapons) do
-					Weapon.Elements.Button.Size = UDim2.new(1/#Page.Weapons,0,1,0)
-					Weapon:Turn(Weapon.Open)
-				end
-			end
-
-            -- // Elements
+			-- // Elements
 			Page.Elements = {
-                Left = Page.Icons and nil or Left,
-				Right = Page.Icons and nil or Right,
+				Left = Left,
+				Right = Right,
 				Button = TabButton,
-                WeaponOutline = WeaponOutline,
-                WeaponInline = WeaponInline,
 			}
 
-            -- // Drawings
+			-- // Drawings
 			if #Page.Window.Pages == 0 then
 				Page:Turn(true)
 			end
@@ -1703,106 +2075,6 @@ Library.Sections.__index = Library.Sections;
 			Page.Window:UpdateTabs()
 			return setmetatable(Page, Library.Pages)
 		end
-        --
-        function Pages:Weapon(Properties)
-            if not Properties then
-				Properties = {}
-			end
-			--
-			local Weapon = {
-				Icon = Properties.Icon or Properties.icon or "rbxassetid://11127408662",
-				Window = self,
-				Open = false,
-				Sections = {},
-				Elements = {},
-			}
-			--
-            --Weapon.Window.Elements.WeaponOutline.Visible = true
-
-			local Left = Instance.new('ScrollingFrame', Weapon.Window.Window.Elements.Holder)
-			local Right = Instance.new('ScrollingFrame', Weapon.Window.Window.Elements.Holder)
-			local UIListLayout = Instance.new('UIListLayout', Left)
-			local UIListLayout_2 = Instance.new('UIListLayout', Right)
-            local New = Instance.new("ImageButton")
-			--
-			New.Name = "New"
-            New.Parent = Weapon.Window.Elements.WeaponInline
-            New.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            New.BackgroundTransparency = 1.000
-            New.BorderColor3 = Color3.fromRGB(0, 0, 0)
-            New.BorderSizePixel = 0
-            New.Size = UDim2.new(0.200000003, 0, 1, 0)
-            New.Image = Weapon.Icon
-            New.ScaleType = Enum.ScaleType.Fit
-			--
-			Left.Name = "Left"
-			Left.Position = UDim2.new(0,5,0,75)
-			Left.Size = UDim2.new(0.5,-10,1,-80)
-			Left.BackgroundColor3 = Color3.new(1,1,1)
-			Left.BorderSizePixel = 0
-			Left.BackgroundTransparency = 1
-			Left.BorderColor3 = Color3.new(0,0,0)
-			Left.Visible = false
-			Left.ZIndex = 3
-			Left.ScrollBarThickness = 0
-			Left.CanvasSize = UDim2.new(0, 0, 0, 0)
-			Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
-			Left.ElasticBehavior = Enum.ElasticBehavior.Always
-			--
-			Right.Name = "Right"
-			Right.Position = UDim2.new(1,-5,0,75)
-			Right.Size = UDim2.new(0.5,-5,1,-80)
-			Right.BackgroundColor3 = Color3.new(1,1,1)
-			Right.BorderSizePixel = 0
-			Right.BorderColor3 = Color3.new(0,0,0)
-			Right.AnchorPoint = Vector2.new(1,0)
-			Right.Visible = false
-			Right.BackgroundTransparency = 1
-			Right.ScrollBarThickness = 0
-			Right.CanvasSize = UDim2.new(0, 0, 0, 0)
-			Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
-			Right.ElasticBehavior = Enum.ElasticBehavior.Always
-			--
-			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0,16)
-			--
-			UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout_2.Padding = UDim.new(0,16)
-			
-			function Weapon:Turn(bool)
-				Weapon.Open = bool
-				Left.Visible = Weapon.Open and Weapon.Window.Open
-				Right.Visible = Weapon.Open and Weapon.Window.Open
-				New.ImageColor3 = Weapon.Open and Color3.new(1,1,1) or Color3.fromRGB(145,145,145)
-			end
-			--
-			Library:Connection(New.MouseButton1Down, function()
-				if not Weapon.Open then
-					Weapon:Turn(true)
-					for _, Weapons in pairs(Weapon.Window.Weapons) do
-						if Weapons.Open and Weapons ~= Weapon then
-							Weapons:Turn(false)
-						end
-					end
-				end
-			end)
-			--
-
-			-- // Elements
-			Weapon.Elements = {
-				Left = Left,
-				Right = Right,
-				Button = New
-			}
-
-			-- // Drawings
-			if #Weapon.Window.Weapons == 0 then
-				Weapon:Turn(true)
-			end
-			Weapon.Window.Weapons[#Weapon.Window.Weapons + 1] = Weapon
-			Weapon.Window:UpdateWeapons()
-			return setmetatable(Weapon, Library.Pages)
-        end
 		--
 		function Pages:Section(Properties)
 			if not Properties then
@@ -1811,15 +2083,34 @@ Library.Sections.__index = Library.Sections;
 			--
 			local Section = {
 				Name = Properties.Name or "Section",
+				Window = self.Window,
 				Page = self,
-				Side = (Properties.side or Properties.Side or "left"):lower(),
-				ZIndex = Properties.ZIndex or 1, -- Idfk why
-				Elements = {},
-				Content = {},
-				Size = Properties.Size or Properties.size or nil,
+				Side = Properties.Side == "Right" and "Right" or "Left",
+				ContentPadding = Properties.Padding or 5, -- Add padding option with default value
+				ZIndex = Properties.ZIndex or 1,
+				Size = Properties.Size or nil,
 			}
-			--
-			local SectionOutline = Instance.new('Frame', Section.Side == "left" and Section.Page.Elements.Left or Section.Side == "right" and Section.Page.Elements.Right)
+			
+			-- Safely get parent frame
+			local parentFrame = nil
+			if Section.Page and Section.Page.Elements then
+				if Section.Side == "Right" and Section.Page.Elements.Right then
+					parentFrame = Section.Page.Elements.Right
+				elseif Section.Page.Elements.Left then
+					parentFrame = Section.Page.Elements.Left
+				end
+			end
+			
+			-- Fallback to creating a placeholder if parent frame doesn't exist
+			if not parentFrame then
+				warn("Parent frame missing, creating placeholder")
+				parentFrame = Instance.new("Frame")
+				parentFrame.Size = UDim2.new(1, 0, 1, 0)
+				parentFrame.BackgroundTransparency = 1
+				parentFrame.Name = "PlaceholderParent"
+			end
+			
+			local SectionOutline = Instance.new('Frame', parentFrame)
 			local SectionInline = Instance.new('Frame', SectionOutline)
 			local Container = Instance.new('Frame', SectionInline)
 			local UIListLayout = Instance.new('UIListLayout', Container)
@@ -1847,10 +2138,11 @@ Library.Sections.__index = Library.Sections;
 			SectionInline.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			SectionInline.BorderSizePixel = 0
 			SectionInline.BorderColor3 = Color3.new(0,0,0)
+			SectionInline.AutomaticSize = Enum.AutomaticSize.Y -- Add automatic vertical sizing
 			--
 			Container.Name = "Container"
-			Container.Position = UDim2.new(0,7,0,10)
-			Container.Size = UDim2.new(1,-14,1,-14)
+			Container.Position = UDim2.new(0,7,0,18) -- Adjusted Y position from 10 to 18 to make space for Title
+			Container.Size = UDim2.new(1,-14,0,15) -- Minimum height for empty sections
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
 			Container.BorderSizePixel = 0
@@ -1875,7 +2167,7 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, SectionAccent)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,10,0,-8)
+			Title.Position = UDim2.new(0,10,0,0) -- Changed Y offset from -8 to 0
 			Title.Size = UDim2.new(0,100,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
@@ -1890,7 +2182,7 @@ Library.Sections.__index = Library.Sections;
 			Title.TextStrokeTransparency = 0
 			--
 			TextBorder.Name = "TextBorder"
-			TextBorder.Position = UDim2.new(0,6,0,-2)
+			TextBorder.Position = UDim2.new(0,6,0,0) -- Changed Y offset from -2 to 0
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
 			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			TextBorder.BorderSizePixel = 0
@@ -1908,6 +2200,73 @@ Library.Sections.__index = Library.Sections;
 			-- // Returning
 			
 			Section.Page.Sections[#Section.Page.Sections + 1] = Section
+
+			-- Add a recalculation function to ensure proper section sizing when elements are added
+			function Section:RecalculateSize()
+				-- Safety checks
+				if not Section then return end
+				if not Section.ContentPadding then Section.ContentPadding = 5 end
+				
+				local padding = 20 -- Additional padding (10 top + 10 bottom)
+				local containerHeight = 0
+				
+				-- Safety check - make sure Container and UIListLayout exist
+				if not Container then return end
+				
+				-- Get content height
+				if UIListLayout then
+					-- Calculate height based on children using UIListLayout if available
+					local hasVisibleChildren = false
+					for _, child in pairs(Container:GetChildren()) do
+						if not child:IsA("UIListLayout") then
+							local childHeight = child.Size.Y.Offset
+							local paddingOffset = UIListLayout.Padding and UIListLayout.Padding.Offset or 0
+							containerHeight = containerHeight + childHeight + paddingOffset
+							hasVisibleChildren = true
+						end
+					end
+					
+					-- If no visible children, set a minimum size
+					if not hasVisibleChildren then
+						containerHeight = 15 -- Minimum height for empty sections
+					end
+				else
+					-- Fallback: just count visible children
+					local hasVisibleChildren = false
+					for _, child in pairs(Container:GetChildren()) do
+						if child:IsA("GuiObject") and child.Visible then
+							containerHeight = containerHeight + child.Size.Y.Offset + 6 -- 6 is default padding
+							hasVisibleChildren = true
+						end
+					end
+					
+					-- If no visible children, set a minimum size
+					if not hasVisibleChildren then
+						containerHeight = 15 -- Minimum height for empty sections
+					end
+				end
+				
+				-- Set container size with a minimum height
+				containerHeight = math.max(containerHeight, 15)
+				if Container then
+					Container.Size = UDim2.new(1, -14, 0, containerHeight)
+				end
+				
+				-- Set section size to match content
+				if SectionInline then
+					SectionInline.Size = UDim2.new(1, -2, 0, containerHeight + padding)
+				end
+				
+				if SectionOutline then
+					SectionOutline.Size = UDim2.new(1, 0, 0, containerHeight + padding + 2)
+				end
+			end
+
+			-- Connect list layout changes to trigger resize
+			UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+				Section:RecalculateSize()
+			end)
+
 			wait(0.01)
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
 			return setmetatable(Section, Library.Sections)
@@ -1938,7 +2297,7 @@ Library.Sections.__index = Library.Sections;
 						or Properties.Callback
 						or Properties.callBack
 						or Properties.CallBack
-						or function() end
+							or function() end
 				),
 				Flag = (
 					Properties.flag
@@ -2002,6 +2361,7 @@ Library.Sections.__index = Library.Sections;
 			local function SetState()
 				Toggle.Toggled = not Toggle.Toggled
 				if Toggle.Toggled then
+					-- Add to theme objects to update color when theme changes
 					table.insert(Library.ThemeObjects, Inline)
 					Inline.BackgroundColor3 = Library.Accent
 					if Toggle.Risk then
@@ -2010,8 +2370,16 @@ Library.Sections.__index = Library.Sections;
 						Title.TextColor3 = Color3.fromRGB(255,255,255)
 					end
 				else
-					table.remove(Library.ThemeObjects, table.find(Library.ThemeObjects, Inline))
-					Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
+					-- Remove from theme objects
+					if table.find(Library.ThemeObjects, Inline) then
+						table.remove(Library.ThemeObjects, table.find(Library.ThemeObjects, Inline))
+					end
+					-- Use the current theme's element color if available
+					if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
+						Inline.BackgroundColor3 = Library.Themes[Library.CurrentTheme].ElementColor
+					else
+						Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
+					end
 					if Toggle.Risk then
 						Title.TextColor3 = Color3.fromRGB(158, 158, 24)
 					else
@@ -2190,20 +2558,23 @@ Library.Sections.__index = Library.Sections;
 						end
 						if newkey == Enum.KeyCode.Backspace then
 							Key = nil
-
 							local text = "None"
-
 							Value.Text = text
 							ListValue:Update(text, Keybind.Name, Keybind.Mode)
+							-- Make sure to maintain visual state in keybind list
+							if State then
+								ListValue:SetVisible(State)
+							end
 						elseif newkey ~= nil then
 							Key = newkey
-
 							local text = (Library.Keys[newkey] or tostring(newkey):gsub("Enum.KeyCode.", ""))
-
 							Value.Text = text
 							ListValue:Update(text, Keybind.Name, Keybind.Mode)
+							-- Make sure to maintain visual state in keybind list
+							if State then
+								ListValue:SetVisible(State)
+							end
 						end
-
 						Library.Flags[Keybind.Flag .. "_KEY"] = newkey
 					elseif table.find({ "Always", "Toggle", "Hold" }, newkey) then
 						Library.Flags[Keybind.Flag .. "_KEY STATE"] = newkey
@@ -2223,6 +2594,7 @@ Library.Sections.__index = Library.Sections;
 							Library.Flags[Keybind.Flag] = newkey
 						end
 						Keybind.Callback(newkey)
+						ListValue:SetVisible(newkey)
 					end
 				end
 				--
@@ -2416,7 +2788,18 @@ Library.Sections.__index = Library.Sections;
 				-- Special handling for keybind list toggle
 				if Toggle.Flag == "Keybind List" and Library.KeyList then
 					Library.KeyList:SetVisible(bool)
+					-- Make sure we update all active keybinds to show correctly in the list
+					if bool then
+						for _, keybind in pairs(Library.KeyList.Keybinds) do
+							if keybind.IsActive then
+								keybind:SetVisible(true)
+							end
+						end
+					end
 				end
+				
+				-- Recalculate section size
+				Toggle.Section:RecalculateSize()
 			end
 			Toggle.Set(Toggle.State)
 			Library.Flags[Toggle.Flag] = Toggle.State
@@ -2657,6 +3040,8 @@ Library.Sections.__index = Library.Sections;
 			--
 			function Slider:Set(Value)
 				Set(Value)
+				-- Recalculate section size
+				Slider.Section:RecalculateSize()
 			end
 			-- 
 			function Slider:SetVisible(Bool) 
@@ -2664,6 +3049,7 @@ Library.Sections.__index = Library.Sections;
 			end 
 			--
 			Flags[Slider.Flag] = Set
+			
 			Library.Flags[Slider.Flag] = Slider.State
 			Set(Slider.State)
 
@@ -2722,7 +3108,7 @@ Library.Sections.__index = Library.Sections;
 			local UIListLayout = Instance.new('UIListLayout', ContainerInline)
 			--
 			NewDrop.Name = "NewDrop"
-			NewDrop.Size = UDim2.new(1,0,0,16)
+			NewDrop.Size = UDim2.new(1, 0, 0, 42) -- Increased height to accommodate dropdown
 			NewDrop.BackgroundColor3 = Color3.new(1,1,1)
 			NewDrop.BackgroundTransparency = 1
 			NewDrop.BorderSizePixel = 0
@@ -2730,7 +3116,7 @@ Library.Sections.__index = Library.Sections;
 			--
 			Title.Name = "Title"
 			Title.Position = UDim2.new(0,15,0,0)
-			Title.Size = UDim2.new(1,-15,1,0)
+			Title.Size = UDim2.new(1,-15,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
@@ -2743,11 +3129,10 @@ Library.Sections.__index = Library.Sections;
 			Title.TextStrokeTransparency = 0
 			--
 			Outline.Name = "Outline"
-			Outline.Position = UDim2.new(1,0,0.5,12)
+			Outline.Position = UDim2.new(0,15,0,20)
 			Outline.Size = UDim2.new(1,-30,0,16)
 			Outline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-			Outline.BorderColor3 = Color3.fromRGB(10, 10, 10)
-			Outline.AnchorPoint = Vector2.new(1,0)
+				Outline.BorderColor3 = Color3.fromRGB(10, 10, 10)
 			Outline.Text = ""
 			Outline.AutoButtonColor = false
 			--
@@ -2770,7 +3155,7 @@ Library.Sections.__index = Library.Sections;
 			Value.TextSize = Library.FontSize
 			Value.TextXAlignment = Enum.TextXAlignment.Left
 			Value.TextStrokeTransparency = 0
-			Value.TextWrapped = true
+			Value.TextTruncate = Enum.TextTruncate.AtEnd -- Truncate long text
 			--
 			Icon.Name = "Icon"
 			Icon.Position = UDim2.new(0,-5,0,0)
@@ -2787,13 +3172,14 @@ Library.Sections.__index = Library.Sections;
 			Icon.TextStrokeTransparency = 0
 			--
 			ContainerOutline.Name = "ContainerOutline"
-			ContainerOutline.Position = UDim2.new(0,15,1,2)
+			ContainerOutline.Position = UDim2.new(0,15,0,39)
 			ContainerOutline.Size = UDim2.new(1,-30,0,10)
 			ContainerOutline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 			ContainerOutline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
 			ContainerOutline.Visible = false
 			ContainerOutline.AutomaticSize = Enum.AutomaticSize.Y
-			ContainerOutline.ZIndex = 5
+			ContainerOutline.ZIndex = 10 -- Higher Z-index to show above other elements
+			ContainerOutline.ClipsDescendants = false -- Don't clip children
 			--
 			ContainerInline.Name = "ContainerInline"
 			ContainerInline.Position = UDim2.new(0,1,0,1)
@@ -2801,15 +3187,17 @@ Library.Sections.__index = Library.Sections;
 			ContainerInline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
 			ContainerInline.BorderSizePixel = 0
 			ContainerInline.BorderColor3 = Color3.new(0,0,0)
-			ContainerInline.ZIndex = 6;
+			ContainerInline.ZIndex = 11
+			ContainerInline.ClipsDescendants = false -- Don't clip children
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout.Padding = UDim.new(0, 1)
 			
 			-- // Connections
 			Library:Connection(Outline.MouseButton1Down, function()
 				ContainerOutline.Visible = not ContainerOutline.Visible
 				if ContainerOutline.Visible then
-					NewDrop.ZIndex = 2
+					NewDrop.ZIndex = 10
 					Icon.Text = "-"
 				else
 					NewDrop.ZIndex = 1
@@ -2854,13 +3242,13 @@ Library.Sections.__index = Library.Sections;
 
 							Value.Text = #chosen == 0 and "" or table.concat(textchosen, ",") .. (cutobject and ", ..." or "")
 
-							text.TextColor3 = Color3.fromRGB(145,145,145)
+							text.TextColor3 = Color3.fromRGB(204, 204, 204) -- Light gray for unselected
 
 							Library.Flags[Dropdown.Flag] = chosen
 							Dropdown.Callback(chosen)
 						else
 							if #chosen == Dropdown.Max then
-								Dropdown.OptionInsts[chosen[1]].text.TextColor3 = Color3.fromRGB(145,145,145)
+								Dropdown.OptionInsts[chosen[1]].text.TextColor3 = Color3.fromRGB(204, 204, 204)
 								table.remove(chosen, 1)
 							end
 
@@ -2875,7 +3263,7 @@ Library.Sections.__index = Library.Sections;
 
 							Value.Text = #chosen == 0 and "" or table.concat(textchosen, ",") .. (cutobject and ", ..." or "")
 
-							text.TextColor3 = Color3.fromRGB(255,255,255)
+							text.TextColor3 = Color3.fromRGB(255, 255, 255) -- White for selected
 
 							Library.Flags[Dropdown.Flag] = chosen
 							Dropdown.Callback(chosen)
@@ -2883,12 +3271,12 @@ Library.Sections.__index = Library.Sections;
 					else
 						for opt, tbl in next, Dropdown.OptionInsts do
 							if opt ~= option then
-								tbl.text.TextColor3 = Color3.fromRGB(145,145,145)
+								tbl.text.TextColor3 = Color3.fromRGB(204, 204, 204) -- Light gray for unselected
 							end
 						end
 						chosen = option
 						Value.Text = option
-						text.TextColor3 = Color3.fromRGB(255,255,255)
+						text.TextColor3 = Color3.fromRGB(255, 255, 255) -- White for selected
 						Library.Flags[Dropdown.Flag] = option
 						Dropdown.Callback(option)
 					end
@@ -2900,35 +3288,76 @@ Library.Sections.__index = Library.Sections;
 					Dropdown.OptionInsts[option] = {}
 					local NewOption = Instance.new('TextButton', ContainerInline)
 					local OptionName = Instance.new('TextLabel', NewOption)
+					
 					NewOption.Name = "NewOption"
-					NewOption.Size = UDim2.new(1,0,0,15)
-					NewOption.BackgroundColor3 = Color3.new(1,1,1)
-					NewOption.BackgroundTransparency = 1
+					NewOption.Size = UDim2.new(1, 0, 0, 18) -- Increased height for better visibility
+					-- Use the theme's ElementColor if available
+					if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
+						NewOption.BackgroundColor3 = Library.Themes[Library.CurrentTheme].ElementColor
+					else
+						NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
+					end
+					NewOption.BackgroundTransparency = 0 -- Make background visible
 					NewOption.BorderSizePixel = 0
-					NewOption.BorderColor3 = Color3.new(0,0,0)
+					NewOption.BorderColor3 = Color3.new(0, 0, 0)
 					NewOption.Text = ""
-					NewOption.TextColor3 = Color3.new(0,0,0)
+					NewOption.TextColor3 = Color3.new(0, 0, 0)
 					NewOption.AutoButtonColor = false
 					NewOption.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 					NewOption.TextSize = 14
-					NewOption.ZIndex = 7;
+					NewOption.ZIndex = 12 -- Higher z-index to appear above container
 					Dropdown.OptionInsts[option].button = NewOption
-					--
+					
+					-- Add to theme update list for background
+					table.insert(Library.DropdownOptions, NewOption)
+					
+					-- Option hover effect
+					Library:Connection(NewOption.MouseEnter, function()
+						-- Use slightly lighter version of theme color for hover
+						if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
+							local elementColor = Library.Themes[Library.CurrentTheme].ElementColor
+							NewOption.BackgroundColor3 = Color3.new(
+								math.min(elementColor.R + 0.02, 1),
+								math.min(elementColor.G + 0.02, 1),
+								math.min(elementColor.B + 0.02, 1)
+							)
+						else
+							NewOption.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
+						end
+					end)
+					
+					Library:Connection(NewOption.MouseLeave, function()
+						-- Return to theme color when not hovering
+						if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
+							NewOption.BackgroundColor3 = Library.Themes[Library.CurrentTheme].ElementColor
+						else
+							NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
+						end
+					end)
+					
 					OptionName.Name = "OptionName"
-					OptionName.Position = UDim2.new(0,2,0,0)
-					OptionName.Size = UDim2.new(1,0,1,0)
-					OptionName.BackgroundColor3 = Color3.new(1,1,1)
+					OptionName.Position = UDim2.new(0, 4, 0, 0) -- More padding on left
+					OptionName.Size = UDim2.new(1, -8, 1, 0) -- Padding on both sides
+					OptionName.BackgroundColor3 = Color3.new(1, 1, 1)
 					OptionName.BackgroundTransparency = 1
 					OptionName.BorderSizePixel = 0
-					OptionName.BorderColor3 = Color3.new(0,0,0)
+					OptionName.BorderColor3 = Color3.new(0, 0, 0)
 					OptionName.Text = option
-					OptionName.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
+					-- Use theme text color if available
+					if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
+						OptionName.TextColor3 = Library.Themes[Library.CurrentTheme].TextColor
+					else
+						OptionName.TextColor3 = Color3.new(0.8, 0.8, 0.8)
+					end
 					OptionName.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 					OptionName.TextSize = Library.FontSize
 					OptionName.TextXAlignment = Enum.TextXAlignment.Left
 					OptionName.TextStrokeTransparency = 0
-					OptionName.ZIndex = 8;
+					OptionName.ZIndex = 13 -- Higher z-index than the button
 					Dropdown.OptionInsts[option].text = OptionName
+
+					-- Add to theme update list for text
+					table.insert(Library.DropdownOptionTexts, OptionName)
 
 					handleoptionclick(option, NewOption, OptionName)
 				end
@@ -2990,6 +3419,9 @@ Library.Sections.__index = Library.Sections;
 						Dropdown.Callback(chosen)
 					end
 				end
+				
+				-- Recalculate section size
+				Dropdown.Section:RecalculateSize()
 			end
 			--
 			function Dropdown:Refresh(tbl)
@@ -3226,7 +3658,7 @@ Library.Sections.__index = Library.Sections;
 					if not Keybind.UseKey then
 						Library.Flags[Keybind.Flag .. "_KEY STATE"] = newkey
 						Keybind.Mode = newkey
-						ListValue:Update((Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", "")), Toggle.Name, Keybind.Mode)
+						ListValue:Update((Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", "")), Keybind.Name, Keybind.Mode)
 						if Keybind.Mode == "Always" then
 							State = true
 							if Keybind.Flag then
@@ -3682,28 +4114,40 @@ Library.Sections.__index = Library.Sections;
 				Name = Properties.Name or "label",
 				Centered = Properties.Centered or false,
 			}
-			local NewButton = Instance.new('TextLabel', Label.Section.Elements.SectionContent) -- ya im lazy
+			local NewLabel = Instance.new('TextLabel', Label.Section.Elements.SectionContent)
 			--
-			NewButton.Name = "NewButton"
-			NewButton.Size = UDim2.new(1,0,0,24)
-			NewButton.BackgroundColor3 = Color3.new(1,1,1)
-			NewButton.BackgroundTransparency = 1
-			NewButton.BorderSizePixel = 0
-			NewButton.BorderColor3 = Color3.new(0,0,0)
-			NewButton.Text = Label.Name
-			NewButton.TextColor3 = Color3.fromRGB(255,255,255)
-			NewButton.FontFace = Font.new(Font:GetRegistry("menu_plex"))
-			NewButton.TextSize = Library.FontSize
-			NewButton.TextXAlignment = Label.Centered and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
-			NewButton.TextYAlignment = Enum.TextYAlignment.Center
-			NewButton.TextStrokeTransparency = 0
-			NewButton.TextStrokeColor3 = Color3.new(0,0,0)
-			NewButton.TextWrapped = true
+			NewLabel.Name = "NewLabel"
+			NewLabel.Size = UDim2.new(1, -30, 0, 24) -- Increased default height
+			NewLabel.Position = UDim2.new(0, 15, 0, 0)
+			NewLabel.BackgroundColor3 = Color3.new(1,1,1)
+			NewLabel.BackgroundTransparency = 1
+			NewLabel.BorderSizePixel = 0
+			NewLabel.BorderColor3 = Color3.new(0,0,0)
+			NewLabel.Text = Label.Name
+			NewLabel.TextColor3 = Color3.fromRGB(255,255,255)
+			NewLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			NewLabel.TextSize = Library.FontSize
+			NewLabel.TextXAlignment = Label.Centered and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
+			NewLabel.TextYAlignment = Enum.TextYAlignment.Top
+			NewLabel.TextStrokeTransparency = 0
+			NewLabel.TextStrokeColor3 = Color3.new(0,0,0)
+			NewLabel.TextWrapped = true
+			NewLabel.RichText = true -- Enable rich text for formatting
+			NewLabel.AutomaticSize = Enum.AutomaticSize.Y -- Auto adjust height based on content
 			
 			-- Adjust height based on content
 			if string.find(Label.Name, "\n") then
-				NewButton.Size = UDim2.new(1, 0, 0, 36)
+				-- If the text contains line breaks, make sure we have enough height
+				local lineCount = 1
+				for _ in string.gmatch(Label.Name, "\n") do
+					lineCount = lineCount + 1
+				end
+				local baseHeight = 16 -- Height per line
+				local padding = 8 -- Top and bottom padding
+				NewLabel.Size = UDim2.new(1, -30, 0, lineCount * baseHeight + padding)
 			end
+			
+			return Label
 		end
         return Library
 	end
