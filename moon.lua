@@ -1469,6 +1469,16 @@ Library.Sections.__index = Library.Sections;
 			ModeInline.ZIndex = 100
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout.Padding = UDim.new(0,6)
+			UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+			UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+
+			-- Connect to UIListLayout's size change to ensure proper section sizing
+			UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+				-- Add padding at the bottom
+				local contentSize = UIListLayout.AbsoluteContentSize.Y + Section.ContentPadding * 2
+				Container.Size = UDim2.new(1, -14, 0, contentSize)
+			end)
 			--
 			Hold.Name = "Hold"
 			Hold.Size = UDim2.new(1,0,0,15)
@@ -1795,6 +1805,16 @@ Library.Sections.__index = Library.Sections;
 			--
 			UIListLayout.FillDirection = Enum.FillDirection.Horizontal
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout.Padding = UDim.new(0,6)
+			UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+			UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+
+			-- Connect to UIListLayout's size change to ensure proper section sizing
+			UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+				-- Add padding at the bottom
+				local contentSize = UIListLayout.AbsoluteContentSize.Y + Section.ContentPadding * 2
+				Container.Size = UDim2.new(1, -14, 0, contentSize)
+			end)
 			--
 			DragButton.Name = "DragButton"
 			DragButton.Size = UDim2.new(1,0,0,10)
@@ -2044,10 +2064,11 @@ Library.Sections.__index = Library.Sections;
 			SectionInline.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			SectionInline.BorderSizePixel = 0
 			SectionInline.BorderColor3 = Color3.new(0,0,0)
+			SectionInline.AutomaticSize = Enum.AutomaticSize.Y -- Add automatic vertical sizing
 			--
 			Container.Name = "Container"
 			Container.Position = UDim2.new(0,7,0,10)
-			Container.Size = UDim2.new(1,-14,1,-14)
+			Container.Size = UDim2.new(1,-14,0,0) -- Change to 0 initial height
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
 			Container.BorderSizePixel = 0
@@ -2105,6 +2126,32 @@ Library.Sections.__index = Library.Sections;
 			-- // Returning
 			
 			Section.Page.Sections[#Section.Page.Sections + 1] = Section
+
+			-- Add a recalculation function to ensure proper section sizing when elements are added
+			function Section:RecalculateSize()
+				local padding = 20 -- Additional padding (10 top + 10 bottom)
+				local containerHeight = 0
+				
+				-- Calculate height based on children
+				for _, child in pairs(Container:GetChildren()) do
+					if not child:IsA("UIListLayout") then
+						containerHeight = containerHeight + child.Size.Y.Offset + UIListLayout.Padding.Offset
+					end
+				end
+				
+				-- Set container size
+				Container.Size = UDim2.new(1, -14, 0, containerHeight)
+				
+				-- Set section size to match content
+				SectionInline.Size = UDim2.new(1, -2, 0, containerHeight + padding)
+				SectionOutline.Size = UDim2.new(1, 0, 0, containerHeight + padding + 2)
+			end
+
+			-- Connect list layout changes to trigger resize
+			UIListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+				Section:RecalculateSize()
+			end)
+
 			wait(0.01)
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
 			return setmetatable(Section, Library.Sections)
@@ -2635,6 +2682,9 @@ Library.Sections.__index = Library.Sections;
 						end
 					end
 				end
+				
+				-- Recalculate section size
+				Toggle.Section:RecalculateSize()
 			end
 			Toggle.Set(Toggle.State)
 			Library.Flags[Toggle.Flag] = Toggle.State
@@ -2875,6 +2925,8 @@ Library.Sections.__index = Library.Sections;
 			--
 			function Slider:Set(Value)
 				Set(Value)
+				-- Recalculate section size
+				Slider.Section:RecalculateSize()
 			end
 			-- 
 			function Slider:SetVisible(Bool) 
@@ -2882,6 +2934,7 @@ Library.Sections.__index = Library.Sections;
 			end 
 			--
 			Flags[Slider.Flag] = Set
+			
 			Library.Flags[Slider.Flag] = Slider.State
 			Set(Slider.State)
 
@@ -3251,6 +3304,9 @@ Library.Sections.__index = Library.Sections;
 						Dropdown.Callback(chosen)
 					end
 				end
+				
+				-- Recalculate section size
+				Dropdown.Section:RecalculateSize()
 			end
 			--
 			function Dropdown:Refresh(tbl)
