@@ -350,6 +350,107 @@ Library.Sections.__index = Library.Sections;
 -- // Functions
 	-- // Library Functions
 	do
+		-- Add predefined themes
+		Library.Themes = {
+			Default = {
+				Accent = Color3.fromRGB(132, 108, 188),
+				Background = Color3.new(0.0784, 0.0784, 0.0784),
+				TopBackground = Color3.new(0.1765, 0.1765, 0.1765),
+				Border = Color3.new(0.0392, 0.0392, 0.0392),
+				TextColor = Color3.new(1, 1, 1),
+				ElementColor = Color3.new(0.1294, 0.1294, 0.1294)
+			},
+			Midnight = {
+				Accent = Color3.fromRGB(36, 150, 255),
+				Background = Color3.fromRGB(10, 10, 15),
+				TopBackground = Color3.fromRGB(20, 20, 30),
+				Border = Color3.fromRGB(0, 0, 0),
+				TextColor = Color3.fromRGB(255, 255, 255),
+				ElementColor = Color3.fromRGB(20, 20, 30)
+			},
+			Blood = {
+				Accent = Color3.fromRGB(255, 0, 0),
+				Background = Color3.fromRGB(10, 0, 0),
+				TopBackground = Color3.fromRGB(25, 0, 0),
+				Border = Color3.fromRGB(50, 0, 0),
+				TextColor = Color3.fromRGB(255, 255, 255),
+				ElementColor = Color3.fromRGB(40, 0, 0)
+			},
+			Ocean = {
+				Accent = Color3.fromRGB(0, 200, 255),
+				Background = Color3.fromRGB(0, 15, 30),
+				TopBackground = Color3.fromRGB(0, 30, 60),
+				Border = Color3.fromRGB(0, 50, 70),
+				TextColor = Color3.fromRGB(255, 255, 255),
+				ElementColor = Color3.fromRGB(0, 40, 60)
+			},
+			Forest = {
+				Accent = Color3.fromRGB(25, 255, 70),
+				Background = Color3.fromRGB(5, 20, 10),
+				TopBackground = Color3.fromRGB(15, 40, 20),
+				Border = Color3.fromRGB(20, 70, 40),
+				TextColor = Color3.fromRGB(255, 255, 255),
+				ElementColor = Color3.fromRGB(15, 50, 25)
+			},
+			Sunset = {
+				Accent = Color3.fromRGB(255, 150, 0),
+				Background = Color3.fromRGB(30, 15, 5),
+				TopBackground = Color3.fromRGB(60, 30, 10),
+				Border = Color3.fromRGB(80, 40, 10),
+				TextColor = Color3.fromRGB(255, 255, 255),
+				ElementColor = Color3.fromRGB(70, 35, 10)
+			}
+		}
+
+		-- Apply theme function
+		function Library:ApplyTheme(theme)
+			local selectedTheme = self.Themes[theme] or self.Themes.Default
+			
+			-- Update accent color and other elements
+			self.Accent = selectedTheme.Accent
+			
+			-- Update all UI elements with the theme
+			for _, obj in pairs(self.ThemeObjects) do
+				if obj.BackgroundColor3 ~= nil then
+					obj.BackgroundColor3 = selectedTheme.Accent
+				end
+			end
+			
+			-- Update background colors if the Holder exists
+			if self.Holder then
+				self.Holder.BackgroundColor3 = selectedTheme.TopBackground
+				self.Holder.BorderColor3 = selectedTheme.Border
+				
+				-- Find and update other UI elements
+				for _, descendant in pairs(self.Holder:GetDescendants()) do
+					if descendant:IsA("Frame") then
+						if descendant.Name == "Inline" or descendant.Name == "HolderInline" then
+							descendant.BackgroundColor3 = selectedTheme.Background
+						elseif descendant.Name == "Outline" or descendant.Name == "HolderOutline" then
+							descendant.BackgroundColor3 = selectedTheme.TopBackground
+							descendant.BorderColor3 = selectedTheme.Border
+						end
+					elseif descendant:IsA("TextLabel") or descendant:IsA("TextButton") then
+						descendant.TextColor3 = selectedTheme.TextColor
+					end
+				end
+			end
+			
+			-- Update watermark if it exists
+			if self.WatermarkFrame then
+				self.WatermarkFrame.BackgroundColor3 = selectedTheme.TopBackground
+				self.WatermarkFrame.BorderColor3 = selectedTheme.Border
+				
+				for _, child in pairs(self.WatermarkFrame:GetDescendants()) do
+					if child:IsA("Frame") and child.Name == "InlineFrame" then
+						child.BackgroundColor3 = selectedTheme.Background
+					elseif child:IsA("TextLabel") then
+						child.TextColor3 = selectedTheme.TextColor
+					end
+				end
+			end
+		end
+
 		function Library:Connection(Signal, Callback)
 			local Con = Signal:Connect(Callback)
 			return Con
