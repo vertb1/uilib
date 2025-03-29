@@ -793,6 +793,15 @@ Library.Sections.__index = Library.Sections;
 			end
 		end;
 		--
+		function Library:EnableScrolling(scrollFrame)
+			self:Connection(scrollFrame.InputBegan, function(input)
+				if input.UserInputType == Enum.UserInputType.MouseWheel then
+					local scrollAmount = input.Position.Z > 0 and -30 or 30
+					scrollFrame.CanvasPosition = Vector2.new(0, math.max(0, scrollFrame.CanvasPosition.Y + scrollAmount))
+				end
+			end)
+		end;
+		--
 		function Library:ChangeAccent(Color)
 			Library.Accent = Color
 
@@ -1178,7 +1187,6 @@ Library.Sections.__index = Library.Sections;
 			ModeInline.ZIndex = 100
 			--
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Padding = UDim.new(0,16)
 			--
 			Hold.Name = "Hold"
 			Hold.Size = UDim2.new(1,0,0,15)
@@ -1597,8 +1605,8 @@ Library.Sections.__index = Library.Sections;
             local WeaponOutline = Instance.new("Frame", Page.Window.Elements.Holder)
             local WeaponInline = Instance.new("Frame", WeaponOutline)
             local UIListLayout3 = Instance.new("UIListLayout", WeaponInline)
-            local Left = Instance.new('Frame', Page.Window.Elements.Holder)
-            local Right = Instance.new('Frame', Page.Window.Elements.Holder)
+            local Left = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
+            local Right = Instance.new('ScrollingFrame', Page.Window.Elements.Holder)
             local UIListLayout = Instance.new('UIListLayout', Left)
             local UIListLayout_2 = Instance.new('UIListLayout', Right)
             Left.Name = "Left"
@@ -1610,54 +1618,206 @@ Library.Sections.__index = Library.Sections;
             Left.BorderColor3 = Color3.new(0,0,0)
             Left.Visible = false
             Left.ZIndex = 3
-            Left.ClipsDescendants = true
-            
-            -- Add ScrollingFrame for Left
-            local LeftScroll = Instance.new('ScrollingFrame', Left)
-            LeftScroll.Name = "LeftScroll"
-            LeftScroll.Size = UDim2.new(1,0,1,0)
-            LeftScroll.Position = UDim2.new(0,0,0,0)
-            LeftScroll.BackgroundTransparency = 1
-            LeftScroll.BorderSizePixel = 0
-            LeftScroll.ScrollBarThickness = 0
-            LeftScroll.ScrollBarImageTransparency = 1
-            LeftScroll.CanvasSize = UDim2.new(0,0,0,0)
-            LeftScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-            
-            -- Move UIListLayout to LeftScroll
-            UIListLayout.Parent = LeftScroll
-            UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            Left.ScrollBarThickness = 0
+            Left.CanvasSize = UDim2.new(0, 0, 0, 0)
+            Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
+            Left.ElasticBehavior = Enum.ElasticBehavior.Always
+			--
+			Right.Name = "Right"
+			Right.Position = UDim2.new(1,-5,0,75)
+			Right.Size = UDim2.new(0.5,-5,1,-80)
+			Right.BackgroundColor3 = Color3.new(1,1,1)
+			Right.BorderSizePixel = 0
+			Right.BorderColor3 = Color3.new(0,0,0)
+			Right.AnchorPoint = Vector2.new(1,0)
+			Right.Visible = false
+			Right.BackgroundTransparency = 1
+            Right.ScrollBarThickness = 0
+            Right.CanvasSize = UDim2.new(0, 0, 0, 0)
+            Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
+            Right.ElasticBehavior = Enum.ElasticBehavior.Always
+			--
+			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
             UIListLayout.Padding = UDim.new(0,16)
             --
-            Right.Name = "Right"
-            Right.Position = UDim2.new(1,-5,0,75)
-            Right.Size = UDim2.new(0.5,-5,1,-80)
-            Right.BackgroundColor3 = Color3.new(1,1,1)
-            Right.BorderSizePixel = 0
-            Right.BorderColor3 = Color3.new(0,0,0)
-            Right.AnchorPoint = Vector2.new(1,0)
-            Right.Visible = false
-            Right.BackgroundTransparency = 1
-            Right.ClipsDescendants = true
-            
-            -- Add ScrollingFrame for Right
-            local RightScroll = Instance.new('ScrollingFrame', Right)
-            RightScroll.Name = "RightScroll"
-            RightScroll.Size = UDim2.new(1,0,1,0)
-            RightScroll.Position = UDim2.new(0,0,0,0)
-            RightScroll.BackgroundTransparency = 1
-            RightScroll.BorderSizePixel = 0
-            RightScroll.ScrollBarThickness = 0
-            RightScroll.ScrollBarImageTransparency = 1
-            RightScroll.CanvasSize = UDim2.new(0,0,0,0)
-            RightScroll.AutomaticCanvasSize = Enum.AutomaticSize.Y
-            
-            -- Move UIListLayout to RightScroll
-            UIListLayout_2.Parent = RightScroll
             UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
             UIListLayout_2.Padding = UDim.new(0,16)
 			--
 			TabButton.Name = "TabButton"
+			TabButton.Size = UDim2.new(0.25,0,1,0)
+			TabButton.BackgroundColor3 = Color3.new(1,1,1)
+			TabButton.BackgroundTransparency = 1
+			TabButton.BorderSizePixel = 0
+			TabButton.BorderColor3 = Color3.new(0,0,0)
+			TabButton.Text = Page.Name
+			TabButton.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
+			TabButton.AutoButtonColor = false
+			TabButton.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			TabButton.TextSize = Library.FontSize
+			TabButton.TextStrokeTransparency = 0
+			TabButton.LineHeight = 1.1
+			--
+			TabAccent.Name = "TabAccent"
+			TabAccent.Size = UDim2.new(1,0,0,1)
+			TabAccent.BackgroundColor3 = Library.Accent
+			TabAccent.BorderSizePixel = 0
+			TabAccent.BorderColor3 = Color3.new(0,0,0)
+			TabAccent.Visible = false
+			table.insert(Library.ThemeObjects, TabAccent)
+			--
+			TabLine.Name = "TabLine"
+			TabLine.Position = UDim2.new(0,0,1,-1)
+			TabLine.Size = UDim2.new(1,0,0,1)
+			TabLine.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
+			TabLine.BorderSizePixel = 0
+			TabLine.BorderColor3 = Color3.new(0,0,0)
+
+            WeaponOutline.Name = "WeaponOutline"
+            WeaponOutline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+            WeaponOutline.BorderColor3 = Color3.fromRGB(10, 10, 10)
+            WeaponOutline.Position = UDim2.new(0, 5, 0, 27)
+            WeaponOutline.Size = UDim2.new(1, -10, 0, 40)
+            WeaponOutline.Visible = false
+            
+            WeaponInline.Name = "WeaponInline"
+            WeaponInline.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+            WeaponInline.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            WeaponInline.BorderSizePixel = 0
+            WeaponInline.Position = UDim2.new(0, 1, 0, 1)
+            WeaponInline.Size = UDim2.new(1, -2, 1, -2)
+            
+            UIListLayout3.FillDirection = Enum.FillDirection.Horizontal
+            UIListLayout3.SortOrder = Enum.SortOrder.LayoutOrder
+			
+			function Page:Turn(bool)
+				Page.Open = bool
+				if not Page.Icons then
+                    Left.Visible = Page.Open
+				    Right.Visible = Page.Open
+                else
+                    WeaponOutline.Visible = Page.Open
+                    for Index, Weapon in pairs(Page.Weapons) do
+                        Weapon:Turn(Weapon.Open)
+                    end
+                end
+				TabAccent.Visible = Page.Open
+				TabLine.Visible = not Page.Open
+				TabButton.TextColor3 = Page.Open and Color3.fromRGB(255,255,255) or Color3.fromRGB(145,145,145)
+			end
+			--
+			Library:Connection(TabButton.MouseButton1Down, function()
+				if not Page.Open then
+					Page:Turn(true)
+					for _, Pages in pairs(Page.Window.Pages) do
+						if Pages.Open and Pages ~= Page then
+							Pages:Turn(false)
+						end
+					end
+				end
+			end)
+			--
+			Library:Connection(TabButton.MouseEnter, function() 
+				if not Page.Open then
+					TabButton.TextColor3 = Library.Accent
+				end
+			end)
+			--
+			Library:Connection(TabButton.MouseLeave, function() 
+				if not Page.Open then
+					TabButton.TextColor3 = Color3.fromRGB(145,145,145)
+				end
+			end)
+
+            -- // Functions
+			function Page:UpdateWeapons()
+				for Index, Weapon in pairs(Page.Weapons) do
+					Weapon.Elements.Button.Size = UDim2.new(1/#Page.Weapons,0,1,0)
+					Weapon:Turn(Weapon.Open)
+				end
+			end
+
+            -- // Elements
+			Page.Elements = {
+                Left = Page.Icons and nil or Left,
+				Right = Page.Icons and nil or Right,
+				Button = TabButton,
+                WeaponOutline = WeaponOutline,
+                WeaponInline = WeaponInline,
+			}
+
+            -- // Drawings
+			if #Page.Window.Pages == 0 then
+				Page:Turn(true)
+			end
+			Page.Window.Pages[#Page.Window.Pages + 1] = Page
+			Page.Window:UpdateTabs()
+			return setmetatable(Page, Library.Pages)
+		end
+        --
+        function Pages:Weapon(Properties)
+            if not Properties then
+				Properties = {}
+			end
+			--
+			local Weapon = {
+				Icon = Properties.Icon or Properties.icon or "rbxassetid://11127408662",
+				Window = self,
+				Open = false,
+				Sections = {},
+				Elements = {},
+			}
+			--
+            --Weapon.Window.Elements.WeaponOutline.Visible = true
+
+			local Left = Instance.new('ScrollingFrame', Weapon.Window.Window.Elements.Holder)
+			local Right = Instance.new('ScrollingFrame', Weapon.Window.Window.Elements.Holder)
+			local UIListLayout = Instance.new('UIListLayout', Left)
+			local UIListLayout_2 = Instance.new('UIListLayout', Right)
+            local New = Instance.new("ImageButton")
+			--
+			New.Name = "New"
+            New.Parent = Weapon.Window.Elements.WeaponInline
+            New.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            New.BackgroundTransparency = 1.000
+            New.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            New.BorderSizePixel = 0
+            New.Size = UDim2.new(0.200000003, 0, 1, 0)
+            New.Image = Weapon.Icon
+            New.ScaleType = Enum.ScaleType.Fit
+			--
+			Left.Name = "Left"
+			Left.Position = UDim2.new(0,5,0,75)
+			Left.Size = UDim2.new(0.5,-10,1,-80)
+			Left.BackgroundColor3 = Color3.new(1,1,1)
+			Left.BorderSizePixel = 0
+			Left.BackgroundTransparency = 1
+			Left.BorderColor3 = Color3.new(0,0,0)
+			Left.Visible = false
+			Left.ZIndex = 3
+			Left.ScrollBarThickness = 0
+			Left.CanvasSize = UDim2.new(0, 0, 0, 0)
+			Left.AutomaticCanvasSize = Enum.AutomaticSize.Y
+			Left.ElasticBehavior = Enum.ElasticBehavior.Always
+			--
+			Right.Name = "Right"
+			Right.Position = UDim2.new(1,-5,0,75)
+			Right.Size = UDim2.new(0.5,-5,1,-80)
+			Right.BackgroundColor3 = Color3.new(1,1,1)
+			Right.BorderSizePixel = 0
+			Right.BorderColor3 = Color3.new(0,0,0)
+			Right.AnchorPoint = Vector2.new(1,0)
+			Right.Visible = false
+			Right.BackgroundTransparency = 1
+			Right.ScrollBarThickness = 0
+			Right.CanvasSize = UDim2.new(0, 0, 0, 0)
+			Right.AutomaticCanvasSize = Enum.AutomaticSize.Y
+			Right.ElasticBehavior = Enum.ElasticBehavior.Always
+			--
+			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout.Padding = UDim.new(0,16)
+			--
+			UIListLayout_2.SortOrder = Enum.SortOrder.LayoutOrder
+			UIListLayout_2.Padding = UDim.new(0,16)
 			
 			function Weapon:Turn(bool)
 				Weapon.Open = bool
@@ -1682,9 +1842,7 @@ Library.Sections.__index = Library.Sections;
 			Weapon.Elements = {
 				Left = Left,
 				Right = Right,
-				Button = New,
-				LeftScroll = LeftScroll,
-				RightScroll = RightScroll
+				Button = New
 			}
 
 			-- // Drawings
@@ -1711,26 +1869,7 @@ Library.Sections.__index = Library.Sections;
 				Size = Properties.Size or Properties.size or nil,
 			}
 			--
-			local SectionParent
-			if Section.Side == "left" then
-				if Section.Page.Elements.Left and Section.Page.Elements.Left.LeftScroll then
-					SectionParent = Section.Page.Elements.Left.LeftScroll
-				elseif Section.Page.Elements.LeftScroll then
-					SectionParent = Section.Page.Elements.LeftScroll
-				else
-					SectionParent = Section.Page.Elements.Left
-				end
-			elseif Section.Side == "right" then
-				if Section.Page.Elements.Right and Section.Page.Elements.Right.RightScroll then
-					SectionParent = Section.Page.Elements.Right.RightScroll
-				elseif Section.Page.Elements.RightScroll then
-					SectionParent = Section.Page.Elements.RightScroll
-				else
-					SectionParent = Section.Page.Elements.Right
-				end
-			end
-			
-			local SectionOutline = Instance.new('Frame', SectionParent)
+			local SectionOutline = Instance.new('Frame', Section.Side == "left" and Section.Page.Elements.Left or Section.Side == "right" and Section.Page.Elements.Right)
 			local SectionInline = Instance.new('Frame', SectionOutline)
 			local Container = Instance.new('Frame', SectionInline)
 			local UIListLayout = Instance.new('UIListLayout', Container)
