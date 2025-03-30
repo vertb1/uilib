@@ -1812,7 +1812,7 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, Accent)
             --
             TitleLabel.Name = "TitleLabel"
-            TitleLabel.Position = UDim2.new(0,10,0,-5) -- Changed from -4 to -5 to move up a bit more
+            TitleLabel.Position = UDim2.new(0,10,0,1)
             TitleLabel.Size = UDim2.new(1,-20,0,14)
             TitleLabel.BackgroundColor3 = Color3.new(1,1,1)
             TitleLabel.BackgroundTransparency = 1
@@ -2167,7 +2167,7 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, SectionAccent)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,10,0,-5) -- Changed Y position from 0 to -5 to move it upward
+			Title.Position = UDim2.new(0,10,0,-4) -- Changed Y position from 0 to -4 to move it upward
 			Title.Size = UDim2.new(0,100,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
@@ -2182,7 +2182,7 @@ Library.Sections.__index = Library.Sections;
 			Title.TextStrokeTransparency = 0
 			--
 			TextBorder.Name = "TextBorder"
-			TextBorder.Position = UDim2.new(0,6,0,-5) -- Changed from -4 to -5 to match the title
+			TextBorder.Position = UDim2.new(0,6,0,-4) -- Changed Y position from 0 to -4 to match the title
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
 			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			TextBorder.BorderSizePixel = 0
