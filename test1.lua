@@ -60,7 +60,7 @@ do
 		if isfile(Name .. ".font") then
 			return getsynasset(Name .. ".font");
 		end;
-		return "Arcade"; -- Changed to return "Arcade" font instead of "Code"
+		return "Code"; -- Changed to return "Code" font instead of using custom font
 	end;
 
 	Font:Register("menu_plex", 400, "normal", {Id = "ProggyClean.ttf", Font = ""});
@@ -70,7 +70,7 @@ if not LPH_OBFUSCATED then
     getfenv().LPH_NO_VIRTUALIZE = function(...) return (...) end;
 end
 
-local font = Enum.Font.Arcade;
+local font = Enum.Font.Code;
 local Library = {
 	FontColor = Color3.fromRGB(255, 255, 255),
 	MainColor = Color3.fromRGB(28, 28, 28),
@@ -274,7 +274,7 @@ local Library = {
 		[Enum.UserInputType.MouseButton3] = "MB3"
 	};
 	Connections = {};
-	Font = Enum.Font.Arcade;
+	Font = Enum.Font.Code;
 	FontSize = 12;
 	Notifs = {};
 	KeyList = nil;
@@ -417,6 +417,178 @@ Library.Sections.__index = Library.Sections;
 				ElementColor = Color3.fromRGB(70, 35, 10)
 			}
 		}
+
+		-- Theme Creator Helper Function
+		function Library:CreateThemeConfig(section)
+			local currentTheme = Library.Themes[Library.CurrentTheme] or Library.Themes.Default
+			
+			-- Create dropdown to select from predefined themes
+			local themeList = {}
+			for themeName, _ in pairs(Library.Themes) do
+				table.insert(themeList, themeName)
+			end
+			
+			section:Dropdown({
+				Name = "Preset Themes",
+				Options = themeList,
+				Callback = function(selectedTheme)
+					Library:ApplyTheme(selectedTheme)
+				end
+			})
+			
+			section:Label({Name = "━━━━━━━━ Custom Theme ━━━━━━━━", Centered = true})
+			
+			-- Add color pickers for each theme element
+			local accentPicker = section:Colorpicker({
+				Name = "Accent Color",
+				Default = currentTheme.Accent,
+				Callback = function(color)
+					Library.Accent = color
+					for _, obj in pairs(Library.ThemeObjects) do
+						if obj and obj.BackgroundColor3 ~= nil then
+							obj.BackgroundColor3 = color
+						end
+					end
+				end,
+				Flag = "CustomTheme_Accent"
+			})
+			
+			local bgPicker = section:Colorpicker({
+				Name = "Background Color",
+				Default = currentTheme.Background,
+				Callback = function(color)
+					-- Update all background elements
+					if Library.Holder then
+						for _, descendant in pairs(Library.Holder:GetDescendants()) do
+							if descendant:IsA("Frame") and 
+							   (descendant.Name == "Inline" or 
+								descendant.Name == "HolderInline" or 
+								descendant.Name == "SectionInline" or 
+								descendant.Name == "ContainerInline") then
+								descendant.BackgroundColor3 = color
+							end
+						end
+					end
+				end,
+				Flag = "CustomTheme_Background"
+			})
+			
+			local topBgPicker = section:Colorpicker({
+				Name = "Top Background",
+				Default = currentTheme.TopBackground,
+				Callback = function(color)
+					-- Update top background elements
+					if Library.Holder then
+						Library.Holder.BackgroundColor3 = color
+						for _, descendant in pairs(Library.Holder:GetDescendants()) do
+							if descendant:IsA("Frame") and 
+							   (descendant.Name == "Outline" or 
+								descendant.Name == "HolderOutline" or 
+								descendant.Name == "SectionOutline" or 
+								descendant.Name == "TabLine" or
+								descendant.Name == "ContainerOutline") then
+								descendant.BackgroundColor3 = color
+							end
+						end
+					end
+				end,
+				Flag = "CustomTheme_TopBackground"
+			})
+			
+			local borderPicker = section:Colorpicker({
+				Name = "Border Color",
+				Default = currentTheme.Border,
+				Callback = function(color)
+					-- Update all border elements
+					if Library.Holder then
+						Library.Holder.BorderColor3 = color
+						for _, descendant in pairs(Library.Holder:GetDescendants()) do
+							if (descendant:IsA("Frame") or descendant:IsA("TextButton")) and
+							   descendant.BorderSizePixel > 0 then
+								descendant.BorderColor3 = color
+							end
+						end
+					end
+				end,
+				Flag = "CustomTheme_Border"
+			})
+			
+			local textPicker = section:Colorpicker({
+				Name = "Text Color",
+				Default = currentTheme.TextColor,
+				Callback = function(color)
+					-- Update all text elements
+					if Library.Holder then
+						for _, descendant in pairs(Library.Holder:GetDescendants()) do
+							if (descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox")) and
+							   descendant.TextColor3 == Color3.new(1, 1, 1) then
+								descendant.TextColor3 = color
+							end
+						end
+					end
+				end,
+				Flag = "CustomTheme_TextColor"
+			})
+			
+			local elementPicker = section:Colorpicker({
+				Name = "Element Color",
+				Default = currentTheme.ElementColor,
+				Callback = function(color)
+					-- Update all element backgrounds
+					if Library.Holder then
+						for _, descendant in pairs(Library.Holder:GetDescendants()) do
+							if descendant:IsA("Frame") and descendant.Name == "Inline" and
+							   not table.find(Library.ThemeObjects, descendant) and
+							   descendant.BackgroundColor3 ~= Library.Accent then
+								descendant.BackgroundColor3 = color
+							end
+						end
+						
+						-- Update dropdown options
+						for _, option in pairs(Library.DropdownOptions) do
+							if option and option.BackgroundColor3 ~= nil and
+							   option.BackgroundColor3 ~= Library.Accent then
+								option.BackgroundColor3 = color
+							end
+						end
+					end
+				end,
+				Flag = "CustomTheme_ElementColor"
+			})
+			
+			-- Button to save current custom theme
+			section:Button({
+				Name = "Save Custom Theme",
+				Callback = function()
+					local customTheme = {
+						Accent = Library.Flags["CustomTheme_Accent"],
+						Background = Library.Flags["CustomTheme_Background"],
+						TopBackground = Library.Flags["CustomTheme_TopBackground"],
+						Border = Library.Flags["CustomTheme_Border"],
+						TextColor = Library.Flags["CustomTheme_TextColor"],
+						ElementColor = Library.Flags["CustomTheme_ElementColor"]
+					}
+					
+					-- Add custom theme to themes list
+					Library.Themes["Custom"] = customTheme
+					
+					-- Apply the custom theme
+					Library:ApplyTheme("Custom")
+					
+					-- Notification
+					Library:Notification("Custom theme saved and applied", 3, nil, "Middle")
+				end
+			})
+			
+			return {
+				AccentPicker = accentPicker,
+				BackgroundPicker = bgPicker,
+				TopBackgroundPicker = topBgPicker,
+				BorderPicker = borderPicker,
+				TextPicker = textPicker,
+				ElementPicker = elementPicker
+			}
+		end
 
 		-- Apply theme function
 		function Library:ApplyTheme(theme)
@@ -2008,7 +2180,7 @@ Library.Sections.__index = Library.Sections;
 			TabButton.Text = Page.Name
 			TabButton.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
 			TabButton.AutoButtonColor = false
-			TabButton.FontFace = Font.new("Arcade")
+			TabButton.FontFace = Font.new("Code")
 			TabButton.TextSize = Library.FontSize
 			TabButton.TextStrokeTransparency = 0
 			TabButton.LineHeight = 0.9 -- Changed from 1.1 to move text up
@@ -4118,7 +4290,8 @@ Library.Sections.__index = Library.Sections;
 			end)
 		end
 		--
-		function Sections:Label(Properties) -- fuck finobe
+		function Sections:Label(Properties)
+			-- fuck finobe
 			local Properties = Properties or {}
 			local Label = {
 				Window = self.Window,
@@ -4128,7 +4301,7 @@ Library.Sections.__index = Library.Sections;
 				Centered = Properties.Centered or false,
 			}
 			local NewLabel = Instance.new('TextLabel', Label.Section.Elements.SectionContent)
-			--
+			
 			NewLabel.Name = "NewLabel"
 			NewLabel.Size = UDim2.new(1, -30, 0, 24) -- Increased default height
 			NewLabel.Position = UDim2.new(0, 15, 0, 0)
@@ -4138,7 +4311,7 @@ Library.Sections.__index = Library.Sections;
 			NewLabel.BorderColor3 = Color3.new(0,0,0)
 			NewLabel.Text = Label.Name
 			NewLabel.TextColor3 = Color3.fromRGB(255,255,255)
-			NewLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			NewLabel.FontFace = Font.new("Code")
 			NewLabel.TextSize = Library.FontSize
 			NewLabel.TextXAlignment = Label.Centered and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
 			NewLabel.TextYAlignment = Enum.TextYAlignment.Top
