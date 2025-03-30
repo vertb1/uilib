@@ -60,6 +60,7 @@ do
 		if isfile(Name .. ".font") then
 			return getsynasset(Name .. ".font");
 		end;
+		return "Code"; -- Changed to return "Code" font instead of using custom font
 	end;
 
 	Font:Register("menu_plex", 400, "normal", {Id = "ProggyClean.ttf", Font = ""});
@@ -273,7 +274,7 @@ local Library = {
 		[Enum.UserInputType.MouseButton3] = "MB3"
 	};
 	Connections = {};
-	Font = Enum.Font.Ubuntu;
+	Font = Enum.Font.Code;
 	FontSize = 12;
 	Notifs = {};
 	KeyList = nil;
@@ -2007,11 +2008,11 @@ Library.Sections.__index = Library.Sections;
 			TabButton.Text = Page.Name
 			TabButton.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
 			TabButton.AutoButtonColor = false
-			TabButton.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			TabButton.FontFace = Font.new("Code")
 			TabButton.TextSize = Library.FontSize
 			TabButton.TextStrokeTransparency = 0
 			TabButton.LineHeight = 0.9 -- Changed from 1.1 to move text up
-			TabButton.Position = UDim2.new(0,0,0,-1) -- Added slight Y offset to move up
+			TabButton.Position = UDim2.new(0,0,0,-2) -- Increased Y offset from -1 to -2
 			--
 			TabAccent.Name = "TabAccent"
 			TabAccent.Size = UDim2.new(1,0,0,1)
