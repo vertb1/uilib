@@ -60,7 +60,7 @@ do
 		if isfile(Name .. ".font") then
 			return getsynasset(Name .. ".font");
 		end;
-		return "Code"; -- Changed to return "Code" font instead of using custom font
+		return "Arcade"; -- Changed to return "Arcade" font instead of "Code"
 	end;
 
 	Font:Register("menu_plex", 400, "normal", {Id = "ProggyClean.ttf", Font = ""});
@@ -70,7 +70,7 @@ if not LPH_OBFUSCATED then
     getfenv().LPH_NO_VIRTUALIZE = function(...) return (...) end;
 end
 
-local font = Enum.Font.Code;
+local font = Enum.Font.Arcade;
 local Library = {
 	FontColor = Color3.fromRGB(255, 255, 255),
 	MainColor = Color3.fromRGB(28, 28, 28),
@@ -274,7 +274,7 @@ local Library = {
 		[Enum.UserInputType.MouseButton3] = "MB3"
 	};
 	Connections = {};
-	Font = Enum.Font.Code;
+	Font = Enum.Font.Arcade;
 	FontSize = 12;
 	Notifs = {};
 	KeyList = nil;
@@ -2008,7 +2008,7 @@ Library.Sections.__index = Library.Sections;
 			TabButton.Text = Page.Name
 			TabButton.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
 			TabButton.AutoButtonColor = false
-			TabButton.FontFace = Font.new("Code")
+			TabButton.FontFace = Font.new("Arcade")
 			TabButton.TextSize = Library.FontSize
 			TabButton.TextStrokeTransparency = 0
 			TabButton.LineHeight = 0.9 -- Changed from 1.1 to move text up
