@@ -648,246 +648,36 @@ Library.Sections.__index = Library.Sections;
 		end
 
 		-- Apply theme function
-		function Library:ApplyTheme(theme)
-			local selectedTheme = self.Themes[theme] or self.Themes.Default
-			
-			-- Save the current theme name
-			self.CurrentTheme = theme
-			
-			-- Update accent color
-			self.Accent = selectedTheme.Accent
-			
-			-- Update all UI elements with the theme
-			for _, obj in pairs(self.ThemeObjects) do
-				if obj and obj.BackgroundColor3 ~= nil then
-					obj.BackgroundColor3 = selectedTheme.Accent
-				end
-			end
-			
-			-- Update dropdown options
-			for _, option in pairs(self.DropdownOptions) do
-				if option and option.BackgroundColor3 ~= nil then
-					option.BackgroundColor3 = selectedTheme.ElementColor
-				end
-			end
-			
-			-- Update dropdown option text
-			for _, optionText in pairs(self.DropdownOptionTexts) do
-				if optionText and optionText.TextColor3 ~= nil then
-					if optionText.TextColor3 == Color3.fromRGB(255, 255, 255) then
-						-- This is a selected option, leave it white
-					else
-						optionText.TextColor3 = selectedTheme.TextColor
-					end
-				end
-			end
-			
-			-- Update background colors if the Holder exists
-			if self.Holder then
-				-- Update main window
-				self.Holder.BackgroundColor3 = selectedTheme.TopBackground
-				self.Holder.BorderColor3 = selectedTheme.Border
+		function Library:ApplyTheme(themeName)
+			local theme = Library.Themes[themeName]
+			if theme then
+				-- Apply theme colors to existing elements
+				Library.Accent = theme.Accent or Color3.fromRGB(132, 108, 188)
 				
-				-- Update all descendants with proper names and types
-				for _, descendant in pairs(self.Holder:GetDescendants()) do
-					-- Frame updates
-					if descendant:IsA("Frame") then
-						-- Handle different frame types
-						if descendant.Name == "Inline" or descendant.Name == "HolderInline" or
-						   descendant.Name == "SectionInline" or descendant.Name == "ContainerInline" then
-							descendant.BackgroundColor3 = selectedTheme.Background
-						elseif descendant.Name == "Outline" or descendant.Name == "HolderOutline" or 
-							   descendant.Name == "SectionOutline" or descendant.Name == "ContainerOutline" then
-							descendant.BackgroundColor3 = selectedTheme.TopBackground
-							descendant.BorderColor3 = selectedTheme.Border
-						elseif descendant.Name == "TabLine" then
-							descendant.BackgroundColor3 = selectedTheme.TopBackground
-						elseif descendant.Name == "SectionAccent" or descendant.Name == "TabAccent" then
-							descendant.BackgroundColor3 = selectedTheme.Accent
-						elseif descendant.Name == "ColorWindow" then
-							descendant.BackgroundColor3 = selectedTheme.TopBackground
-							descendant.BorderColor3 = selectedTheme.Border
-							
-							-- Update colorpicker internal elements
-							for _, child in pairs(descendant:GetDescendants()) do
-								if child.Name == "Inline" then
-									child.BackgroundColor3 = selectedTheme.Background
-								elseif child:IsA("TextLabel") or child:IsA("TextButton") then
-									child.TextColor3 = selectedTheme.TextColor
-								elseif child.Name == "ModeOutline" then
-									child.BackgroundColor3 = selectedTheme.TopBackground
-									child.BorderColor3 = selectedTheme.Border
-								end
-							end
-						elseif descendant.Name == "ContainerOutline" then
-							descendant.BackgroundColor3 = selectedTheme.TopBackground
-							descendant.BorderColor3 = selectedTheme.Border
-							
-							-- Apply theme to dropdown container
-							for _, child in pairs(descendant:GetDescendants()) do
-								if child.Name == "ContainerInline" then
-									child.BackgroundColor3 = selectedTheme.Background
-								end
-							end
-						end
-					end
-					
-					-- Update text elements
-					if descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox") then
-						-- Preserve white text for open tabs
-						if descendant.Name == "TabButton" and descendant.TextColor3 == Color3.fromRGB(255, 255, 255) then
-							-- This is an active tab, keep it white
-						else
-							-- Other text elements
-							if descendant.TextColor3 == Color3.fromRGB(145, 145, 145) then
-								-- Don't change inactive element colors
-							elseif descendant.TextColor3 == Library.Accent then
-								-- Update text that was using the old accent
-								descendant.TextColor3 = selectedTheme.Accent
-							elseif descendant.TextColor3 == Color3.fromRGB(255, 255, 255) or 
-								  descendant.TextColor3 == Color3.new(1, 1, 1) then
-								-- Only update white text that isn't an active tab
-								if descendant.Name ~= "TabButton" then
-									descendant.TextColor3 = selectedTheme.TextColor
-								end
-							end
-						end
-					end
-				end
-			end
-			
-			-- Update keybinds list if it exists
-			if self.KeyList and self.KeyList.Outline then
-				self.KeyList.Outline.BackgroundColor3 = selectedTheme.TopBackground
-				self.KeyList.Outline.BorderColor3 = selectedTheme.Border
-				
-				for _, child in pairs(self.KeyList.Outline:GetDescendants()) do
-					if child:IsA("Frame") then
-						if child.Name == "Inline" then
-							child.BackgroundColor3 = selectedTheme.Background
-						elseif child.Name == "Accent" then
-							child.BackgroundColor3 = selectedTheme.Accent
-						end
-					elseif child:IsA("TextLabel") and child.Name == "NewValue" then
-						-- For keybind entries, only update if it's not meant to be highlighted
-						-- Preserve the accent color for active keybinds
-						if not table.find(self.ThemeObjects, child) then
-							child.TextColor3 = selectedTheme.TextColor
-						else
-							child.TextColor3 = selectedTheme.Accent -- Keep accent for active keybinds
-						end
-					elseif child:IsA("TextLabel") then
-						child.TextColor3 = selectedTheme.TextColor
+				-- Update all theme objects (accent colored)
+				for _, obj in pairs(Library.ThemeObjects) do
+					if obj and obj.BackgroundColor3 ~= nil then
+						obj.BackgroundColor3 = Library.Accent
 					end
 				end
 				
-				-- Also explicitly maintain states for all keybinds
-				for _, keybind in pairs(self.KeyList.Keybinds) do
-					if keybind.IsActive then
-						-- This ensures active keybinds stay visually active
-						keybind:SetVisible(true)
+				-- Update toggle objects to ensure the colored parts use accent
+				if Library.ElementObjects then
+					for _, toggle in pairs(Library.ElementObjects) do
+						if toggle.Toggle and toggle.State and toggle.Toggle.BackgroundColor3 ~= nil then
+							toggle.Toggle.BackgroundColor3 = Library.Accent
+						end
 					end
 				end
-			end
-			
-			-- Update watermark if it exists
-			if self.WatermarkFrame then
-				self.WatermarkFrame.BackgroundColor3 = selectedTheme.TopBackground
-				self.WatermarkFrame.BorderColor3 = selectedTheme.Border
 				
-				for _, child in pairs(self.WatermarkFrame:GetDescendants()) do
-					if child:IsA("Frame") then
-						if child.Name == "InlineFrame" then
-							child.BackgroundColor3 = selectedTheme.Background
-						elseif child.Name == "AccentBar" then
-							child.BackgroundColor3 = selectedTheme.Accent
-						end
-					elseif child:IsA("TextLabel") then
-						child.TextColor3 = selectedTheme.TextColor
+				-- Update text objects
+				for _, obj in pairs(Library.TextObjects) do
+					if obj and obj.TextColor3 ~= nil then
+						obj.TextColor3 = theme.TextColor or Color3.new(1, 1, 1)
 					end
 				end
-			end
-			
-			-- Update notifications
-			for _, notification in pairs(self.Notifs) do
-				for _, obj in pairs(notification.Objects) do
-					if obj.Name == "Background" then
-						obj.BackgroundColor3 = selectedTheme.Background
-						obj.BorderColor3 = selectedTheme.Border
-					elseif obj.Name == "Accemt" then
-						obj.BackgroundColor3 = selectedTheme.Accent
-					elseif obj.Name == "TextLabel" then
-						obj.TextColor3 = selectedTheme.TextColor
-					end
-				end
-			end
-
-			-- Track all toggle elements and maintain their states
-			local toggleElements = {}
-
-			-- First pass: identify all toggle elements and their current states
-			if self.Holder then
-				for _, descendant in pairs(self.Holder:GetDescendants()) do
-					if descendant:IsA("Frame") and descendant.Name == "Inline" then
-						-- This might be a toggle element
-						local parentOutline = descendant.Parent
-						if parentOutline and parentOutline.Name == "Outline" and parentOutline.Size.X.Offset == 10 and parentOutline.Size.Y.Offset == 10 then
-							-- This is likely a toggle, check if it's active (using accent color or in ThemeObjects)
-							local isActive = false
-							if descendant.BackgroundColor3 == self.Accent or table.find(self.ThemeObjects, descendant) then
-								isActive = true
-							end
-							
-							-- Also check for any related title elements to see if they're active
-							local toggleButton = parentOutline.Parent
-							if toggleButton and toggleButton:IsA("TextButton") then
-								for _, child in pairs(toggleButton:GetChildren()) do
-									if child:IsA("TextLabel") and child.Name == "Title" then
-										if child.TextColor3 == Color3.fromRGB(255, 255, 255) or 
-										   child.TextColor3 == Color3.fromRGB(227, 227, 34) then
-											isActive = true
-										end
-									end
-								end
-							end
-							
-							table.insert(toggleElements, {
-								element = descendant,
-								active = isActive
-							})
-						end
-					end
-				end
-			end
-
-			-- After all theme updates are applied, restore active toggle states
-			for _, toggleData in pairs(toggleElements) do
-				if toggleData.active then
-					-- This was an active toggle, restore its state
-					toggleData.element.BackgroundColor3 = selectedTheme.Accent
-					
-					-- Also handle the title label (next to the toggle)
-					local toggleButton = toggleData.element.Parent.Parent
-					if toggleButton and toggleButton:IsA("TextButton") then
-						for _, child in pairs(toggleButton:GetChildren()) do
-							if child:IsA("TextLabel") and child.Name == "Title" then
-								-- Restore text color for the title
-								child.TextColor3 = Color3.fromRGB(255, 255, 255)
-								
-								-- If it's a risk toggle, use yellow instead
-								if child.TextColor3 == Color3.fromRGB(158, 158, 24) or 
-								   child.TextColor3 == Color3.fromRGB(227, 227, 34) then
-									child.TextColor3 = Color3.fromRGB(227, 227, 34)
-								end
-								
-								-- Make sure it's in the theme objects
-								if not table.find(self.ThemeObjects, toggleData.element) then
-									table.insert(self.ThemeObjects, toggleData.element)
-								end
-							end
-						end
-					end
-				end
+				
+				Library.CurrentTheme = themeName
 			end
 		end
 
