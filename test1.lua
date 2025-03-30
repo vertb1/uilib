@@ -60,7 +60,7 @@ do
 		if isfile(Name .. ".font") then
 			return getsynasset(Name .. ".font");
 		end;
-		return "Code"; -- Changed to return "Code" font instead of using custom font
+		return "Arcade"; -- Changed to return "Arcade" font instead of "Code"
 	end;
 
 	Font:Register("menu_plex", 400, "normal", {Id = "ProggyClean.ttf", Font = ""});
@@ -274,7 +274,7 @@ local Library = {
 		[Enum.UserInputType.MouseButton3] = "MB3"
 	};
 	Connections = {};
-	Font = Enum.Font.Code;
+	Font = Enum.Font.Arcade; -- Changed from Code to Arcade
 	FontSize = 12;
 	Notifs = {};
 	KeyList = nil;
@@ -2008,7 +2008,7 @@ Library.Sections.__index = Library.Sections;
 			TabButton.Text = Page.Name
 			TabButton.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
 			TabButton.AutoButtonColor = false
-			TabButton.Font = Enum.Font.Code -- Changed to use direct Font property
+			TabButton.FontFace = Font.new("Arcade")
 			TabButton.TextSize = Library.FontSize
 			TabButton.TextStrokeTransparency = 0
 			TabButton.LineHeight = 0.9 -- Changed from 1.1 to move text up
@@ -2169,23 +2169,22 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, SectionAccent)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,10,0,-10) -- Move higher from -8 to -10
+			Title.Position = UDim2.new(0,10,0,-4) -- Changed Y position from 0 to -4 to move it upward
 			Title.Size = UDim2.new(0,100,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
 			Title.BorderColor3 = Color3.new(0,0,0)
 			Title.TextColor3 = Color3.new(1,1,1)
-			Title.Font = Enum.Font.Code -- Use direct Font property instead of FontFace
+			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Title.TextSize = Library.FontSize
 			Title.ZIndex = 3
 			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.Text = Section.Name
 			Title.TextStrokeTransparency = 0
-			
 			--
 			TextBorder.Name = "TextBorder"
-			TextBorder.Position = UDim2.new(0,6,0,-10) -- Changed Y position to match new title position
+			TextBorder.Position = UDim2.new(0,6,0,-4) -- Changed Y position from 0 to -4 to match the title
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
 			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			TextBorder.BorderSizePixel = 0
@@ -2290,25 +2289,44 @@ Library.Sections.__index = Library.Sections;
 			if not Properties then
 				Properties = {}
 			end
-			
+			--
 			local Toggle = {
 				Window = self.Window,
 				Page = self.Page,
 				Section = self,
 				Risk = Properties.Risk or false,
 				Name = Properties.Name or "Toggle",
-				State = ( Properties.state or Properties.State or Properties.def or Properties.Def or Properties.default or Properties.Default or false ),
-				Callback = ( Properties.callback or Properties.Callback or Properties.callBack or Properties.CallBack or function() end ),
-				Flag = ( Properties.flag or Properties.Flag or Properties.pointer or Properties.Pointer or Library.NextFlag() ),
+				State = (
+					Properties.state
+						or Properties.State
+						or Properties.def
+						or Properties.Def
+						or Properties.default
+						or Properties.Default
+						or false
+				),
+				Callback = (
+					Properties.callback
+						or Properties.Callback
+						or Properties.callBack
+						or Properties.CallBack
+							or function() end
+				),
+				Flag = (
+					Properties.flag
+						or Properties.Flag
+						or Properties.pointer
+						or Properties.Pointer
+						or Library.NextFlag()
+				),
 				Toggled = false,
 				Colorpickers = 0,
 			}
-			
+			--
 			local NewToggle = Instance.new('TextButton', Toggle.Section.Elements.SectionContent)
 			local Outline = Instance.new('Frame', NewToggle)
 			local Inline = Instance.new('Frame', Outline)
 			local Title = Instance.new('TextLabel', NewToggle)
-			
 			--
 			NewToggle.Name = "NewToggle"
 			NewToggle.Size = UDim2.new(1,0,0,10)
@@ -2319,7 +2337,7 @@ Library.Sections.__index = Library.Sections;
 			NewToggle.Text = ""
 			NewToggle.TextColor3 = Color3.new(0,0,0)
 			NewToggle.AutoButtonColor = false
-			NewToggle.Font = Enum.Font.Code
+			NewToggle.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			NewToggle.TextSize = 14
 			--
 			Outline.Name = "Outline"
@@ -2333,12 +2351,11 @@ Library.Sections.__index = Library.Sections;
 			Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
 			Inline.BorderSizePixel = 0
 			Inline.BorderColor3 = Color3.new(0,0,0)
-			
+			--
 			--[[local inputText = string.upper(Toggle.Name)
 			local targetLanguage = "Chinese" -- // English, Arabic, Albanian, Japanese, Spanish, Russian, Chinese, Urdu, French, Portuguese, Hindi
-			local translatedText = utility:TranslateString(inputText, targetLanguage)]]
-			
-			--
+			local translatedText = utility:TranslateString(inputText, targetLanguage)]] 
+			-- 
 			Title.Name = "Title"
 			Title.Position = UDim2.new(0,15,0,0)
 			Title.Size = UDim2.new(1,0,0,10)
@@ -2347,7 +2364,7 @@ Library.Sections.__index = Library.Sections;
 			Title.BorderSizePixel = 0
 			Title.BorderColor3 = Color3.new(0,0,0)
 			Title.TextColor3 = Toggle.Risk and Color3.fromRGB(158, 158, 24) or Color3.new(0.5686,0.5686,0.5686)
-			Title.Font = Enum.Font.Code
+			Title.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			Title.TextSize = Library.FontSize
 			Title.TextXAlignment = Enum.TextXAlignment.Left
 			Title.Text = Toggle.Name
@@ -4147,49 +4164,3 @@ Library.Sections.__index = Library.Sections;
 		end
         return Library
 	end
-
--- Function to update all FontFace instances throughout the library
-function UpdateElementFont(element)
-    if element:IsA("TextLabel") or element:IsA("TextButton") or element:IsA("TextBox") then
-        if element:FindFirstChild("FontFace") then
-            element.FontFace = nil -- Remove the FontFace property if it exists
-        end
-        element.Font = Enum.Font.Code -- Set Font directly
-    end
-    
-    -- Process children recursively
-    for _, child in pairs(element:GetChildren()) do
-        UpdateElementFont(child)
-    end
-end
-
--- Apply the font update whenever we create the UI
-Library.UpdateFonts = function()
-    if Library.Holder then
-        UpdateElementFont(Library.Holder)
-    end
-    
-    -- Update any other standalone UI elements
-    if Library.KeyList and Library.KeyList.Outline then
-        UpdateElementFont(Library.KeyList.Outline)
-    end
-    
-    if Library.WatermarkFrame then
-        UpdateElementFont(Library.WatermarkFrame)
-    end
-    
-    -- Update notifications
-    for _, notification in pairs(Library.Notifs) do
-        if notification.Container then
-            UpdateElementFont(notification.Container)
-        end
-    end
-end
-
--- Call the function to update fonts
-local oldWindow = Library.Window
-Library.Window = function(...)
-    local result = oldWindow(...)
-    Library.UpdateFonts()
-    return result
-end
