@@ -2226,12 +2226,9 @@ Library.Sections.__index = Library.Sections;
 						end
 					end
 					
-					-- If no visible children, set a very small minimum size
+					-- If no visible children, set a minimum size
 					if not hasVisibleChildren then
-						containerHeight = 5 -- Changed from 15 to 5 for empty sections
-						padding = 10 -- Reduce padding for empty sections
-					else
-						containerHeight = math.max(containerHeight, 15)
+						containerHeight = 15 -- Minimum height for empty sections
 					end
 				else
 					-- Fallback: just count visible children
@@ -2243,21 +2240,19 @@ Library.Sections.__index = Library.Sections;
 						end
 					end
 					
-					-- If no visible children, set a very small minimum size
+					-- If no visible children, set a minimum size
 					if not hasVisibleChildren then
-						containerHeight = 5 -- Changed from 15 to 5 for empty sections
-						padding = 10 -- Reduce padding for empty sections
-					else
-						containerHeight = math.max(containerHeight, 15)
+						containerHeight = 15 -- Minimum height for empty sections
 					end
 				end
 				
-				-- Set container size with adjusted height
+				-- Set container size with a minimum height
+				containerHeight = math.max(containerHeight, 15)
 				if Container then
 					Container.Size = UDim2.new(1, -14, 0, containerHeight)
 				end
 				
-				-- Set section size to match content with adjusted padding
+				-- Set section size to match content
 				if SectionInline then
 					SectionInline.Size = UDim2.new(1, -2, 0, containerHeight + padding)
 				end
