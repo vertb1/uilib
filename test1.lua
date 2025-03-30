@@ -421,11 +421,19 @@ Library.Sections.__index = Library.Sections;
 		-- Theme Creator Helper Function
 		function Library:CreateThemeConfig(section)
 			local currentTheme = Library.Themes[Library.CurrentTheme] or Library.Themes.Default
+			local customThemes = {}
+			
+			-- Track custom saved themes
+			if not Library.CustomThemes then
+				Library.CustomThemes = {}
+			end
 			
 			-- Create dropdown to select from predefined themes
 			local themeList = {}
 			for themeName, _ in pairs(Library.Themes) do
-				table.insert(themeList, themeName)
+				if themeName ~= "Custom" then -- Don't include the "Custom" theme in the main list
+					table.insert(themeList, themeName)
+				end
 			end
 			
 			section:Dropdown({
@@ -436,7 +444,28 @@ Library.Sections.__index = Library.Sections;
 				end
 			})
 			
-			section:Label({Name = "━━━━━━━━ Custom Theme ━━━━━━━━", Centered = true})
+			-- Add a dropdown for custom themes
+			local customThemesList = {"None"}
+			for themeName, _ in pairs(Library.CustomThemes) do
+				table.insert(customThemesList, themeName)
+			end
+			
+			local customThemeDropdown = section:Dropdown({
+				Name = "Custom Themes",
+				Options = customThemesList,
+				Callback = function(selectedTheme)
+					if selectedTheme and selectedTheme ~= "None" and Library.CustomThemes[selectedTheme] then
+						-- Apply the custom theme
+						if not Library.Themes["Custom"] then
+							Library.Themes["Custom"] = {}
+						end
+						
+						Library.Themes["Custom"] = Library.CustomThemes[selectedTheme]
+						Library:ApplyTheme("Custom")
+						Library:Notification("Applied custom theme: " .. selectedTheme, 3, nil, "Middle")
+					end
+				end
+			})
 			
 			-- Add color pickers for each theme element
 			local accentPicker = section:Colorpicker({
@@ -556,13 +585,26 @@ Library.Sections.__index = Library.Sections;
 				Flag = "CustomTheme_ElementColor"
 			})
 			
+			-- Add a textbox for naming the custom theme
+			local themeNameTextbox = section:Textbox({
+				Name = "Theme Name",
+				Placeholder = "Enter theme name",
+				Flag = "CustomTheme_Name"
+			})
+			
 			-- Button to save current custom theme
 			section:Button({
 				Name = "Save Custom Theme",
 				Callback = function()
+					local themeName = Library.Flags["CustomTheme_Name"] or "MyTheme"
+					if themeName == "" then
+						themeName = "MyTheme" .. tostring(os.time()):sub(-4)
+					end
+					
 					local customTheme = {
 						Accent = Library.Flags["CustomTheme_Accent"],
 						Background = Library.Flags["CustomTheme_Background"],
+						
 						TopBackground = Library.Flags["CustomTheme_TopBackground"],
 						Border = Library.Flags["CustomTheme_Border"],
 						TextColor = Library.Flags["CustomTheme_TextColor"],
@@ -570,13 +612,27 @@ Library.Sections.__index = Library.Sections;
 					}
 					
 					-- Add custom theme to themes list
+					Library.CustomThemes[themeName] = customTheme
+					
+					-- Also set it as current "Custom" theme
+					if not Library.Themes["Custom"] then
+						Library.Themes["Custom"] = {}
+					end
+					
 					Library.Themes["Custom"] = customTheme
 					
 					-- Apply the custom theme
 					Library:ApplyTheme("Custom")
 					
+					-- Update the custom themes dropdown
+					local newCustomThemesList = {"None"}
+					for name, _ in pairs(Library.CustomThemes) do
+						table.insert(newCustomThemesList, name)
+					end
+					customThemeDropdown:Refresh(newCustomThemesList)
+					
 					-- Notification
-					Library:Notification("Custom theme saved and applied", 3, nil, "Middle")
+					Library:Notification("Custom theme saved as: " .. themeName, 3, nil, "Middle")
 				end
 			})
 			
@@ -586,7 +642,8 @@ Library.Sections.__index = Library.Sections;
 				TopBackgroundPicker = topBgPicker,
 				BorderPicker = borderPicker,
 				TextPicker = textPicker,
-				ElementPicker = elementPicker
+				ElementPicker = elementPicker,
+				CustomThemesDropdown = customThemeDropdown
 			}
 		end
 
@@ -3427,13 +3484,13 @@ Library.Sections.__index = Library.Sections;
 
 							Value.Text = #chosen == 0 and "" or table.concat(textchosen, ",") .. (cutobject and ", ..." or "")
 
-							text.TextColor3 = Color3.fromRGB(204, 204, 204) -- Light gray for unselected
+							text.TextColor3 = Color3.fromRGB(145, 145, 145) -- Light gray for unselected
 
 							Library.Flags[Dropdown.Flag] = chosen
 							Dropdown.Callback(chosen)
 						else
 							if #chosen == Dropdown.Max then
-								Dropdown.OptionInsts[chosen[1]].text.TextColor3 = Color3.fromRGB(204, 204, 204)
+								Dropdown.OptionInsts[chosen[1]].text.TextColor3 = Color3.fromRGB(145, 145, 145)
 								table.remove(chosen, 1)
 							end
 
@@ -3456,7 +3513,7 @@ Library.Sections.__index = Library.Sections;
 					else
 						for opt, tbl in next, Dropdown.OptionInsts do
 							if opt ~= option then
-								tbl.text.TextColor3 = Color3.fromRGB(204, 204, 204) -- Light gray for unselected
+								tbl.text.TextColor3 = Color3.fromRGB(145, 145, 145) -- Light gray for unselected
 							end
 						end
 						chosen = option
@@ -3528,12 +3585,8 @@ Library.Sections.__index = Library.Sections;
 					OptionName.BorderSizePixel = 0
 					OptionName.BorderColor3 = Color3.new(0, 0, 0)
 					OptionName.Text = option
-					-- Use theme text color if available
-					if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
-						OptionName.TextColor3 = Library.Themes[Library.CurrentTheme].TextColor
-					else
-						OptionName.TextColor3 = Color3.new(0.8, 0.8, 0.8)
-					end
+					-- Set initial text color to unhighlighted state
+					OptionName.TextColor3 = Color3.fromRGB(145, 145, 145)
 					OptionName.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 					OptionName.TextSize = Library.FontSize
 					OptionName.TextXAlignment = Enum.TextXAlignment.Left
