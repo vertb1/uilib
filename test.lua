@@ -2182,7 +2182,7 @@ Library.Sections.__index = Library.Sections;
 			Title.TextStrokeTransparency = 0
 			--
 			TextBorder.Name = "TextBorder"
-			TextBorder.Position = UDim2.new(0,6,0,0) -- Changed Y offset from -2 to 0
+			TextBorder.Position = UDim2.new(0,6,0,-5) -- Changed Y offset from 0 to -5
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
 			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			TextBorder.BorderSizePixel = 0
