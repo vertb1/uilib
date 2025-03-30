@@ -1812,8 +1812,8 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, Accent)
             --
             TitleLabel.Name = "TitleLabel"
-            TitleLabel.Position = UDim2.new(0,10,0,1)
-            TitleLabel.Size = UDim2.new(1,-20,0,14)
+            TitleLabel.Position = UDim2.new(0,10,0,-5) -- Changed Y offset from 0 to -5 to move title up
+            TitleLabel.Size = UDim2.new(1,-20,0,16)
             TitleLabel.BackgroundColor3 = Color3.new(1,1,1)
             TitleLabel.BackgroundTransparency = 1
             TitleLabel.BorderSizePixel = 0
@@ -2167,7 +2167,7 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, SectionAccent)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,10,0,0) -- Changed Y offset from -8 to 0
+			Title.Position = UDim2.new(0,10,0,-5) -- Changed Y offset from 0 to -5 to move title up
 			Title.Size = UDim2.new(0,100,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
@@ -2939,8 +2939,8 @@ Library.Sections.__index = Library.Sections;
 			Subtract.TextStrokeTransparency = 0
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,15,0,0)
-			Title.Size = UDim2.new(1,0,0,10)
+			Title.Position = UDim2.new(0,15,0,-5) -- Changed Y offset from 0 to -5 to move title up
+			Title.Size = UDim2.new(1,0,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
@@ -3115,7 +3115,7 @@ Library.Sections.__index = Library.Sections;
 			NewDrop.BorderColor3 = Color3.new(0,0,0)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,15,0,0)
+			Title.Position = UDim2.new(0,15,0,-5) -- Changed Y offset from 0 to -5 to move title up
 			Title.Size = UDim2.new(1,-15,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
@@ -3542,8 +3542,8 @@ Library.Sections.__index = Library.Sections;
 			Value.TextStrokeTransparency = 0
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,15,0,0)
-			Title.Size = UDim2.new(1,0,0,10)
+			Title.Position = UDim2.new(0,15,0,-5) -- Changed Y offset from 0 to -5 to move title up
+			Title.Size = UDim2.new(1,0,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
@@ -3859,7 +3859,7 @@ Library.Sections.__index = Library.Sections;
 			NewToggle.BorderSizePixel = 0
 			NewToggle.BorderColor3 = Color3.new(0,0,0)
 			--
-			TextLabel.Position = UDim2.new(0,15,0,0)
+			TextLabel.Position = UDim2.new(0,15,0,-5) -- Changed Y offset from 0 to -5 to move title up
 			TextLabel.Size = UDim2.new(0,100,1,0)
 			TextLabel.BackgroundColor3 = Color3.new(1,1,1)
 			TextLabel.BackgroundTransparency = 1
@@ -3987,8 +3987,8 @@ Library.Sections.__index = Library.Sections;
 			Value.ClearTextOnFocus = false
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,15,0,0)
-			Title.Size = UDim2.new(1,0,0,10)
+			Title.Position = UDim2.new(0,15,0,-5) -- Changed Y offset from 0 to -5 to move title up
+			Title.Size = UDim2.new(1,0,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
