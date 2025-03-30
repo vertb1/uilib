@@ -2010,7 +2010,8 @@ Library.Sections.__index = Library.Sections;
 			TabButton.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 			TabButton.TextSize = Library.FontSize
 			TabButton.TextStrokeTransparency = 0
-			TabButton.LineHeight = 1.1
+			TabButton.LineHeight = 0.9 -- Changed from 1.1 to move text up
+			TabButton.Position = UDim2.new(0,0,0,-1) -- Added slight Y offset to move up
 			--
 			TabAccent.Name = "TabAccent"
 			TabAccent.Size = UDim2.new(1,0,0,1)
@@ -2142,7 +2143,7 @@ Library.Sections.__index = Library.Sections;
 			--
 			Container.Name = "Container"
 			Container.Position = UDim2.new(0,7,0,18) -- Adjusted Y position from 10 to 18 to make space for Title
-			Container.Size = UDim2.new(1,-14,0,15) -- Minimum height for empty sections
+			Container.Size = UDim2.new(1,-14,0,1) -- Minimum height for empty sections (was 15)
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
 			Container.BorderSizePixel = 0
@@ -2207,7 +2208,6 @@ Library.Sections.__index = Library.Sections;
 				if not Section then return end
 				if not Section.ContentPadding then Section.ContentPadding = 5 end
 				
-				local padding = 20 -- Additional padding (10 top + 10 bottom)
 				local containerHeight = 0
 				
 				-- Safety check - make sure Container and UIListLayout exist
@@ -2228,7 +2228,7 @@ Library.Sections.__index = Library.Sections;
 					
 					-- If no visible children, set a minimum size
 					if not hasVisibleChildren then
-						containerHeight = 5 -- Reduced minimum height for empty sections (was 15)
+						containerHeight = 2 -- Extremely small height for empty sections (was 5)
 					end
 				else
 					-- Fallback: just count visible children
@@ -2242,19 +2242,27 @@ Library.Sections.__index = Library.Sections;
 					
 					-- If no visible children, set a minimum size
 					if not hasVisibleChildren then
-						containerHeight = 5 -- Reduced minimum height for empty sections (was 15)
+						containerHeight = 2 -- Extremely small height for empty sections (was 5)
 					end
 				end
 				
 				-- Set container size with a minimum height
-				containerHeight = math.max(containerHeight, 5) -- Reduced minimum height from 15 to 5
+				containerHeight = math.max(containerHeight, 2) -- Reduced minimum height to 2 (was 5)
 				if Container then
 					Container.Size = UDim2.new(1, -14, 0, containerHeight)
 				end
 				
+				-- Set padding based on whether there's content
+				local padding 
+				if containerHeight <= 2 then
+					padding = 4 -- Minimal padding for empty containers (was 8)
+				else
+					padding = 20 -- Normal padding for containers with content
+				end
+				
 				-- Set section size to match content
 				if SectionInline then
-						SectionInline.Size = UDim2.new(1, -2, 0, containerHeight + padding)
+					SectionInline.Size = UDim2.new(1, -2, 0, containerHeight + padding)
 				end
 				
 				if SectionOutline then
@@ -2269,6 +2277,10 @@ Library.Sections.__index = Library.Sections;
 
 			wait(0.01)
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
+			
+			-- Immediately calculate size for empty containers
+			Section:RecalculateSize()
+			
 			return setmetatable(Section, Library.Sections)
 		end
 		--
