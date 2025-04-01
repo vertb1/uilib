@@ -371,50 +371,32 @@ Library.Sections.__index = Library.Sections;
 			Default = {
 				Accent = Color3.fromRGB(132, 108, 188),
 				Background = Color3.new(0.0784, 0.0784, 0.0784),
-				TopBackground = Color3.new(0.1765, 0.1765, 0.1765),
-				Border = Color3.new(0.0392, 0.0392, 0.0392),
-				TextColor = Color3.new(1, 1, 1),
-				ElementColor = Color3.new(0.1294, 0.1294, 0.1294)
+				Border = Color3.new(0.0392, 0.0392, 0.0392)
 			},
 			Midnight = {
 				Accent = Color3.fromRGB(36, 150, 255),
 				Background = Color3.fromRGB(10, 10, 15),
-				TopBackground = Color3.fromRGB(20, 20, 30),
-				Border = Color3.fromRGB(0, 0, 0),
-				TextColor = Color3.fromRGB(255, 255, 255),
-				ElementColor = Color3.fromRGB(20, 20, 30)
+				Border = Color3.fromRGB(0, 0, 0)
 			},
 			Blood = {
 				Accent = Color3.fromRGB(255, 0, 0),
 				Background = Color3.fromRGB(10, 0, 0),
-				TopBackground = Color3.fromRGB(25, 0, 0),
-				Border = Color3.fromRGB(50, 0, 0),
-				TextColor = Color3.fromRGB(255, 255, 255),
-				ElementColor = Color3.fromRGB(40, 0, 0)
+				Border = Color3.fromRGB(50, 0, 0)
 			},
 			Ocean = {
 				Accent = Color3.fromRGB(0, 200, 255),
 				Background = Color3.fromRGB(0, 15, 30),
-				TopBackground = Color3.fromRGB(0, 30, 60),
-				Border = Color3.fromRGB(0, 50, 70),
-				TextColor = Color3.fromRGB(255, 255, 255),
-				ElementColor = Color3.fromRGB(0, 40, 60)
+				Border = Color3.fromRGB(0, 50, 70)
 			},
 			Forest = {
 				Accent = Color3.fromRGB(25, 255, 70),
 				Background = Color3.fromRGB(5, 20, 10),
-				TopBackground = Color3.fromRGB(15, 40, 20),
-				Border = Color3.fromRGB(20, 70, 40),
-				TextColor = Color3.fromRGB(255, 255, 255),
-				ElementColor = Color3.fromRGB(15, 50, 25)
+				Border = Color3.fromRGB(20, 70, 40)
 			},
 			Sunset = {
 				Accent = Color3.fromRGB(255, 150, 0),
 				Background = Color3.fromRGB(30, 15, 5),
-				TopBackground = Color3.fromRGB(60, 30, 10),
-				Border = Color3.fromRGB(80, 40, 10),
-				TextColor = Color3.fromRGB(255, 255, 255),
-				ElementColor = Color3.fromRGB(70, 35, 10)
+				Border = Color3.fromRGB(80, 40, 10)
 			}
 		}
 
@@ -502,28 +484,6 @@ Library.Sections.__index = Library.Sections;
 				Flag = "CustomTheme_Background"
 			})
 			
-			local topBgPicker = section:Colorpicker({
-				Name = "Top Background",
-				Default = currentTheme.TopBackground,
-				Callback = function(color)
-					-- Update top background elements
-					if Library.Holder then
-						Library.Holder.BackgroundColor3 = color
-						for _, descendant in pairs(Library.Holder:GetDescendants()) do
-							if descendant:IsA("Frame") and 
-							   (descendant.Name == "Outline" or 
-								descendant.Name == "HolderOutline" or 
-								descendant.Name == "SectionOutline" or 
-								descendant.Name == "TabLine" or
-								descendant.Name == "ContainerOutline") then
-								descendant.BackgroundColor3 = color
-							end
-						end
-					end
-				end,
-				Flag = "CustomTheme_TopBackground"
-			})
-			
 			local borderPicker = section:Colorpicker({
 				Name = "Border Color",
 				Default = currentTheme.Border,
@@ -540,49 +500,6 @@ Library.Sections.__index = Library.Sections;
 					end
 				end,
 				Flag = "CustomTheme_Border"
-			})
-			
-			local textPicker = section:Colorpicker({
-				Name = "Text Color",
-				Default = currentTheme.TextColor,
-				Callback = function(color)
-					-- Update all text elements
-					if Library.Holder then
-						for _, descendant in pairs(Library.Holder:GetDescendants()) do
-							if (descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox")) and
-							   descendant.TextColor3 == Color3.new(1, 1, 1) then
-								descendant.TextColor3 = color
-							end
-						end
-					end
-				end,
-				Flag = "CustomTheme_TextColor"
-			})
-			
-			local elementPicker = section:Colorpicker({
-				Name = "Element Color",
-				Default = currentTheme.ElementColor,
-				Callback = function(color)
-					-- Update all element backgrounds
-					if Library.Holder then
-						for _, descendant in pairs(Library.Holder:GetDescendants()) do
-							if descendant:IsA("Frame") and descendant.Name == "Inline" and
-							   not table.find(Library.ThemeObjects, descendant) and
-							   descendant.BackgroundColor3 ~= Library.Accent then
-								descendant.BackgroundColor3 = color
-							end
-						end
-						
-						-- Update dropdown options
-						for _, option in pairs(Library.DropdownOptions) do
-							if option and option.BackgroundColor3 ~= nil and
-							   option.BackgroundColor3 ~= Library.Accent then
-								option.BackgroundColor3 = color
-							end
-						end
-					end
-				end,
-				Flag = "CustomTheme_ElementColor"
 			})
 			
 			-- Add a textbox for naming the custom theme
@@ -604,11 +521,7 @@ Library.Sections.__index = Library.Sections;
 					local customTheme = {
 						Accent = Library.Flags["CustomTheme_Accent"],
 						Background = Library.Flags["CustomTheme_Background"],
-						
-						TopBackground = Library.Flags["CustomTheme_TopBackground"],
-						Border = Library.Flags["CustomTheme_Border"],
-						TextColor = Library.Flags["CustomTheme_TextColor"],
-						ElementColor = Library.Flags["CustomTheme_ElementColor"]
+						Border = Library.Flags["CustomTheme_Border"]
 					}
 					
 					-- Add custom theme to themes list
@@ -639,10 +552,7 @@ Library.Sections.__index = Library.Sections;
 			return {
 				AccentPicker = accentPicker,
 				BackgroundPicker = bgPicker,
-				TopBackgroundPicker = topBgPicker,
 				BorderPicker = borderPicker,
-				TextPicker = textPicker,
-				ElementPicker = elementPicker,
 				CustomThemesDropdown = customThemeDropdown
 			}
 		end
@@ -658,22 +568,6 @@ Library.Sections.__index = Library.Sections;
 				for _, obj in pairs(Library.ThemeObjects) do
 					if obj and obj.BackgroundColor3 ~= nil then
 						obj.BackgroundColor3 = Library.Accent
-					end
-				end
-				
-				-- Update toggle objects to ensure the colored parts use accent
-				if Library.ElementObjects then
-					for _, toggle in pairs(Library.ElementObjects) do
-						if toggle.Toggle and toggle.State and toggle.Toggle.BackgroundColor3 ~= nil then
-							toggle.Toggle.BackgroundColor3 = Library.Accent
-						end
-					end
-				end
-				
-				-- Update text objects
-				for _, obj in pairs(Library.TextObjects) do
-					if obj and obj.TextColor3 ~= nil then
-						obj.TextColor3 = theme.TextColor or Color3.new(1, 1, 1)
 					end
 				end
 				
@@ -2406,12 +2300,8 @@ Library.Sections.__index = Library.Sections;
 					if table.find(Library.ThemeObjects, Inline) then
 						table.remove(Library.ThemeObjects, table.find(Library.ThemeObjects, Inline))
 					end
-					-- Use the current theme's element color if available
-					if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
-						Inline.BackgroundColor3 = Library.Themes[Library.CurrentTheme].ElementColor
-					else
-						Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
-					end
+					-- Always use this color for inactive state
+					Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
 					if Toggle.Risk then
 						Title.TextColor3 = Color3.fromRGB(158, 158, 24)
 					else
@@ -3323,12 +3213,7 @@ Library.Sections.__index = Library.Sections;
 					
 					NewOption.Name = "NewOption"
 					NewOption.Size = UDim2.new(1, 0, 0, 18) -- Increased height for better visibility
-					-- Use the theme's ElementColor if available
-					if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
-						NewOption.BackgroundColor3 = Library.Themes[Library.CurrentTheme].ElementColor
-					else
-						NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
-					end
+					NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
 					NewOption.BackgroundTransparency = 0 -- Make background visible
 					NewOption.BorderSizePixel = 0
 					NewOption.BorderColor3 = Color3.new(0, 0, 0)
@@ -3345,26 +3230,13 @@ Library.Sections.__index = Library.Sections;
 					
 					-- Option hover effect
 					Library:Connection(NewOption.MouseEnter, function()
-						-- Use slightly lighter version of theme color for hover
-						if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
-							local elementColor = Library.Themes[Library.CurrentTheme].ElementColor
-							NewOption.BackgroundColor3 = Color3.new(
-								math.min(elementColor.R + 0.02, 1),
-								math.min(elementColor.G + 0.02, 1),
-								math.min(elementColor.B + 0.02, 1)
-							)
-						else
-							NewOption.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
-						end
+						-- Use slightly lighter color for hover
+						NewOption.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
 					end)
 					
 					Library:Connection(NewOption.MouseLeave, function()
-						-- Return to theme color when not hovering
-						if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
-							NewOption.BackgroundColor3 = Library.Themes[Library.CurrentTheme].ElementColor
-						else
-							NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
-						end
+						-- Return to default color when not hovering
+						NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
 					end)
 					
 					OptionName.Name = "OptionName"
