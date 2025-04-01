@@ -2261,14 +2261,10 @@ Library.Sections.__index = Library.Sections;
 			Inline.Name = "Inline"
 			Inline.Position = UDim2.new(0,1,0,1)
 			Inline.Size = UDim2.new(1,-2,1,-2)
-			Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
+			Inline.BackgroundColor3 = Color3.new(0.0784, 0.0784, 0.0784) -- Darker inactive toggle color
 			Inline.BorderSizePixel = 0
 			Inline.BorderColor3 = Color3.new(0,0,0)
 			--
-			--[[local inputText = string.upper(Toggle.Name)
-			local targetLanguage = "Chinese" -- // English, Arabic, Albanian, Japanese, Spanish, Russian, Chinese, Urdu, French, Portuguese, Hindi
-			local translatedText = utility:TranslateString(inputText, targetLanguage)]] 
-			-- 
 			Title.Name = "Title"
 			Title.Position = UDim2.new(0,15,0,0)
 			Title.Size = UDim2.new(1,0,0,10)
@@ -2301,7 +2297,7 @@ Library.Sections.__index = Library.Sections;
 						table.remove(Library.ThemeObjects, table.find(Library.ThemeObjects, Inline))
 					end
 					-- Always use this color for inactive state
-					Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
+					Inline.BackgroundColor3 = Color3.new(0.0784, 0.0784, 0.0784) -- Darker inactive toggle color
 					if Toggle.Risk then
 						Title.TextColor3 = Color3.fromRGB(158, 158, 24)
 					else
@@ -2390,7 +2386,7 @@ Library.Sections.__index = Library.Sections;
 				Inline.Name = "Inline"
 				Inline.Position = UDim2.new(0,1,0,1)
 				Inline.Size = UDim2.new(1,-2,1,-2)
-				Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
+				Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294) -- Reverted to original color
 				Inline.BorderSizePixel = 0
 				Inline.BorderColor3 = Color3.new(0,0,0)
 				--
@@ -2418,7 +2414,7 @@ Library.Sections.__index = Library.Sections;
 				ModeInline.Name = "ModeInline"
 				ModeInline.Position = UDim2.new(0,1,0,1)
 				ModeInline.Size = UDim2.new(1,-2,1,-2)
-				ModeInline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
+				ModeInline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294) -- Reverted to original color
 				ModeInline.BorderSizePixel = 0
 				ModeInline.BorderColor3 = Color3.new(0,0,0)
 				--
