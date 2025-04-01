@@ -60,6 +60,7 @@ do
 		if isfile(Name .. ".font") then
 			return getsynasset(Name .. ".font");
 		end;
+		return "Code"; -- Changed to return "Code" font instead of using custom font
 	end;
 
 	Font:Register("menu_plex", 400, "normal", {Id = "ProggyClean.ttf", Font = ""});
@@ -273,7 +274,7 @@ local Library = {
 		[Enum.UserInputType.MouseButton3] = "MB3"
 	};
 	Connections = {};
-	Font = Enum.Font.Ubuntu;
+	Font = Enum.Font.Code;
 	FontSize = 12;
 	Notifs = {};
 	KeyList = nil;
@@ -370,294 +371,207 @@ Library.Sections.__index = Library.Sections;
 			Default = {
 				Accent = Color3.fromRGB(132, 108, 188),
 				Background = Color3.new(0.0784, 0.0784, 0.0784),
-				TopBackground = Color3.new(0.1765, 0.1765, 0.1765),
-				Border = Color3.new(0.0392, 0.0392, 0.0392),
-				TextColor = Color3.new(1, 1, 1),
-				ElementColor = Color3.new(0.1294, 0.1294, 0.1294)
+				Border = Color3.new(0.0392, 0.0392, 0.0392)
 			},
 			Midnight = {
 				Accent = Color3.fromRGB(36, 150, 255),
 				Background = Color3.fromRGB(10, 10, 15),
-				TopBackground = Color3.fromRGB(20, 20, 30),
-				Border = Color3.fromRGB(0, 0, 0),
-				TextColor = Color3.fromRGB(255, 255, 255),
-				ElementColor = Color3.fromRGB(20, 20, 30)
+				Border = Color3.fromRGB(0, 0, 0)
 			},
 			Blood = {
 				Accent = Color3.fromRGB(255, 0, 0),
 				Background = Color3.fromRGB(10, 0, 0),
-				TopBackground = Color3.fromRGB(25, 0, 0),
-				Border = Color3.fromRGB(50, 0, 0),
-				TextColor = Color3.fromRGB(255, 255, 255),
-				ElementColor = Color3.fromRGB(40, 0, 0)
+				Border = Color3.fromRGB(50, 0, 0)
 			},
 			Ocean = {
 				Accent = Color3.fromRGB(0, 200, 255),
 				Background = Color3.fromRGB(0, 15, 30),
-				TopBackground = Color3.fromRGB(0, 30, 60),
-				Border = Color3.fromRGB(0, 50, 70),
-				TextColor = Color3.fromRGB(255, 255, 255),
-				ElementColor = Color3.fromRGB(0, 40, 60)
+				Border = Color3.fromRGB(0, 50, 70)
 			},
 			Forest = {
 				Accent = Color3.fromRGB(25, 255, 70),
 				Background = Color3.fromRGB(5, 20, 10),
-				TopBackground = Color3.fromRGB(15, 40, 20),
-				Border = Color3.fromRGB(20, 70, 40),
-				TextColor = Color3.fromRGB(255, 255, 255),
-				ElementColor = Color3.fromRGB(15, 50, 25)
+				Border = Color3.fromRGB(20, 70, 40)
 			},
 			Sunset = {
 				Accent = Color3.fromRGB(255, 150, 0),
 				Background = Color3.fromRGB(30, 15, 5),
-				TopBackground = Color3.fromRGB(60, 30, 10),
-				Border = Color3.fromRGB(80, 40, 10),
-				TextColor = Color3.fromRGB(255, 255, 255),
-				ElementColor = Color3.fromRGB(70, 35, 10)
+				Border = Color3.fromRGB(80, 40, 10)
 			}
 		}
 
+		-- Theme Creator Helper Function
+		function Library:CreateThemeConfig(section)
+			local currentTheme = Library.Themes[Library.CurrentTheme] or Library.Themes.Default
+			local customThemes = {}
+			
+			-- Track custom saved themes
+			if not Library.CustomThemes then
+				Library.CustomThemes = {}
+			end
+			
+			-- Create dropdown to select from predefined themes
+			local themeList = {}
+			for themeName, _ in pairs(Library.Themes) do
+				if themeName ~= "Custom" then -- Don't include the "Custom" theme in the main list
+					table.insert(themeList, themeName)
+				end
+			end
+			
+			section:Dropdown({
+				Name = "Preset Themes",
+				Options = themeList,
+				Callback = function(selectedTheme)
+					Library:ApplyTheme(selectedTheme)
+				end
+			})
+			
+			-- Add a dropdown for custom themes
+			local customThemesList = {"None"}
+			for themeName, _ in pairs(Library.CustomThemes) do
+				table.insert(customThemesList, themeName)
+			end
+			
+			local customThemeDropdown = section:Dropdown({
+				Name = "Custom Themes",
+				Options = customThemesList,
+				Callback = function(selectedTheme)
+					if selectedTheme and selectedTheme ~= "None" and Library.CustomThemes[selectedTheme] then
+						-- Apply the custom theme
+						if not Library.Themes["Custom"] then
+							Library.Themes["Custom"] = {}
+						end
+						
+						Library.Themes["Custom"] = Library.CustomThemes[selectedTheme]
+						Library:ApplyTheme("Custom")
+						Library:Notification("Applied custom theme: " .. selectedTheme, 3, nil, "Middle")
+					end
+				end
+			})
+			
+			-- Add color pickers for each theme element
+			local accentPicker = section:Colorpicker({
+				Name = "Accent Color",
+				Default = currentTheme.Accent,
+				Callback = function(color)
+					Library.Accent = color
+					for _, obj in pairs(Library.ThemeObjects) do
+						if obj and obj.BackgroundColor3 ~= nil then
+							obj.BackgroundColor3 = color
+						end
+					end
+				end,
+				Flag = "CustomTheme_Accent"
+			})
+			
+			local bgPicker = section:Colorpicker({
+				Name = "Background Color",
+				Default = currentTheme.Background,
+				Callback = function(color)
+					-- Update all background elements
+					if Library.Holder then
+						for _, descendant in pairs(Library.Holder:GetDescendants()) do
+							if descendant:IsA("Frame") and 
+							   (descendant.Name == "Inline" or 
+								descendant.Name == "HolderInline" or 
+								descendant.Name == "SectionInline" or 
+								descendant.Name == "ContainerInline") then
+								descendant.BackgroundColor3 = color
+							end
+						end
+					end
+				end,
+				Flag = "CustomTheme_Background"
+			})
+			
+			local borderPicker = section:Colorpicker({
+				Name = "Border Color",
+				Default = currentTheme.Border,
+				Callback = function(color)
+					-- Update all border elements
+					if Library.Holder then
+						Library.Holder.BorderColor3 = color
+						for _, descendant in pairs(Library.Holder:GetDescendants()) do
+							if (descendant:IsA("Frame") or descendant:IsA("TextButton")) and
+							   descendant.BorderSizePixel > 0 then
+								descendant.BorderColor3 = color
+							end
+						end
+					end
+				end,
+				Flag = "CustomTheme_Border"
+			})
+			
+			-- Add a textbox for naming the custom theme
+			local themeNameTextbox = section:Textbox({
+				Name = "Theme Name",
+				Placeholder = "Enter theme name",
+				Flag = "CustomTheme_Name"
+			})
+			
+			-- Button to save current custom theme
+			section:Button({
+				Name = "Save Custom Theme",
+				Callback = function()
+					local themeName = Library.Flags["CustomTheme_Name"] or "MyTheme"
+					if themeName == "" then
+						themeName = "MyTheme" .. tostring(os.time()):sub(-4)
+					end
+					
+					local customTheme = {
+						Accent = Library.Flags["CustomTheme_Accent"],
+						Background = Library.Flags["CustomTheme_Background"],
+						Border = Library.Flags["CustomTheme_Border"]
+					}
+					
+					-- Add custom theme to themes list
+					Library.CustomThemes[themeName] = customTheme
+					
+					-- Also set it as current "Custom" theme
+					if not Library.Themes["Custom"] then
+						Library.Themes["Custom"] = {}
+					end
+					
+					Library.Themes["Custom"] = customTheme
+					
+					-- Apply the custom theme
+					Library:ApplyTheme("Custom")
+					
+					-- Update the custom themes dropdown
+					local newCustomThemesList = {"None"}
+					for name, _ in pairs(Library.CustomThemes) do
+						table.insert(newCustomThemesList, name)
+					end
+					customThemeDropdown:Refresh(newCustomThemesList)
+					
+					-- Notification
+					Library:Notification("Custom theme saved as: " .. themeName, 3, nil, "Middle")
+				end
+			})
+			
+			return {
+				AccentPicker = accentPicker,
+				BackgroundPicker = bgPicker,
+				BorderPicker = borderPicker,
+				CustomThemesDropdown = customThemeDropdown
+			}
+		end
+
 		-- Apply theme function
-		function Library:ApplyTheme(theme)
-			local selectedTheme = self.Themes[theme] or self.Themes.Default
-			
-			-- Save the current theme name
-			self.CurrentTheme = theme
-			
-			-- Update accent color
-			self.Accent = selectedTheme.Accent
-			
-			-- Update all UI elements with the theme
-			for _, obj in pairs(self.ThemeObjects) do
-				if obj and obj.BackgroundColor3 ~= nil then
-					obj.BackgroundColor3 = selectedTheme.Accent
-				end
-			end
-			
-			-- Update dropdown options
-			for _, option in pairs(self.DropdownOptions) do
-				if option and option.BackgroundColor3 ~= nil then
-					option.BackgroundColor3 = selectedTheme.ElementColor
-				end
-			end
-			
-			-- Update dropdown option text
-			for _, optionText in pairs(self.DropdownOptionTexts) do
-				if optionText and optionText.TextColor3 ~= nil then
-					if optionText.TextColor3 == Color3.fromRGB(255, 255, 255) then
-						-- This is a selected option, leave it white
-					else
-						optionText.TextColor3 = selectedTheme.TextColor
-					end
-				end
-			end
-			
-			-- Update background colors if the Holder exists
-			if self.Holder then
-				-- Update main window
-				self.Holder.BackgroundColor3 = selectedTheme.TopBackground
-				self.Holder.BorderColor3 = selectedTheme.Border
+		function Library:ApplyTheme(themeName)
+			local theme = Library.Themes[themeName]
+			if theme then
+				-- Apply theme colors to existing elements
+				Library.Accent = theme.Accent or Color3.fromRGB(132, 108, 188)
 				
-				-- Update all descendants with proper names and types
-				for _, descendant in pairs(self.Holder:GetDescendants()) do
-					-- Frame updates
-					if descendant:IsA("Frame") then
-						-- Handle different frame types
-						if descendant.Name == "Inline" or descendant.Name == "HolderInline" or
-						   descendant.Name == "SectionInline" or descendant.Name == "ContainerInline" then
-							descendant.BackgroundColor3 = selectedTheme.Background
-						elseif descendant.Name == "Outline" or descendant.Name == "HolderOutline" or 
-							   descendant.Name == "SectionOutline" or descendant.Name == "ContainerOutline" then
-							descendant.BackgroundColor3 = selectedTheme.TopBackground
-							descendant.BorderColor3 = selectedTheme.Border
-						elseif descendant.Name == "TabLine" then
-							descendant.BackgroundColor3 = selectedTheme.TopBackground
-						elseif descendant.Name == "SectionAccent" or descendant.Name == "TabAccent" then
-							descendant.BackgroundColor3 = selectedTheme.Accent
-						elseif descendant.Name == "ColorWindow" then
-							descendant.BackgroundColor3 = selectedTheme.TopBackground
-							descendant.BorderColor3 = selectedTheme.Border
-							
-							-- Update colorpicker internal elements
-							for _, child in pairs(descendant:GetDescendants()) do
-								if child.Name == "Inline" then
-									child.BackgroundColor3 = selectedTheme.Background
-								elseif child:IsA("TextLabel") or child:IsA("TextButton") then
-									child.TextColor3 = selectedTheme.TextColor
-								elseif child.Name == "ModeOutline" then
-									child.BackgroundColor3 = selectedTheme.TopBackground
-									child.BorderColor3 = selectedTheme.Border
-								end
-							end
-						elseif descendant.Name == "ContainerOutline" then
-							descendant.BackgroundColor3 = selectedTheme.TopBackground
-							descendant.BorderColor3 = selectedTheme.Border
-							
-							-- Apply theme to dropdown container
-							for _, child in pairs(descendant:GetDescendants()) do
-								if child.Name == "ContainerInline" then
-									child.BackgroundColor3 = selectedTheme.Background
-								end
-							end
-						end
-					end
-					
-					-- Update text elements
-					if descendant:IsA("TextLabel") or descendant:IsA("TextButton") or descendant:IsA("TextBox") then
-						-- Preserve white text for open tabs
-						if descendant.Name == "TabButton" and descendant.TextColor3 == Color3.fromRGB(255, 255, 255) then
-							-- This is an active tab, keep it white
-						else
-							-- Other text elements
-							if descendant.TextColor3 == Color3.fromRGB(145, 145, 145) then
-								-- Don't change inactive element colors
-							elseif descendant.TextColor3 == Library.Accent then
-								-- Update text that was using the old accent
-								descendant.TextColor3 = selectedTheme.Accent
-							elseif descendant.TextColor3 == Color3.fromRGB(255, 255, 255) or 
-								  descendant.TextColor3 == Color3.new(1, 1, 1) then
-								-- Only update white text that isn't an active tab
-								if descendant.Name ~= "TabButton" then
-									descendant.TextColor3 = selectedTheme.TextColor
-								end
-							end
-						end
-					end
-				end
-			end
-			
-			-- Update keybinds list if it exists
-			if self.KeyList and self.KeyList.Outline then
-				self.KeyList.Outline.BackgroundColor3 = selectedTheme.TopBackground
-				self.KeyList.Outline.BorderColor3 = selectedTheme.Border
-				
-				for _, child in pairs(self.KeyList.Outline:GetDescendants()) do
-					if child:IsA("Frame") then
-						if child.Name == "Inline" then
-							child.BackgroundColor3 = selectedTheme.Background
-						elseif child.Name == "Accent" then
-							child.BackgroundColor3 = selectedTheme.Accent
-						end
-					elseif child:IsA("TextLabel") and child.Name == "NewValue" then
-						-- For keybind entries, only update if it's not meant to be highlighted
-						-- Preserve the accent color for active keybinds
-						if not table.find(self.ThemeObjects, child) then
-							child.TextColor3 = selectedTheme.TextColor
-						else
-							child.TextColor3 = selectedTheme.Accent -- Keep accent for active keybinds
-						end
-					elseif child:IsA("TextLabel") then
-						child.TextColor3 = selectedTheme.TextColor
+				-- Update all theme objects (accent colored)
+				for _, obj in pairs(Library.ThemeObjects) do
+					if obj and obj.BackgroundColor3 ~= nil then
+						obj.BackgroundColor3 = Library.Accent
 					end
 				end
 				
-				-- Also explicitly maintain states for all keybinds
-				for _, keybind in pairs(self.KeyList.Keybinds) do
-					if keybind.IsActive then
-						-- This ensures active keybinds stay visually active
-						keybind:SetVisible(true)
-					end
-				end
-			end
-			
-			-- Update watermark if it exists
-			if self.WatermarkFrame then
-				self.WatermarkFrame.BackgroundColor3 = selectedTheme.TopBackground
-				self.WatermarkFrame.BorderColor3 = selectedTheme.Border
-				
-				for _, child in pairs(self.WatermarkFrame:GetDescendants()) do
-					if child:IsA("Frame") then
-						if child.Name == "InlineFrame" then
-							child.BackgroundColor3 = selectedTheme.Background
-						elseif child.Name == "AccentBar" then
-							child.BackgroundColor3 = selectedTheme.Accent
-						end
-					elseif child:IsA("TextLabel") then
-						child.TextColor3 = selectedTheme.TextColor
-					end
-				end
-			end
-			
-			-- Update notifications
-			for _, notification in pairs(self.Notifs) do
-				for _, obj in pairs(notification.Objects) do
-					if obj.Name == "Background" then
-						obj.BackgroundColor3 = selectedTheme.Background
-						obj.BorderColor3 = selectedTheme.Border
-					elseif obj.Name == "Accemt" then
-						obj.BackgroundColor3 = selectedTheme.Accent
-					elseif obj.Name == "TextLabel" then
-						obj.TextColor3 = selectedTheme.TextColor
-					end
-				end
-			end
-
-			-- Track all toggle elements and maintain their states
-			local toggleElements = {}
-
-			-- First pass: identify all toggle elements and their current states
-			if self.Holder then
-				for _, descendant in pairs(self.Holder:GetDescendants()) do
-					if descendant:IsA("Frame") and descendant.Name == "Inline" then
-						-- This might be a toggle element
-						local parentOutline = descendant.Parent
-						if parentOutline and parentOutline.Name == "Outline" and parentOutline.Size.X.Offset == 10 and parentOutline.Size.Y.Offset == 10 then
-							-- This is likely a toggle, check if it's active (using accent color or in ThemeObjects)
-							local isActive = false
-							if descendant.BackgroundColor3 == self.Accent or table.find(self.ThemeObjects, descendant) then
-								isActive = true
-							end
-							
-							-- Also check for any related title elements to see if they're active
-							local toggleButton = parentOutline.Parent
-							if toggleButton and toggleButton:IsA("TextButton") then
-								for _, child in pairs(toggleButton:GetChildren()) do
-									if child:IsA("TextLabel") and child.Name == "Title" then
-										if child.TextColor3 == Color3.fromRGB(255, 255, 255) or 
-										   child.TextColor3 == Color3.fromRGB(227, 227, 34) then
-											isActive = true
-										end
-									end
-								end
-							end
-							
-							table.insert(toggleElements, {
-								element = descendant,
-								active = isActive
-							})
-						end
-					end
-				end
-			end
-
-			-- After all theme updates are applied, restore active toggle states
-			for _, toggleData in pairs(toggleElements) do
-				if toggleData.active then
-					-- This was an active toggle, restore its state
-					toggleData.element.BackgroundColor3 = selectedTheme.Accent
-					
-					-- Also handle the title label (next to the toggle)
-					local toggleButton = toggleData.element.Parent.Parent
-					if toggleButton and toggleButton:IsA("TextButton") then
-						for _, child in pairs(toggleButton:GetChildren()) do
-							if child:IsA("TextLabel") and child.Name == "Title" then
-								-- Restore text color for the title
-								child.TextColor3 = Color3.fromRGB(255, 255, 255)
-								
-								-- If it's a risk toggle, use yellow instead
-								if child.TextColor3 == Color3.fromRGB(158, 158, 24) or 
-								   child.TextColor3 == Color3.fromRGB(227, 227, 34) then
-									child.TextColor3 = Color3.fromRGB(227, 227, 34)
-								end
-								
-								-- Make sure it's in the theme objects
-								if not table.find(self.ThemeObjects, toggleData.element) then
-									table.insert(self.ThemeObjects, toggleData.element)
-								end
-							end
-						end
-					end
-				end
+				Library.CurrentTheme = themeName
 			end
 		end
 
@@ -1266,8 +1180,16 @@ Library.Sections.__index = Library.Sections;
 				NewValue.BorderColor3 = Color3.new(0,0,0)
 				
 				-- Handle nil values with proper defaults
-				local displayKey = Key or "None"
-				if type(displayKey) == "nil" then displayKey = "None" end
+				local displayKey = "None"
+				if Key and Key ~= "nil" and tostring(Key) ~= "nil" then
+					if type(Key) == "userdata" and (typeof(Key) == "EnumItem" or typeof(Key):find("Enum")) then
+						-- Handle enum items by getting their name
+						displayKey = Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", ""):gsub("Enum.UserInputType.", "")
+					else
+						displayKey = tostring(Key)
+					end
+				end
+				
 				local displayName = Name or "Keybind"
 				local displayMode = Mode or "Toggle"
 				
@@ -1302,12 +1224,20 @@ Library.Sections.__index = Library.Sections;
 				end;
 				
 				--
-				function KeyValue:Update(NewName, NewKey, NewMode)
+				function KeyValue:Update(NewKey, NewName, NewMode)
 					-- Handle nil values with proper defaults
-					local displayKey = NewKey or "None"
-					if type(displayKey) == "nil" then displayKey = "None" end
-					local displayName = NewName or "Keybind"
-					local displayMode = NewMode or "Toggle"
+					local displayKey = "None"
+					if NewKey and NewKey ~= "nil" and tostring(NewKey) ~= "nil" then
+						if type(NewKey) == "userdata" and (typeof(NewKey) == "EnumItem" or typeof(NewKey):find("Enum")) then
+							-- Handle enum items by getting their name
+							displayKey = Library.Keys[NewKey] or tostring(NewKey):gsub("Enum.KeyCode.", ""):gsub("Enum.UserInputType.", "")
+						else
+							displayKey = tostring(NewKey)
+						end
+					end
+					
+					local displayName = NewName or displayName
+					local displayMode = NewMode or displayMode
 					
 					-- Format the keybind text to clearly show the label name
 					NewValue.Text = string.format(" [%s] %s (%s)", displayName, displayKey, displayMode)
@@ -1812,8 +1742,8 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, Accent)
             --
             TitleLabel.Name = "TitleLabel"
-            TitleLabel.Position = UDim2.new(0,10,0,-5) -- Changed Y offset from 0 to -5 to move title up
-            TitleLabel.Size = UDim2.new(1,-20,0,16)
+            TitleLabel.Position = UDim2.new(0,10,0,1)
+            TitleLabel.Size = UDim2.new(1,-20,0,14)
             TitleLabel.BackgroundColor3 = Color3.new(1,1,1)
             TitleLabel.BackgroundTransparency = 1
             TitleLabel.BorderSizePixel = 0
@@ -2007,10 +1937,11 @@ Library.Sections.__index = Library.Sections;
 			TabButton.Text = Page.Name
 			TabButton.TextColor3 = Color3.new(0.5686,0.5686,0.5686)
 			TabButton.AutoButtonColor = false
-			TabButton.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			TabButton.FontFace = Font.new("Code")
 			TabButton.TextSize = Library.FontSize
 			TabButton.TextStrokeTransparency = 0
-			TabButton.LineHeight = 1.1
+			TabButton.LineHeight = 0.9 -- Changed from 1.1 to move text up
+			TabButton.Position = UDim2.new(0,0,0,-2) -- Increased Y offset from -1 to -2
 			--
 			TabAccent.Name = "TabAccent"
 			TabAccent.Size = UDim2.new(1,0,0,1)
@@ -2142,7 +2073,7 @@ Library.Sections.__index = Library.Sections;
 			--
 			Container.Name = "Container"
 			Container.Position = UDim2.new(0,7,0,18) -- Adjusted Y position from 10 to 18 to make space for Title
-			Container.Size = UDim2.new(1,-14,0,15) -- Minimum height for empty sections
+			Container.Size = UDim2.new(1,-14,0,1) -- Minimum height for empty sections (was 15)
 			Container.BackgroundColor3 = Color3.new(1,1,1)
 			Container.BackgroundTransparency = 1
 			Container.BorderSizePixel = 0
@@ -2167,7 +2098,7 @@ Library.Sections.__index = Library.Sections;
 			table.insert(Library.ThemeObjects, SectionAccent)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,10,0,-5) -- Changed Y offset from 0 to -5 to move title up
+			Title.Position = UDim2.new(0,10,0,-4) -- Changed Y position from 0 to -4 to move it upward
 			Title.Size = UDim2.new(0,100,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
@@ -2182,7 +2113,7 @@ Library.Sections.__index = Library.Sections;
 			Title.TextStrokeTransparency = 0
 			--
 			TextBorder.Name = "TextBorder"
-			TextBorder.Position = UDim2.new(0,6,0,-5) -- Changed Y offset from 0 to -5
+			TextBorder.Position = UDim2.new(0,6,0,-4) -- Changed Y position from 0 to -4 to match the title
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
 			TextBorder.BackgroundColor3 = Color3.new(0.0784,0.0784,0.0784)
 			TextBorder.BorderSizePixel = 0
@@ -2207,7 +2138,6 @@ Library.Sections.__index = Library.Sections;
 				if not Section then return end
 				if not Section.ContentPadding then Section.ContentPadding = 5 end
 				
-				local padding = 20 -- Additional padding (10 top + 10 bottom)
 				local containerHeight = 0
 				
 				-- Safety check - make sure Container and UIListLayout exist
@@ -2228,7 +2158,7 @@ Library.Sections.__index = Library.Sections;
 					
 					-- If no visible children, set a minimum size
 					if not hasVisibleChildren then
-						containerHeight = 15 -- Minimum height for empty sections
+						containerHeight = 2 -- Extremely small height for empty sections (was 5)
 					end
 				else
 					-- Fallback: just count visible children
@@ -2242,14 +2172,22 @@ Library.Sections.__index = Library.Sections;
 					
 					-- If no visible children, set a minimum size
 					if not hasVisibleChildren then
-						containerHeight = 15 -- Minimum height for empty sections
+						containerHeight = 2 -- Extremely small height for empty sections (was 5)
 					end
 				end
 				
 				-- Set container size with a minimum height
-				containerHeight = math.max(containerHeight, 15)
+				containerHeight = math.max(containerHeight, 2) -- Reduced minimum height to 2 (was 5)
 				if Container then
 					Container.Size = UDim2.new(1, -14, 0, containerHeight)
+				end
+				
+				-- Set padding based on whether there's content
+				local padding 
+				if containerHeight <= 2 then
+					padding = 4 -- Minimal padding for empty containers (was 8)
+				else
+					padding = 20 -- Normal padding for containers with content
 				end
 				
 				-- Set section size to match content
@@ -2269,6 +2207,10 @@ Library.Sections.__index = Library.Sections;
 
 			wait(0.01)
 			TextBorder.Size = UDim2.new(0,Title.TextBounds.X + 8,0,4)
+			
+			-- Immediately calculate size for empty containers
+			Section:RecalculateSize()
+			
 			return setmetatable(Section, Library.Sections)
 		end
 		--
@@ -2374,12 +2316,8 @@ Library.Sections.__index = Library.Sections;
 					if table.find(Library.ThemeObjects, Inline) then
 						table.remove(Library.ThemeObjects, table.find(Library.ThemeObjects, Inline))
 					end
-					-- Use the current theme's element color if available
-					if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
-						Inline.BackgroundColor3 = Library.Themes[Library.CurrentTheme].ElementColor
-					else
-						Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
-					end
+					-- Always use this color for inactive state
+					Inline.BackgroundColor3 = Color3.new(0.1294,0.1294,0.1294)
 					if Toggle.Risk then
 						Title.TextColor3 = Color3.fromRGB(158, 158, 24)
 					else
@@ -2454,7 +2392,17 @@ Library.Sections.__index = Library.Sections;
 				local Hold = Instance.new('TextButton', ModeInline)
 				local Toggle = Instance.new('TextButton', ModeInline)
 				local Always = Instance.new('TextButton', ModeInline)
-				local ListValue = Library.KeyList:NewKey(tostring(Keybind.State):gsub("Enum.KeyCode.", ""), Title.Text, Keybind.Mode)
+				-- Create keybind list entry with safe initial values
+				local displayKey = "None"
+				if Keybind.State then
+					if type(Keybind.State) == "userdata" and (typeof(Keybind.State) == "EnumItem" or typeof(Keybind.State):find("Enum")) then
+						displayKey = Library.Keys[Keybind.State] or tostring(Keybind.State):gsub("Enum.KeyCode.", ""):gsub("Enum.UserInputType.", "")
+					elseif type(Keybind.State) ~= "nil" then
+						displayKey = tostring(Keybind.State)
+					end
+				end
+				
+				local ListValue = Library.KeyList:NewKey(Keybind.Name, displayKey, Keybind.Mode)
 				--
 				Outline.Name = "Outline"
 				Outline.Position = UDim2.new(1,0,0.5,0)
@@ -2560,7 +2508,7 @@ Library.Sections.__index = Library.Sections;
 							Key = nil
 							local text = "None"
 							Value.Text = text
-							ListValue:Update(text, Keybind.Name, Keybind.Mode)
+							ListValue:Update(Keybind.Name, text, Keybind.Mode)
 							-- Make sure to maintain visual state in keybind list
 							if State then
 								ListValue:SetVisible(State)
@@ -2569,7 +2517,7 @@ Library.Sections.__index = Library.Sections;
 							Key = newkey
 							local text = (Library.Keys[newkey] or tostring(newkey):gsub("Enum.KeyCode.", ""))
 							Value.Text = text
-							ListValue:Update(text, Keybind.Name, Keybind.Mode)
+							ListValue:Update(Keybind.Name, text, Keybind.Mode)
 							-- Make sure to maintain visual state in keybind list
 							if State then
 								ListValue:SetVisible(State)
@@ -2579,7 +2527,7 @@ Library.Sections.__index = Library.Sections;
 					elseif table.find({ "Always", "Toggle", "Hold" }, newkey) then
 						Library.Flags[Keybind.Flag .. "_KEY STATE"] = newkey
 						Keybind.Mode = newkey
-						ListValue:Update((Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", "")), Keybind.Name, Keybind.Mode)
+						ListValue:Update(Keybind.Name, (Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", "")), Keybind.Mode)
 						if Keybind.Mode == "Always" then
 							State = true
 							if Keybind.Flag then
@@ -2939,8 +2887,8 @@ Library.Sections.__index = Library.Sections;
 			Subtract.TextStrokeTransparency = 0
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,15,0,-5) -- Changed Y offset from 0 to -5 to move title up
-			Title.Size = UDim2.new(1,0,0,16)
+			Title.Position = UDim2.new(0,15,0,0)
+			Title.Size = UDim2.new(1,0,0,10)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
@@ -3115,7 +3063,7 @@ Library.Sections.__index = Library.Sections;
 			NewDrop.BorderColor3 = Color3.new(0,0,0)
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,15,0,-5) -- Changed Y offset from 0 to -5 to move title up
+			Title.Position = UDim2.new(0,15,0,0)
 			Title.Size = UDim2.new(1,-15,0,16)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
@@ -3242,13 +3190,13 @@ Library.Sections.__index = Library.Sections;
 
 							Value.Text = #chosen == 0 and "" or table.concat(textchosen, ",") .. (cutobject and ", ..." or "")
 
-							text.TextColor3 = Color3.fromRGB(204, 204, 204) -- Light gray for unselected
+							text.TextColor3 = Color3.fromRGB(145, 145, 145) -- Light gray for unselected
 
 							Library.Flags[Dropdown.Flag] = chosen
 							Dropdown.Callback(chosen)
 						else
 							if #chosen == Dropdown.Max then
-								Dropdown.OptionInsts[chosen[1]].text.TextColor3 = Color3.fromRGB(204, 204, 204)
+								Dropdown.OptionInsts[chosen[1]].text.TextColor3 = Color3.fromRGB(145, 145, 145)
 								table.remove(chosen, 1)
 							end
 
@@ -3271,7 +3219,7 @@ Library.Sections.__index = Library.Sections;
 					else
 						for opt, tbl in next, Dropdown.OptionInsts do
 							if opt ~= option then
-								tbl.text.TextColor3 = Color3.fromRGB(204, 204, 204) -- Light gray for unselected
+								tbl.text.TextColor3 = Color3.fromRGB(145, 145, 145) -- Light gray for unselected
 							end
 						end
 						chosen = option
@@ -3291,12 +3239,7 @@ Library.Sections.__index = Library.Sections;
 					
 					NewOption.Name = "NewOption"
 					NewOption.Size = UDim2.new(1, 0, 0, 18) -- Increased height for better visibility
-					-- Use the theme's ElementColor if available
-					if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
-						NewOption.BackgroundColor3 = Library.Themes[Library.CurrentTheme].ElementColor
-					else
-						NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
-					end
+					NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
 					NewOption.BackgroundTransparency = 0 -- Make background visible
 					NewOption.BorderSizePixel = 0
 					NewOption.BorderColor3 = Color3.new(0, 0, 0)
@@ -3313,26 +3256,13 @@ Library.Sections.__index = Library.Sections;
 					
 					-- Option hover effect
 					Library:Connection(NewOption.MouseEnter, function()
-						-- Use slightly lighter version of theme color for hover
-						if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
-							local elementColor = Library.Themes[Library.CurrentTheme].ElementColor
-							NewOption.BackgroundColor3 = Color3.new(
-								math.min(elementColor.R + 0.02, 1),
-								math.min(elementColor.G + 0.02, 1),
-								math.min(elementColor.B + 0.02, 1)
-							)
-						else
-							NewOption.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
-						end
+						-- Use slightly lighter color for hover
+						NewOption.BackgroundColor3 = Color3.new(0.15, 0.15, 0.15)
 					end)
 					
 					Library:Connection(NewOption.MouseLeave, function()
-						-- Return to theme color when not hovering
-						if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
-							NewOption.BackgroundColor3 = Library.Themes[Library.CurrentTheme].ElementColor
-						else
-							NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
-						end
+						-- Return to default color when not hovering
+						NewOption.BackgroundColor3 = Color3.new(0.1294, 0.1294, 0.1294)
 					end)
 					
 					OptionName.Name = "OptionName"
@@ -3343,12 +3273,8 @@ Library.Sections.__index = Library.Sections;
 					OptionName.BorderSizePixel = 0
 					OptionName.BorderColor3 = Color3.new(0, 0, 0)
 					OptionName.Text = option
-					-- Use theme text color if available
-					if Library.Themes and Library.CurrentTheme and Library.Themes[Library.CurrentTheme] then
-						OptionName.TextColor3 = Library.Themes[Library.CurrentTheme].TextColor
-					else
-						OptionName.TextColor3 = Color3.new(0.8, 0.8, 0.8)
-					end
+					-- Set initial text color to unhighlighted state
+					OptionName.TextColor3 = Color3.fromRGB(145, 145, 145)
 					OptionName.FontFace = Font.new(Font:GetRegistry("menu_plex"))
 					OptionName.TextSize = Library.FontSize
 					OptionName.TextXAlignment = Enum.TextXAlignment.Left
@@ -3542,8 +3468,8 @@ Library.Sections.__index = Library.Sections;
 			Value.TextStrokeTransparency = 0
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,15,0,-5) -- Changed Y offset from 0 to -5 to move title up
-			Title.Size = UDim2.new(1,0,0,16)
+			Title.Position = UDim2.new(0,15,0,0)
+			Title.Size = UDim2.new(1,0,0,10)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
@@ -3629,28 +3555,22 @@ Library.Sections.__index = Library.Sections;
 					end
 					if newkey == Enum.KeyCode.Backspace then
 						Key = nil
-						if Keybind.UseKey then
-							if Keybind.Flag then
-								Library.Flags[Keybind.Flag] = Key
-							end
-							Keybind.Callback(Key)
-						end
 						local text = "None"
-
 						Value.Text = text
-						ListValue:Update(text, Keybind.Name, Keybind.Mode)
+						ListValue:Update(Keybind.Name, text, Keybind.Mode)
+						-- Make sure to maintain visual state in keybind list
+						if State then
+							ListValue:SetVisible(State)
+						end
 					elseif newkey ~= nil then
 						Key = newkey
-						if Keybind.UseKey then
-							if Keybind.Flag then
-								Library.Flags[Keybind.Flag] = Key
-							end
-							Keybind.Callback(Key)
-						end
 						local text = (Library.Keys[newkey] or tostring(newkey):gsub("Enum.KeyCode.", ""))
-
 						Value.Text = text
-						ListValue:Update(text, Keybind.Name, Keybind.Mode)
+						ListValue:Update(Keybind.Name, text, Keybind.Mode)
+						-- Make sure to maintain visual state in keybind list
+						if State then
+							ListValue:SetVisible(State)
+						end
 					end
 
 					Library.Flags[Keybind.Flag .. "_KEY"] = newkey
@@ -3658,7 +3578,7 @@ Library.Sections.__index = Library.Sections;
 					if not Keybind.UseKey then
 						Library.Flags[Keybind.Flag .. "_KEY STATE"] = newkey
 						Keybind.Mode = newkey
-						ListValue:Update((Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", "")), Keybind.Name, Keybind.Mode)
+						ListValue:Update(Keybind.Name, (Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", "")), Keybind.Mode)
 						if Keybind.Mode == "Always" then
 							State = true
 							if Keybind.Flag then
@@ -3859,7 +3779,7 @@ Library.Sections.__index = Library.Sections;
 			NewToggle.BorderSizePixel = 0
 			NewToggle.BorderColor3 = Color3.new(0,0,0)
 			--
-			TextLabel.Position = UDim2.new(0,15,0,-5) -- Changed Y offset from 0 to -5 to move title up
+			TextLabel.Position = UDim2.new(0,15,0,0)
 			TextLabel.Size = UDim2.new(0,100,1,0)
 			TextLabel.BackgroundColor3 = Color3.new(1,1,1)
 			TextLabel.BackgroundTransparency = 1
@@ -3987,8 +3907,8 @@ Library.Sections.__index = Library.Sections;
 			Value.ClearTextOnFocus = false
 			--
 			Title.Name = "Title"
-			Title.Position = UDim2.new(0,15,0,-5) -- Changed Y offset from 0 to -5 to move title up
-			Title.Size = UDim2.new(1,0,0,16)
+			Title.Position = UDim2.new(0,15,0,0)
+			Title.Size = UDim2.new(1,0,0,10)
 			Title.BackgroundColor3 = Color3.new(1,1,1)
 			Title.BackgroundTransparency = 1
 			Title.BorderSizePixel = 0
@@ -4105,7 +4025,8 @@ Library.Sections.__index = Library.Sections;
 			end)
 		end
 		--
-		function Sections:Label(Properties) -- fuck finobe
+		function Sections:Label(Properties)
+			-- fuck finobe
 			local Properties = Properties or {}
 			local Label = {
 				Window = self.Window,
@@ -4115,7 +4036,7 @@ Library.Sections.__index = Library.Sections;
 				Centered = Properties.Centered or false,
 			}
 			local NewLabel = Instance.new('TextLabel', Label.Section.Elements.SectionContent)
-			--
+			
 			NewLabel.Name = "NewLabel"
 			NewLabel.Size = UDim2.new(1, -30, 0, 24) -- Increased default height
 			NewLabel.Position = UDim2.new(0, 15, 0, 0)
@@ -4125,7 +4046,7 @@ Library.Sections.__index = Library.Sections;
 			NewLabel.BorderColor3 = Color3.new(0,0,0)
 			NewLabel.Text = Label.Name
 			NewLabel.TextColor3 = Color3.fromRGB(255,255,255)
-			NewLabel.FontFace = Font.new(Font:GetRegistry("menu_plex"))
+			NewLabel.FontFace = Font.new("Code")
 			NewLabel.TextSize = Library.FontSize
 			NewLabel.TextXAlignment = Label.Centered and Enum.TextXAlignment.Center or Enum.TextXAlignment.Left
 			NewLabel.TextYAlignment = Enum.TextYAlignment.Top
@@ -4150,4 +4071,20 @@ Library.Sections.__index = Library.Sections;
 			return Label
 		end
         return Library
+	end
+
+	-- Helper function for keybind list entries
+	function Library:SafeKeyEntry(key, name, mode)
+		-- Handle nil values with proper defaults
+		local displayKey = "None"
+		if key and key ~= "nil" and tostring(key) ~= "nil" then
+			if type(key) == "userdata" and (typeof(key) == "EnumItem" or typeof(key):find("Enum")) then
+				-- Handle enum items by getting their name
+				displayKey = self.Keys[key] or tostring(key):gsub("Enum.KeyCode.", ""):gsub("Enum.UserInputType.", "")
+			else
+				displayKey = tostring(key)
+			end
+		end
+		
+		return self.KeyList:NewKey(name, displayKey, mode)
 	end
