@@ -50,6 +50,22 @@ local LOCAL_PLAYER = PLAYERS.LocalPlayer
 local LOCAL_MOUSE = LOCAL_PLAYER:GetMouse()
 local SCREEN_SIZE = workspace.CurrentCamera.ViewportSize
 
+-- Safe service getters to prevent nil issues
+local function SafeGetService(serviceName)
+    local success, service = pcall(function()
+        return game:GetService(serviceName)
+    end)
+    return success and service or nil
+end
+
+-- Ensure services are available
+INPUT_SERVICE = INPUT_SERVICE or SafeGetService("UserInputService")
+RUN_SERVICE = RUN_SERVICE or SafeGetService("RunService")
+PLAYERS = PLAYERS or SafeGetService("Players")
+LOCAL_PLAYER = LOCAL_PLAYER or (PLAYERS and PLAYERS.LocalPlayer)
+LOCAL_MOUSE = LOCAL_MOUSE or (LOCAL_PLAYER and LOCAL_PLAYER:GetMouse())
+SCREEN_SIZE = SCREEN_SIZE or workspace.CurrentCamera.ViewportSize
+
 -- Drawing Management
 local Draw = {}
 local allRenderObjects = {}
@@ -1483,168 +1499,270 @@ end
 end
 
 function window:Unload()
--- Disconnect all connections
-for _, connection in pairs(self.connections) do
-if connection.Disconnect then
-  connection:Disconnect()
-end
-end
-
--- Remove all drawings
-Draw:UnRender()
-
--- Clear any global references
-self.connections = {}
-self.options = {}
-self.tabs = {}
-self.drawings = {}
+    -- Disconnect all connections
+    for name, connection in pairs(self.connections or {}) do
+        pcall(function()
+            if connection and typeof(connection) == "RBXScriptConnection" then
+                connection:Disconnect()
+            end
+        end)
+    end
+    
+    -- Remove all drawings
+    pcall(function() 
+        if Draw and Draw.UnRender then
+            Draw:UnRender() 
+        end
+    end)
+    
+    -- Clear any global references
+    self.connections = {}
+    self.options = {}
+    self.tabs = {}
+    self.drawings = {}
 end
 
 -- Event handling
-self.connections.renderStepped = RUN_SERVICE.RenderStepped:Connect(function(dt)
-if window.fading then
-if window.open then
-  -- Fade in
-  local fadeTime = (tick() - window.fadestart) * 10
-  local transparency = math.floor(fadeTime * 255)
-  
-  if transparency >= 255 then
-      window.fading = false
-      window:SetTransparency(255)
-  else
-      window:SetTransparency(transparency)
-  end
-else
-  -- Fade out
-  local fadeTime = (tick() - window.fadestart) * 10
-  local transparency = 255 - math.floor(fadeTime * 255)
-  
-  if transparency <= 0 then
-      window.fading = false
-      window:SetTransparency(0)
-      
-      -- Hide menu
-      for _, drawing in ipairs(window.drawings) do
-          drawing.Visible = false
-      end
-  else
-      window:SetTransparency(transparency)
-  end
+function window:InitializeConnections()
+    self.connections = self.connections or {}
+    
+    -- Safely connect renderStepped
+    local success, result = pcall(function()
+        if RUN_SERVICE and RUN_SERVICE.RenderStepped then
+            return RUN_SERVICE.RenderStepped:Connect(function(dt)
+                if window.fading then
+                    if window.open then
+                        -- Fade in
+                        local fadeTime = (tick() - window.fadestart) * 10
+                        local transparency = math.floor(fadeTime * 255)
+                        
+                        if transparency >= 255 then
+                            window.fading = false
+                            window:SetTransparency(255)
+                        else
+                            window:SetTransparency(transparency)
+                        end
+                    else
+                        -- Fade out
+                        local fadeTime = (tick() - window.fadestart) * 10
+                        local transparency = 255 - math.floor(fadeTime * 255)
+                        
+                        if transparency <= 0 then
+                            window.fading = false
+                            window:SetTransparency(0)
+                            
+                            -- Hide menu
+                            for _, drawing in ipairs(window.drawings) do
+                                drawing.Visible = false
+                            end
+                        else
+                            window:SetTransparency(transparency)
+                        end
+                    end
+                end
+                
+                -- Update notifications
+                local smallest = math.huge
+                local activeNotifications = {}
+                
+                for i, note in ipairs(notifications) do
+                    if note and note.enabled then
+                        table.insert(activeNotifications, note)
+                        smallest = smallest > i and i or smallest
+                    else
+                        table.remove(notifications, i)
+                    end
+                end
+                
+                for i, note in ipairs(activeNotifications) do
+                    note:Update(i, #activeNotifications, dt)
+                    
+                    if i <= math.ceil(#activeNotifications / 10) or note.fading then
+                        note:Fade(i, #activeNotifications, dt)
+                    end
+                end
+                
+                -- Process mouse input if menu is open
+                if window.open and not window.fading then
+                    window:HandleMouse()
+                end
+            end)
+        end
+        return nil
+    end)
+    
+    self.connections.renderStepped = success and result or nil
+    
+    if not success or not self.connections.renderStepped then
+        warn("Failed to connect to RenderStepped. Using Heartbeat instead.")
+        pcall(function()
+            if RUN_SERVICE and RUN_SERVICE.Heartbeat then
+                self.connections.heartbeat = RUN_SERVICE.Heartbeat:Connect(function(dt)
+                    -- Same logic as renderStepped
+                    if window.fading then
+                        if window.open then
+                            -- Fade in
+                            local fadeTime = (tick() - window.fadestart) * 10
+                            local transparency = math.floor(fadeTime * 255)
+                            
+                            if transparency >= 255 then
+                                window.fading = false
+                                window:SetTransparency(255)
+                            else
+                                window:SetTransparency(transparency)
+                            end
+                        else
+                            -- Fade out
+                            local fadeTime = (tick() - window.fadestart) * 10
+                            local transparency = 255 - math.floor(fadeTime * 255)
+                            
+                            if transparency <= 0 then
+                                window.fading = false
+                                window:SetTransparency(0)
+                                
+                                -- Hide menu
+                                for _, drawing in ipairs(window.drawings) do
+                                    drawing.Visible = false
+                                end
+                            else
+                                window:SetTransparency(transparency)
+                            end
+                        end
+                    end
+                    
+                    -- Update notifications
+                    local smallest = math.huge
+                    local activeNotifications = {}
+                    
+                    for i, note in ipairs(notifications) do
+                        if note and note.enabled then
+                            table.insert(activeNotifications, note)
+                            smallest = smallest > i and i or smallest
+                        else
+                            table.remove(notifications, i)
+                        end
+                    end
+                    
+                    for i, note in ipairs(activeNotifications) do
+                        note:Update(i, #activeNotifications, dt)
+                        
+                        if i <= math.ceil(#activeNotifications / 10) or note.fading then
+                            note:Fade(i, #activeNotifications, dt)
+                        end
+                    end
+                    
+                    -- Process mouse input if menu is open
+                    if window.open and not window.fading then
+                        window:HandleMouse()
+                    end
+                end)
+            end
+        end)
+    end
+    
+    -- Safely connect inputBegan
+    pcall(function()
+        if INPUT_SERVICE and INPUT_SERVICE.InputBegan then
+            self.connections.inputBegan = INPUT_SERVICE.InputBegan:Connect(function(input)
+                if input.KeyCode == self.keybind then
+                    window:Toggle()
+                end
+            end)
+        end
+    end)
 end
-end
-
--- Update notifications
-local smallest = math.huge
-local activeNotifications = {}
-
-for i, note in ipairs(notifications) do
-if note and note.enabled then
-  table.insert(activeNotifications, note)
-  smallest = smallest > i and i or smallest
-else
-  table.remove(notifications, i)
-end
-end
-
-for i, note in ipairs(activeNotifications) do
-note:Update(i, #activeNotifications, dt)
-
-if i <= math.ceil(#activeNotifications / 10) or note.fading then
-  note:Fade(i, #activeNotifications, dt)
-end
-end
-
--- Process mouse input if menu is open
-if window.open and not window.fading then
-window:HandleMouse()
-end
-end)
 
 -- Handle keybind
-self.connections.inputBegan = INPUT_SERVICE.InputBegan:Connect(function(input)
-if input.KeyCode == self.keybind then
-window:Toggle()
-end
-end)
+-- self.connections.inputBegan = INPUT_SERVICE.InputBegan:Connect(function(input)
+--     if input.KeyCode == self.keybind then
+--         window:Toggle()
+--     end
+-- end)
 
 return window
 end
 
 -- API for external use
 function Library:Init(settings)
-settings = settings or {}
+    settings = settings or {}
+    
+    local ui = {
+        Windows = {},
+        DefaultSettings = self.DefaultSettings
+    }
+    
+    function ui:CreateWindow(windowSettings)
+        windowSettings = windowSettings or {}
+        local window = Library:CreateWindow(windowSettings)
+        
+        -- Initialize connections safely
+        pcall(function()
+            window:InitializeConnections()
+        end)
+        
+        table.insert(self.Windows, window)
+        return window
+    end
 
-local ui = {
-Windows = {},
-DefaultSettings = self.DefaultSettings
-}
+    function ui:SetTheme(color)
+        if typeof(color) == "Color3" then
+            color = {color.R * 255, color.G * 255, color.B * 255}
+        end
 
-function ui:CreateWindow(windowSettings)
-windowSettings = windowSettings or {}
-local window = Library:CreateWindow(windowSettings)
-table.insert(self.Windows, window)
-return window
-end
+        for _, window in ipairs(self.Windows) do
+            window.mc = color
 
-function ui:SetTheme(color)
-if typeof(color) == "Color3" then
-color = {color.R * 255, color.G * 255, color.B * 255}
-end
+            -- Update menu color
+            for _, drawing in ipairs(window.clrs.norm) do
+                drawing.Color = RGB(color[1], color[2], color[3])
+            end
 
-for _, window in ipairs(self.Windows) do
-window.mc = color
+            for _, drawing in ipairs(window.clrs.dark) do
+                drawing.Color = RGB(color[1] - 40, color[2] - 40, color[3] - 40)
+            end
 
--- Update menu color
-for _, drawing in ipairs(window.clrs.norm) do
-  drawing.Color = RGB(color[1], color[2], color[3])
-end
+            -- Update elements
+            for _, tabContent in pairs(window.options) do
+                for _, groupContent in pairs(tabContent) do
+                    for _, element in pairs(groupContent) do
+                        if element[2] == "toggle" and element[1] then
+                            for i = 1, 4 do
+                                element[4][i].Color = ColorRange(i-1, {
+                                    [1] = {start = 0, color = RGB(color[1], color[2], color[3])}, 
+                                    [2] = {start = 3, color = RGB(color[1] - 40, color[2] - 40, color[3] - 40)}
+                                })
+                            end
+                        elseif element[2] == "slider" then
+                            for i = 5, 8 do
+                                element[4][i].Color = ColorRange(i-5, {
+                                    [1] = {start = 0, color = RGB(color[1], color[2], color[3])}, 
+                                    [2] = {start = 3, color = RGB(color[1] - 40, color[2] - 40, color[3] - 40)}
+                                })
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
 
-for _, drawing in ipairs(window.clrs.dark) do
-  drawing.Color = RGB(color[1] - 40, color[2] - 40, color[3] - 40)
-end
+    function ui:Notify(text, customcolor)
+        return CreateNotification(text, customcolor)
+    end
 
--- Update elements
-for _, tabContent in pairs(window.options) do
-  for _, groupContent in pairs(tabContent) do
-      for _, element in pairs(groupContent) do
-          if element[2] == "toggle" and element[1] then
-              for i = 1, 4 do
-                  element[4][i].Color = ColorRange(i-1, {
-                      [1] = {start = 0, color = RGB(color[1], color[2], color[3])}, 
-                      [2] = {start = 3, color = RGB(color[1] - 40, color[2] - 40, color[3] - 40)}
-                  })
-              end
-          elseif element[2] == "slider" then
-              for i = 5, 8 do
-                  element[4][i].Color = ColorRange(i-5, {
-                      [1] = {start = 0, color = RGB(color[1], color[2], color[3])}, 
-                      [2] = {start = 3, color = RGB(color[1] - 40, color[2] - 40, color[3] - 40)}
-                  })
-              end
-          end
-      end
-  end
-end
-end
-end
+    function ui:Unload()
+        for _, window in ipairs(self.Windows) do
+            window:Unload()
+        end
+        self.Windows = {}
+    end
 
-function ui:Notify(text, customcolor)
-return CreateNotification(text, customcolor)
-end
+    -- Set initial theme if provided
+    if settings.Theme then
+        ui:SetTheme(settings.Theme)
+    end
 
-function ui:Unload()
-for _, window in ipairs(self.Windows) do
-window:Unload()
-end
-self.Windows = {}
-end
-
--- Set initial theme if provided
-if settings.Theme then
-ui:SetTheme(settings.Theme)
-end
-
-return ui
+    return ui
 end
 
 return Library
