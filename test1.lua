@@ -455,11 +455,26 @@ Library.Sections.__index = Library.Sections;
 				Default = currentTheme.Accent,
 				Callback = function(color)
 					Library.Accent = color
+					
+					-- Update all ThemeObjects
 					for _, obj in pairs(Library.ThemeObjects) do
 						if obj and obj.BackgroundColor3 ~= nil then
-							obj.BackgroundColor3 = color
+							-- Don't update inactive toggles
+							local isInactiveToggle = false
+							if obj.Name == "Inline" and obj.Parent and obj.Parent.Name == "Outline" and 
+							   obj.Parent.Parent and obj.Parent.Parent:IsA("TextButton") and
+							   obj.Parent.Parent.ZIndex <= 1 then
+								isInactiveToggle = true
+							end
+							
+							if not isInactiveToggle then
+								obj.BackgroundColor3 = color
+							end
 						end
 					end
+					
+					-- Force an update to all toggles
+					Library:ApplyTheme(Library.CurrentTheme)
 				end,
 				Flag = "CustomTheme_Accent"
 			})
@@ -568,6 +583,50 @@ Library.Sections.__index = Library.Sections;
 				for _, obj in pairs(Library.ThemeObjects) do
 					if obj and obj.BackgroundColor3 ~= nil then
 						obj.BackgroundColor3 = Library.Accent
+					end
+				end
+				
+				-- Update toggles - both active and inactive
+				if Library.Holder then
+					for _, descendant in pairs(Library.Holder:GetDescendants()) do
+						-- Find all toggle inlines
+						if descendant:IsA("Frame") and descendant.Name == "Inline" and 
+						   descendant.Parent and descendant.Parent:IsA("Frame") and 
+						   descendant.Parent.Name == "Outline" and
+						   descendant.Parent.Parent and 
+						   descendant.Parent.Parent:IsA("TextButton") and
+						   descendant.Parent.Parent.Size.X.Scale == 1 and
+						   descendant.Parent.Parent.Size.Y.Offset == 10 then
+						   
+							-- This is likely a toggle element
+							local toggle = descendant.Parent.Parent
+							
+							-- Check if this toggle has a TextLabel child to identify if it's a proper toggle
+							local hasTitle = false
+							for _, child in pairs(toggle:GetChildren()) do
+								if child:IsA("TextLabel") and child.Name == "Title" then
+									hasTitle = true
+									break
+								end
+							end
+							
+							if hasTitle then
+								-- If parent has ZIndex > 1, it's likely toggled on
+								if toggle.ZIndex > 1 or descendant.BackgroundColor3 ~= Color3.new(0.0784, 0.0784, 0.0784) then
+									descendant.BackgroundColor3 = Library.Accent
+								end
+							end
+						end
+					end
+					
+					-- Update color pickers
+					for _, descendant in pairs(Library.Holder:GetDescendants()) do
+						if descendant:IsA("Frame") and descendant.Name == "IconInline" then
+							-- Add to theme objects for future updates
+							if not table.find(Library.ThemeObjects, descendant) then
+								table.insert(Library.ThemeObjects, descendant)
+							end
+						end
 					end
 				end
 				
@@ -1279,6 +1338,8 @@ Library.Sections.__index = Library.Sections;
 			IconInline.Size = UDim2.new(1,-2,1,-2)
 			IconInline.BackgroundColor3 = default
 			IconInline.BorderSizePixel = 0
+			-- Add IconInline to ThemeObjects for proper theme updates
+			table.insert(Library.ThemeObjects, IconInline)
 			--
 			ColorWindow.Name = "ColorWindow"
 			ColorWindow.Position = UDim2.new(1,-2,1,2)
@@ -2284,25 +2345,29 @@ Library.Sections.__index = Library.Sections;
 				Toggle.Toggled = not Toggle.Toggled
 				if Toggle.Toggled then
 					-- Add to theme objects to update color when theme changes
-					table.insert(Library.ThemeObjects, Inline)
+					if not table.find(Library.ThemeObjects, Inline) then
+						table.insert(Library.ThemeObjects, Inline)
+					end
 					Inline.BackgroundColor3 = Library.Accent
 					if Toggle.Risk then
 						Title.TextColor3 = Color3.fromRGB(227, 227, 34)
 					else
 						Title.TextColor3 = Color3.fromRGB(255,255,255)
 					end
+					
+					-- Set this toggle as toggled in its properties for theme detection
+					NewToggle.ZIndex = 5
 				else
-					-- Remove from theme objects
-					if table.find(Library.ThemeObjects, Inline) then
-						table.remove(Library.ThemeObjects, table.find(Library.ThemeObjects, Inline))
-					end
-					-- Always use this color for inactive state
+					-- Don't remove from theme objects - just change the color
 					Inline.BackgroundColor3 = Color3.new(0.0784, 0.0784, 0.0784) -- Darker inactive toggle color
 					if Toggle.Risk then
 						Title.TextColor3 = Color3.fromRGB(158, 158, 24)
 					else
 						Title.TextColor3 = Color3.fromRGB(145,145,145)
 					end
+					
+					-- Reset toggle ZIndex
+					NewToggle.ZIndex = 1
 				end
 				Library.Flags[Toggle.Flag] = Toggle.Toggled
 				Toggle.Callback(Toggle.Toggled)
