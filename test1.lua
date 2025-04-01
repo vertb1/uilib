@@ -583,54 +583,21 @@ Library.Sections.__index = Library.Sections;
 				for _, obj in pairs(Library.ThemeObjects) do
 					if obj and obj.BackgroundColor3 ~= nil then
 						obj.BackgroundColor3 = Library.Accent
+					elseif obj and obj.TextColor3 ~= nil then
+						obj.TextColor3 = Library.Accent
 					end
 				end
 				
-				-- Update toggles - both active and inactive
-				if Library.Holder then
-					for _, descendant in pairs(Library.Holder:GetDescendants()) do
-						-- Find all toggle inlines
-						if descendant:IsA("Frame") and descendant.Name == "Inline" and 
-						   descendant.Parent and descendant.Parent:IsA("Frame") and 
-						   descendant.Parent.Name == "Outline" and
-						   descendant.Parent.Parent and 
-						   descendant.Parent.Parent:IsA("TextButton") and
-						   descendant.Parent.Parent.Size.X.Scale == 1 and
-						   descendant.Parent.Parent.Size.Y.Offset == 10 then
-						   
-							-- This is likely a toggle element
-							local toggle = descendant.Parent.Parent
-							
-							-- Check if this toggle has a TextLabel child to identify if it's a proper toggle
-							local hasTitle = false
-							for _, child in pairs(toggle:GetChildren()) do
-								if child:IsA("TextLabel") and child.Name == "Title" then
-									hasTitle = true
-									break
-								end
-							end
-							
-							if hasTitle then
-								-- If parent has ZIndex > 1, it's likely toggled on
-								if toggle.ZIndex > 1 or descendant.BackgroundColor3 ~= Color3.new(0.0784, 0.0784, 0.0784) then
-									descendant.BackgroundColor3 = Library.Accent
-								end
-							end
-						end
-					end
-					
-					-- Update color pickers
-					for _, descendant in pairs(Library.Holder:GetDescendants()) do
-						if descendant:IsA("Frame") and descendant.Name == "IconInline" then
-							-- Add to theme objects for future updates
-							if not table.find(Library.ThemeObjects, descendant) then
-								table.insert(Library.ThemeObjects, descendant)
-							end
+				-- Also update keybind list entries
+				if Library.KeyList and Library.KeyList.Keybinds then
+					for _, keybind in pairs(Library.KeyList.Keybinds) do
+						if keybind.IsActive then
+							keybind:SetVisible(true) -- This will refresh with the new accent color
 						end
 					end
 				end
 				
-				Library.CurrentTheme = themeName
+				return theme
 			end
 		end
 
@@ -1238,11 +1205,21 @@ Library.Sections.__index = Library.Sections;
 				NewValue.BorderSizePixel = 0
 				NewValue.BorderColor3 = Color3.new(0,0,0)
 				
-				-- Handle nil values with proper defaults
-				local displayKey = Key or "None"
-				if type(displayKey) == "nil" then displayKey = "None" end
-				local displayName = Name or "Keybind"
-				local displayMode = Mode or "Toggle"
+				-- Handle nil or invalid values with proper defaults
+				local displayKey = "None"
+				if Key and Key ~= "nil" and tostring(Key) ~= "nil" then
+					displayKey = tostring(Key):gsub("Enum.KeyCode.", "")
+				end
+				
+				local displayName = "Keybind"
+				if Name and Name ~= "nil" and tostring(Name) ~= "nil" then
+					displayName = tostring(Name)
+				end
+				
+				local displayMode = "Toggle"
+				if Mode and Mode ~= "nil" and tostring(Mode) ~= "nil" then
+					displayMode = tostring(Mode)
+				end
 				
 				-- Format the keybind text to clearly show the label name
 				NewValue.Text = string.format(" [%s] %s (%s)", displayName, displayKey, displayMode)
@@ -1276,11 +1253,21 @@ Library.Sections.__index = Library.Sections;
 				
 				--
 				function KeyValue:Update(NewName, NewKey, NewMode)
-					-- Handle nil values with proper defaults
-					local displayKey = NewKey or "None"
-					if type(displayKey) == "nil" then displayKey = "None" end
-					local displayName = NewName or "Keybind"
-					local displayMode = NewMode or "Toggle"
+					-- Handle nil or invalid values with proper defaults
+					local displayKey = "None"
+					if NewKey and NewKey ~= "nil" and tostring(NewKey) ~= "nil" then
+						displayKey = tostring(NewKey):gsub("Enum.KeyCode.", "")
+					end
+					
+					local displayName = "Keybind"
+					if NewName and NewName ~= "nil" and tostring(NewName) ~= "nil" then
+						displayName = tostring(NewName)
+					end
+					
+					local displayMode = "Toggle"
+					if NewMode and NewMode ~= "nil" and tostring(NewMode) ~= "nil" then
+						displayMode = tostring(NewMode)
+					end
 					
 					-- Format the keybind text to clearly show the label name
 					NewValue.Text = string.format(" [%s] %s (%s)", displayName, displayKey, displayMode)
@@ -2437,10 +2424,25 @@ Library.Sections.__index = Library.Sections;
 				local Hold = Instance.new('TextButton', ModeInline)
 				local Toggle = Instance.new('TextButton', ModeInline)
 				local Always = Instance.new('TextButton', ModeInline)
-				local ListValue = Library.KeyList:NewKey(tostring(Keybind.State):gsub("Enum.KeyCode.", ""), Title.Text, Keybind.Mode)
+				-- In Toggle:Keybind, fix how the initial ListValue is created
+				local displayKeyText = "None"
+				if Keybind.State then
+					displayKeyText = tostring(Keybind.State):gsub("Enum.KeyCode.", "")
+					if displayKeyText == "nil" then displayKeyText = "None" end
+				end
+				local ListValue = Library.KeyList:NewKey(displayKeyText, Keybind.Name, Keybind.Mode)
 				--
 				Outline.Name = "Outline"
 				Outline.Position = UDim2.new(1,0,0.5,0)
+				
+				-- Fix how the keybind list value is initialized
+				local displayKeyText = "None"
+				if Keybind.State then
+					displayKeyText = tostring(Keybind.State):gsub("Enum.KeyCode.", "")
+					if displayKeyText == "nil" then displayKeyText = "None" end
+				end
+				local ListValue = Library.KeyList:NewKey(displayKeyText, Keybind.Name, Keybind.Mode)
+				
 				Outline.Size = UDim2.new(0,40,0,12)
 				Outline.BackgroundColor3 = Color3.new(0.1765,0.1765,0.1765)
 				Outline.BorderColor3 = Color3.new(0.0392,0.0392,0.0392)
@@ -2541,28 +2543,29 @@ Library.Sections.__index = Library.Sections;
 						end
 						if newkey == Enum.KeyCode.Backspace then
 							Key = nil
+
 							local text = "None"
+
 							Value.Text = text
-							ListValue:Update(text, Keybind.Name, Keybind.Mode)
-							-- Make sure to maintain visual state in keybind list
-							if State then
-								ListValue:SetVisible(State)
-							end
+							ListValue:Update(Keybind.Name, text, Keybind.Mode)
 						elseif newkey ~= nil then
 							Key = newkey
+
 							local text = (Library.Keys[newkey] or tostring(newkey):gsub("Enum.KeyCode.", ""))
+
 							Value.Text = text
-							ListValue:Update(text, Keybind.Name, Keybind.Mode)
-							-- Make sure to maintain visual state in keybind list
-							if State then
-								ListValue:SetVisible(State)
-							end
+							ListValue:Update(Keybind.Name, text, Keybind.Mode)
 						end
+
 						Library.Flags[Keybind.Flag .. "_KEY"] = newkey
 					elseif table.find({ "Always", "Toggle", "Hold" }, newkey) then
 						Library.Flags[Keybind.Flag .. "_KEY STATE"] = newkey
 						Keybind.Mode = newkey
-						ListValue:Update((Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", "")), Keybind.Name, Keybind.Mode)
+						local keyText = "None"
+						if Key then
+							keyText = (Library.Keys[Key] or tostring(Key):gsub("Enum.KeyCode.", ""))
+						end
+						ListValue:Update(Keybind.Name, keyText, Keybind.Mode)
 						if Keybind.Mode == "Always" then
 							State = true
 							if Keybind.Flag then
@@ -2577,7 +2580,11 @@ Library.Sections.__index = Library.Sections;
 							Library.Flags[Keybind.Flag] = newkey
 						end
 						Keybind.Callback(newkey)
-						ListValue:SetVisible(newkey)
+						if newkey == true then
+							ListValue:SetVisible(true)
+						else
+							ListValue:SetVisible(false)
+						end
 					end
 				end
 				--
