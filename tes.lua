@@ -1323,7 +1323,7 @@ do
 				Page = self,
 				Side = (Properties.side or Properties.Side or "left"):lower(),
 				AutoSize = (Properties.AutoSize or Properties.autosize or false),
-				Size = (Properties.Size or Properties.size or 100),
+				Size = (Properties.Size or Properties.size or 120),
 				Zindex = (Properties.Zindex or Properties.zindex or 1),
 				Elements = {},
 				Content = {},
@@ -1402,12 +1402,13 @@ do
 
 			local UIPadding = Instance.new("UIPadding")
 			UIPadding.Name = "UIPadding"
-			UIPadding.PaddingBottom = UDim.new(0, 12)
+			UIPadding.PaddingTop = UDim.new(0, 6)
+			UIPadding.PaddingBottom = UDim.new(0, 6)
 			UIPadding.Parent = SectionContent
 
 			local UIListLayout = Instance.new("UIListLayout")
 			UIListLayout.Name = "UIListLayout"
-			UIListLayout.Padding = UDim.new(0, 10)
+			UIListLayout.Padding = UDim.new(0, 8)
 			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 			UIListLayout.Parent = SectionContent
 
@@ -1434,7 +1435,7 @@ do
 				Sections = (Properties.sections or Properties.Sections or {}),
 				Page = self,
 				Side = (Properties.side or Properties.Side or "left"):lower(),
-				Size = (Properties.Size or Properties.size or 100),
+				Size = (Properties.Size or Properties.size or 120),
 				Zindex = (Properties.Zindex or Properties.zindex or 1),
 				Elements = {},
 				Content = {},
@@ -2465,7 +2466,7 @@ do
 			NewList.BackgroundTransparency = 1
 			NewList.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			NewList.BorderSizePixel = 0
-			NewList.Size = UDim2.new(1, 0, 0, 31)
+			NewList.Size = UDim2.new(1, 0, 0, 35)
 			NewList.Parent = Dropdown.Section.Elements.SectionContent
 
 			local ToggleFrame = Instance.new("TextButton")
@@ -3365,7 +3366,7 @@ do
 			NewBox.BackgroundTransparency = 1
 			NewBox.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			NewBox.BorderSizePixel = 0
-			NewBox.Size = UDim2.new(1, 0, 0, Textbox.Name ~= nil and 31 or 18)
+			NewBox.Size = UDim2.new(1, 0, 0, Textbox.Name ~= nil and 35 or 24)
 			NewBox.Parent = Textbox.Section.Elements.SectionContent
 
 			local ToggleFrame = Instance.new("Frame")
@@ -3479,15 +3480,15 @@ do
 			NewButton.BackgroundTransparency = 1
 			NewButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			NewButton.BorderSizePixel = 0
-			NewButton.Size = UDim2.new(1, 0, 0, 18)
+			NewButton.Size = UDim2.new(1, 0, 0, 24)
 			NewButton.Parent = Button.Section.Elements.SectionContent
 
 			local ToggleFrame = Instance.new("Frame")
 			ToggleFrame.Name = "ToggleFrame"
 			ToggleFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			ToggleFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-			ToggleFrame.Position = UDim2.new(0, 0, 1, -18)
-			ToggleFrame.Size = UDim2.new(1, 0, 0, 18)
+			ToggleFrame.Position = UDim2.new(0, 0, 0, 0)
+			ToggleFrame.Size = UDim2.new(1, 0, 1, 0)
 			ToggleFrame.ClipsDescendants = true
 
 			local DisabledGradient = Instance.new("UIGradient")
