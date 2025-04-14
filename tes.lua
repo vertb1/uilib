@@ -1785,7 +1785,8 @@ do
 			Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Title.BorderSizePixel = 0
 			Title.Position = UDim2.new(0, 14, 0, 0)
-			Title.Size = UDim2.new(1, 0, 1, 0)
+			Title.Size = UDim2.new(0.6, 0, 1, 0)
+			Title.ClipsDescendants = true
 			Title.Parent = NewToggle
 
 			-- // Functions
@@ -2328,8 +2329,8 @@ do
 			Value.BackgroundTransparency = 1
 			Value.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Value.BorderSizePixel = 0
-			Value.Size = UDim2.new(1, 0, 1, 0)
-			Value.Position = UDim2.new(0,0,0,-1)
+			Value.Size = UDim2.new(0.6, 4, 1, 0)
+			Value.Position = UDim2.new(0, 0, 0, 0)
 			Value.Parent = ToggleFrame
 
 			ToggleFrame.Parent = NewSlider
@@ -2346,7 +2347,8 @@ do
 			Title.BackgroundTransparency = 1
 			Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Title.BorderSizePixel = 0
-			Title.Size = UDim2.new(1, 0, 0, 8)
+			Title.Size = UDim2.new(0.6, 0, 0, 8)
+			Title.ClipsDescendants = true
 			Title.Parent = NewSlider
 
 			-- // Functions
@@ -2511,7 +2513,7 @@ do
 			Value.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Value.BorderSizePixel = 0
 			Value.Position = UDim2.new(0, 4, 0, 0)
-			Value.Size = UDim2.new(1, -8, 1, 0)
+			Value.Size = UDim2.new(0.7, 0, 1, 0)
 			Value.ClipsDescendants = true
 			Value.Parent = ToggleFrame
 
@@ -3515,10 +3517,12 @@ do
 			Value.TextColor3 = Color3.fromRGB(255, 255, 255)
 			Value.TextSize = Library.FSize
 			Value.TextStrokeTransparency = 0
+			Value.TextXAlignment = Enum.TextXAlignment.Center
 			Value.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			Value.BackgroundTransparency = 1
 			Value.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Value.BorderSizePixel = 0
+			Value.Position = UDim2.new(0, 0, 0, 0)
 			Value.Size = UDim2.new(1, 0, 1, 0)
 			Value.ClipsDescendants = true
 			Value.Parent = ToggleFrame
