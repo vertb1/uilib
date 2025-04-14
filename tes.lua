@@ -2766,6 +2766,8 @@ do
 				end
 				--
 				function Dropdown:Set(option)
+					if not Dropdown or not Dropdown.OptionInsts then return end -- Add this guard clause
+					
 					if Dropdown.Max then
 						set(option)
 					else
@@ -2774,7 +2776,7 @@ do
 								tbl.text.Visible = false
 							end
 						end
-						if table.find(Dropdown.Options, option) then
+						if option and table.find(Dropdown.Options, option) then
 							chosen = option
 							Dropdown.OptionInsts[option].text.Visible = true
 							Value.Text = option
