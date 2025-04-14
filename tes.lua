@@ -1,7 +1,3 @@
--- This has not been tested on any other executors besides krampus (only tested in roblox studio)
--- I cannot guarantee everything works (ex. custom font which i removed)
--- Made by portal | example at bottom
-
 if isfile("menu_plex.font") then
 	delfile("menu_plex.font")
 end
@@ -413,7 +409,7 @@ do
 			Title.Size = UDim2.new(1, 0, 0, 16)
 			Title.Parent = ColorInline
 
-			local TextButton = Instance.new("Frame")
+			local TextButton = Instance.new("TextButton")
 			TextButton.Name = "TextButton"
 			TextButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
 			TextButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
@@ -2514,7 +2510,8 @@ do
 			Value.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Value.BorderSizePixel = 0
 			Value.Position = UDim2.new(0, 4, 0, 0)
-			Value.Size = UDim2.new(1, 0, 1, 0)
+			Value.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
+			Value.TextWrapped = true -- Added text wrapping
 			Value.Parent = ToggleFrame
 
 			local ContentOutline = Instance.new("ScrollingFrame")
@@ -2567,18 +2564,19 @@ do
 			Title.BackgroundTransparency = 1
 			Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Title.BorderSizePixel = 0
-			Title.Size = UDim2.new(1, 0, 0, 8)
+			Title.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
+			Title.TextWrapped = true -- Added text wrapping
 			Title.Parent = NewList
 
 			-- // Connections
 			Library:Connection(ToggleFrame.MouseButton1Down, function()
-				ContentOutline.Visible = not ContentOutline.Visible
-				if ContentOutline.Visible then
-					NewList.ZIndex = 5
-				else
-					NewList.ZIndex = 1
-				end
-			end)
+					ContentOutline.Visible = not ContentOutline.Visible
+					if ContentOutline.Visible then
+						NewList.ZIndex = 5
+					else
+						NewList.ZIndex = 1
+					end
+				end)
 			Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
 				if ContentOutline.Visible and Input.UserInputType == Enum.UserInputType.MouseButton1 then
 					if not Library:IsMouseOverFrame(ContentOutline) and not Library:IsMouseOverFrame(ToggleFrame) then
@@ -2662,7 +2660,9 @@ do
 					OptButton.BackgroundTransparency = 1
 					OptButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
 					OptButton.BorderSizePixel = 0
-					OptButton.Size = UDim2.new(1, 0, 0, 20)
+					OptButton.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
+					OptButton.TextWrapped = true -- Added text wrapping
+					OptButton.Parent = ContentOutline
 
 					local Disabled = Instance.new("TextLabel")
 					Disabled.Name = "Disabled"
@@ -2677,7 +2677,8 @@ do
 					Disabled.BorderColor3 = Color3.fromRGB(0, 0, 0)
 					Disabled.BorderSizePixel = 0
 					Disabled.Position = UDim2.new(0, 4, 0, 0)
-					Disabled.Size = UDim2.new(1, 0, 1, 0)
+					Disabled.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
+					Disabled.TextWrapped = true -- Added text wrapping
 					Disabled.Parent = OptButton
 
 					local Enabled = Library:NewInstance("TextLabel", true)
@@ -2693,7 +2694,8 @@ do
 					Enabled.BorderColor3 = Color3.fromRGB(0, 0, 0)
 					Enabled.BorderSizePixel = 0
 					Enabled.Position = UDim2.new(0, 4, 0, 0)
-					Enabled.Size = UDim2.new(1, 0, 1, 0)
+					Enabled.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
+					Enabled.TextWrapped = true -- Added text wrapping
 					Enabled.Parent = OptButton
 					Enabled.Visible = false
 
@@ -3402,7 +3404,8 @@ do
 			Value.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Value.BorderSizePixel = 0
 			Value.Position = UDim2.new(0, 4, 0, 0)
-			Value.Size = UDim2.new(1, -4, 1, 0)
+			Value.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
+			Value.TextWrapped = true -- Added text wrapping
 			Value.Parent = ToggleFrame
 			Value.ClearTextOnFocus = false
 
@@ -3420,7 +3423,8 @@ do
 			Title.BackgroundTransparency = 1
 			Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Title.BorderSizePixel = 0
-			Title.Size = UDim2.new(1, 0, 0, 8)
+			Title.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
+			Title.TextWrapped = true -- Added text wrapping
 			Title.Parent = NewBox
 			Title.Visible = Textbox.Name ~= nil and true or false
 
@@ -3472,7 +3476,8 @@ do
 			NewButton.BackgroundTransparency = 1
 			NewButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			NewButton.BorderSizePixel = 0
-			NewButton.Size = UDim2.new(1, 0, 0, 18)
+			NewButton.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
+			NewButton.TextWrapped = true -- Added text wrapping
 			NewButton.Parent = Button.Section.Elements.SectionContent
 
 			local ToggleFrame = Instance.new("Frame")
@@ -3510,7 +3515,8 @@ do
 			Value.BackgroundTransparency = 1
 			Value.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Value.BorderSizePixel = 0
-			Value.Size = UDim2.new(1, 0, 1, 0)
+			Value.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
+			Value.TextWrapped = true -- Added text wrapping
 			Value.Parent = ToggleFrame
 
 			ToggleFrame.Parent = NewButton
