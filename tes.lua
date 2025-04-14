@@ -1725,7 +1725,7 @@ do
 			NewToggle.BackgroundTransparency = 1
 			NewToggle.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			NewToggle.BorderSizePixel = 0
-			NewToggle.Size = UDim2.new(1, 0, 0, 8)
+			NewToggle.Size = UDim2.new(1, 0, 0, 12)
 			NewToggle.Parent = Toggle.Section.Elements.SectionContent
 
 			local ToggleFrame = Instance.new("Frame")
@@ -1780,12 +1780,13 @@ do
 			Title.TextSize = Library.FSize
 			Title.TextStrokeTransparency = 0
 			Title.TextXAlignment = Enum.TextXAlignment.Left
+			Title.TextYAlignment = Enum.TextYAlignment.Center
 			Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			Title.BackgroundTransparency = 1
 			Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Title.BorderSizePixel = 0
 			Title.Position = UDim2.new(0, 14, 0, 0)
-			Title.Size = UDim2.new(0.6, 0, 1, 0)
+			Title.Size = UDim2.new(1, -60, 1, 0)
 			Title.ClipsDescendants = true
 			Title.Parent = NewToggle
 
@@ -1901,10 +1902,10 @@ do
 				--
 				local KeyFrame = Instance.new("TextButton")
 				KeyFrame.Name = "KeyFrame"
-				KeyFrame.AnchorPoint = Vector2.new(0, 0.5)
+				KeyFrame.AnchorPoint = Vector2.new(1, 0.5)
 				KeyFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 				KeyFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-				KeyFrame.Position = UDim2.new(1, -40, 0.5, 0)
+				KeyFrame.Position = UDim2.new(1, -4, 0.5, 0)
 				KeyFrame.Size = UDim2.new(0, 40, 0, 12)
 				KeyFrame.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
 				KeyFrame.Text = ""
@@ -1913,12 +1914,12 @@ do
 				KeyFrame.AutoButtonColor = false
 
 				local UIStroke = Instance.new("UIStroke")
-				UIStroke.Name = "UIStroke"
-				UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-				UIStroke.LineJoinMode = Enum.LineJoinMode.Miter
-				UIStroke.Thickness = 2
-				UIStroke.Transparency = 0.8
-				UIStroke.Parent = KeyFrame
+					UIStroke.Name = "UIStroke"
+					UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+					UIStroke.LineJoinMode = Enum.LineJoinMode.Miter
+					UIStroke.Thickness = 2
+					UIStroke.Transparency = 0.8
+					UIStroke.Parent = KeyFrame
 
 				local Value = Instance.new("TextLabel")
 				Value.Name = "Value"
@@ -2512,671 +2513,691 @@ do
 			Value.BackgroundTransparency = 1
 			Value.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Value.BorderSizePixel = 0
-			Value.Position = UDim2.new(0, 4, 0, 0)
-			Value.Size = UDim2.new(0.7, 0, 1, 0)
+			Value.Position = UDim2.new(0, 0, 0, 0)
+			Value.Size = UDim2.new(1, 0, 1, 0)
 			Value.ClipsDescendants = true
 			Value.Parent = ToggleFrame
 
+			local ValuePadding = Instance.new("UIPadding")
+			ValuePadding.PaddingLeft = UDim.new(0, 4)
+			ValuePadding.PaddingRight = UDim.new(0, 4)
+			ValuePadding.Parent = Value
+
 			local ContentOutline = Instance.new("ScrollingFrame")
 			ContentOutline.Name = "ContentOutline"
-			ContentOutline.AutomaticCanvasSize = Enum.AutomaticSize.Y
-			ContentOutline.BottomImage = "rbxassetid://7783554086"
-			ContentOutline.CanvasSize = UDim2.new()
-			ContentOutline.MidImage = "rbxassetid://7783554086"
-			ContentOutline.ScrollBarImageColor3 = Color3.fromRGB(30, 30, 30)
-			ContentOutline.ScrollBarThickness = 6
-			ContentOutline.TopImage = "rbxassetid://7783554086"
-			ContentOutline.Active = true
-			ContentOutline.AutomaticSize = Enum.AutomaticSize.Y
-			ContentOutline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-			ContentOutline.BorderColor3 = Color3.fromRGB(20, 20, 20)
-			ContentOutline.Position = UDim2.new(0, 0, 1, 0)
-			ContentOutline.Size = UDim2.new(1, 0, 0, 0)
-			ContentOutline.Visible = false
+				ContentOutline.AutomaticCanvasSize = Enum.AutomaticSize.Y
+				ContentOutline.BottomImage = "rbxassetid://7783554086"
+				ContentOutline.CanvasSize = UDim2.new()
+				ContentOutline.MidImage = "rbxassetid://7783554086"
+				ContentOutline.ScrollBarImageColor3 = Color3.fromRGB(30, 30, 30)
+				ContentOutline.ScrollBarThickness = 6
+				ContentOutline.TopImage = "rbxassetid://7783554086"
+				ContentOutline.Active = true
+				ContentOutline.AutomaticSize = Enum.AutomaticSize.Y
+				ContentOutline.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+				ContentOutline.BorderColor3 = Color3.fromRGB(20, 20, 20)
+				ContentOutline.Position = UDim2.new(0, 0, 1, 0)
+				ContentOutline.Size = UDim2.new(1, 0, 0, 0)
+				ContentOutline.Visible = false
 
-			local UIListLayout = Instance.new("UIListLayout")
-			UIListLayout.Name = "UIListLayout"
-			UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-			UIListLayout.Parent = ContentOutline
+				local UIListLayout = Instance.new("UIListLayout")
+				UIListLayout.Name = "UIListLayout"
+				UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+				UIListLayout.Parent = ContentOutline
 
-			local UIPadding = Instance.new("UIPadding")
-			UIPadding.Name = "UIPadding"
-			UIPadding.PaddingBottom = UDim.new(0, 3)
-			UIPadding.Parent = ContentOutline
+				local UIPadding = Instance.new("UIPadding")
+				UIPadding.Name = "UIPadding"
+				UIPadding.PaddingBottom = UDim.new(0, 3)
+				UIPadding.Parent = ContentOutline
 
-			local UIStroke1 = Instance.new("UIStroke")
-			UIStroke1.Name = "UIStroke"
-			UIStroke1.LineJoinMode = Enum.LineJoinMode.Miter
-			UIStroke1.Thickness = 2
-			UIStroke1.Transparency = 0.8
-			UIStroke1.Parent = ContentOutline
+				local UIStroke1 = Instance.new("UIStroke")
+				UIStroke1.Name = "UIStroke"
+				UIStroke1.LineJoinMode = Enum.LineJoinMode.Miter
+				UIStroke1.Thickness = 2
+				UIStroke1.Transparency = 0.8
+				UIStroke1.Parent = ContentOutline
 
-			ContentOutline.Parent = ToggleFrame
+				ContentOutline.Parent = ToggleFrame
 
-			ToggleFrame.Parent = NewList
+				ToggleFrame.Parent = NewList
 
-			local Title = Instance.new("TextLabel")
-			Title.Name = "Title"
-			Title.FontFace = realfont
-			Title.Text = Dropdown.Name
-			Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-			Title.TextSize = Library.FSize
-			Title.TextStrokeTransparency = 0
-			Title.TextXAlignment = Enum.TextXAlignment.Left
-			Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-			Title.BackgroundTransparency = 1
-			Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
-			Title.BorderSizePixel = 0
-			Title.Size = UDim2.new(1, -4, 1, 0)
-			Title.TextXAlignment = Enum.TextXAlignment.Left
-			Title.TextWrapped = false
-			Title.Parent = NewList
+				local Title = Instance.new("TextLabel")
+				Title.Name = "Title"
+				Title.FontFace = realfont
+				Title.Text = Dropdown.Name
+				Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+				Title.TextSize = Library.FSize
+				Title.TextStrokeTransparency = 0
+				Title.TextXAlignment = Enum.TextXAlignment.Left
+				Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Title.BackgroundTransparency = 1
+				Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Title.BorderSizePixel = 0
+				Title.Size = UDim2.new(1, -4, 1, 0)
+				Title.TextXAlignment = Enum.TextXAlignment.Left
+				Title.TextWrapped = false
+				Title.Parent = NewList
 
-			-- // Connections
-			Library:Connection(ToggleFrame.MouseButton1Down, function()
-					ContentOutline.Visible = not ContentOutline.Visible
-					if ContentOutline.Visible then
-						NewList.ZIndex = 5
-					else
-						NewList.ZIndex = 1
+				-- // Connections
+				Library:Connection(ToggleFrame.MouseButton1Down, function()
+						ContentOutline.Visible = not ContentOutline.Visible
+						if ContentOutline.Visible then
+							NewList.ZIndex = 5
+						else
+							NewList.ZIndex = 1
+						end
+					end)
+				Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
+					if ContentOutline.Visible and Input.UserInputType == Enum.UserInputType.MouseButton1 then
+						if not Library:IsMouseOverFrame(ContentOutline) and not Library:IsMouseOverFrame(ToggleFrame) then
+							ContentOutline.Visible = false
+							NewList.ZIndex = 1
+						end
 					end
 				end)
-			Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
-				if ContentOutline.Visible and Input.UserInputType == Enum.UserInputType.MouseButton1 then
-					if not Library:IsMouseOverFrame(ContentOutline) and not Library:IsMouseOverFrame(ToggleFrame) then
-						ContentOutline.Visible = false
-						NewList.ZIndex = 1
+				--
+				local chosen = Dropdown.Max and {} or nil
+				local Count = 0
+				--
+				local function handleoptionclick(option, button, text, accent)
+					button.MouseButton1Down:Connect(function()
+						if Dropdown.Max then
+							if table.find(chosen, option) then
+								table.remove(chosen, table.find(chosen, option))
+
+								local textchosen = {}
+								local cutobject = false
+
+								for _, opt in next, chosen do
+									table.insert(textchosen, opt)
+								end
+
+								Value.Text = #chosen == 0 and "" or table.concat(textchosen, ", ") .. (cutobject and ", ..." or "")
+								text.Visible = false
+
+								Library.Flags[Dropdown.Flag] = chosen
+								Dropdown.Callback(chosen)
+							else
+								if #chosen == Dropdown.Max then
+									Dropdown.OptionInsts[chosen[1]].text.Visible = false
+									table.remove(chosen, 1)
+								end
+
+								table.insert(chosen, option)
+
+								local textchosen = {}
+								local cutobject = false
+
+								for _, opt in next, chosen do
+									table.insert(textchosen, opt)
+								end
+
+								Value.Text = #chosen == 0 and "" or table.concat(textchosen, ", ") .. (cutobject and ", ..." or "")
+								text.Visible = true
+
+								Library.Flags[Dropdown.Flag] = chosen
+								Dropdown.Callback(chosen)
+							end
+						else
+							for opt, tbl in next, Dropdown.OptionInsts do
+								if opt ~= option then
+									tbl.text.Visible = false
+								end
+							end
+							chosen = option
+							Value.Text = option
+							text.Visible = true
+							ContentOutline.Visible = false
+							NewList.ZIndex = 1
+							Library.Flags[Dropdown.Flag] = option
+							Dropdown.Callback(option)
+						end
+					end)
+				end
+				--
+				local function createoptions(tbl)
+					for _, option in next, tbl do
+						Dropdown.OptionInsts[option] = {}
+						--
+						local OptButton = Instance.new("TextButton")
+						OptButton.Name = "OptButton"
+						OptButton.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+						OptButton.Text = ""
+						OptButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+						OptButton.TextSize = Library.FSize
+						OptButton.AutoButtonColor = false
+						OptButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+						OptButton.BackgroundTransparency = 1
+						OptButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
+						OptButton.BorderSizePixel = 0
+						OptButton.Size = UDim2.new(1, 0, 0, 20)
+						OptButton.TextWrapped = true
+						OptButton.Parent = ContentOutline
+
+						local Disabled = Instance.new("TextLabel")
+						Disabled.Name = "Disabled"
+						Disabled.FontFace = realfont
+						Disabled.Text = option
+						Disabled.TextColor3 = Color3.fromRGB(255, 255, 255)
+						Disabled.TextSize = Library.FSize
+						Disabled.TextStrokeTransparency = 0
+						Disabled.TextXAlignment = Enum.TextXAlignment.Left
+						Disabled.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+						Disabled.BackgroundTransparency = 1
+						Disabled.BorderColor3 = Color3.fromRGB(0, 0, 0)
+						Disabled.BorderSizePixel = 0
+						Disabled.Position = UDim2.new(0, 4, 0, 0)
+						Disabled.Size = UDim2.new(1, -8, 1, 0)
+						Disabled.ClipsDescendants = true
+						Disabled.Parent = OptButton
+
+						local Enabled = Library:NewInstance("TextLabel", true)
+						Enabled.Name = "Enabled"
+						Enabled.FontFace = realfont
+						Enabled.Text = option
+						Enabled.TextColor3 = Library.Accent
+						Enabled.TextSize = Library.FSize
+						Enabled.TextStrokeTransparency = 0
+						Enabled.TextXAlignment = Enum.TextXAlignment.Left
+						Enabled.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+						Enabled.BackgroundTransparency = 1
+						Enabled.BorderColor3 = Color3.fromRGB(0, 0, 0)
+						Enabled.BorderSizePixel = 0
+						Enabled.Position = UDim2.new(0, 4, 0, 0)
+						Enabled.Size = UDim2.new(1, -8, 1, 0)
+						Enabled.TextWrapped = true
+						Enabled.Parent = OptButton
+						Enabled.Visible = false
+
+						OptButton.Parent = ContentOutline
+
+						Dropdown.OptionInsts[option].text = Enabled
+						Dropdown.OptionInsts[option].button = OptButton
+
+						Count = Count + 1
+
+						if Dropdown.ScrollMax then
+							ContentOutline.AutomaticSize = Enum.AutomaticSize.None
+							if Count < Dropdown.ScrollMax then
+							else
+								ContentOutline.Size = UDim2.new(1,0, 0, 20*Dropdown.ScrollMax)
+							end
+						else
+							ContentOutline.AutomaticSize = Enum.AutomaticSize.Y
+						end
+
+						handleoptionclick(option, OptButton, Enabled)
 					end
 				end
-			end)
-			--
-			local chosen = Dropdown.Max and {} or nil
-			local Count = 0
-			--
-			local function handleoptionclick(option, button, text, accent)
-				button.MouseButton1Down:Connect(function()
+				createoptions(Dropdown.Options)
+				--
+				local set
+				set = function(option)
 					if Dropdown.Max then
-						if table.find(chosen, option) then
-							table.remove(chosen, table.find(chosen, option))
+						table.clear(chosen)
+						option = type(option) == "table" and option or {}
 
-							local textchosen = {}
-							local cutobject = false
-
-							for _, opt in next, chosen do
-								table.insert(textchosen, opt)
+						for opt, tbl in next, Dropdown.OptionInsts do
+							if not table.find(option, opt) then
+								tbl.text.Visible = false
 							end
-
-							Value.Text = #chosen == 0 and "" or table.concat(textchosen, ", ") .. (cutobject and ", ..." or "")
-							text.Visible = false
-
-							Library.Flags[Dropdown.Flag] = chosen
-							Dropdown.Callback(chosen)
-						else
-							if #chosen == Dropdown.Max then
-								Dropdown.OptionInsts[chosen[1]].text.Visible = false
-								table.remove(chosen, 1)
-							end
-
-							table.insert(chosen, option)
-
-							local textchosen = {}
-							local cutobject = false
-
-							for _, opt in next, chosen do
-								table.insert(textchosen, opt)
-							end
-
-							Value.Text = #chosen == 0 and "" or table.concat(textchosen, ", ") .. (cutobject and ", ..." or "")
-							text.Visible = true
-
-							Library.Flags[Dropdown.Flag] = chosen
-							Dropdown.Callback(chosen)
 						end
+
+						for i, opt in next, option do
+							if table.find(Dropdown.Options, opt) and #chosen < Dropdown.Max then
+								table.insert(chosen, opt)
+								Dropdown.OptionInsts[opt].text.Visible = true
+							end
+						end
+
+						local textchosen = {}
+						local cutobject = false
+
+						for _, opt in next, chosen do
+							table.insert(textchosen, opt)
+						end
+
+						Value.Text = #chosen == 0 and "" or table.concat(textchosen, ", ") .. (cutobject and ", ..." or "")
+
+						Library.Flags[Dropdown.Flag] = chosen
+						Dropdown.Callback(chosen)
+					end
+				end
+				--
+				function Dropdown:Set(option)
+					if Dropdown.Max then
+						set(option)
 					else
 						for opt, tbl in next, Dropdown.OptionInsts do
 							if opt ~= option then
 								tbl.text.Visible = false
 							end
 						end
-						chosen = option
-						Value.Text = option
-						text.Visible = true
-						ContentOutline.Visible = false
-						NewList.ZIndex = 1
-						Library.Flags[Dropdown.Flag] = option
-						Dropdown.Callback(option)
-					end
-				end)
-			end
-			--
-			local function createoptions(tbl)
-				for _, option in next, tbl do
-					Dropdown.OptionInsts[option] = {}
-					--
-					local OptButton = Instance.new("TextButton")
-					OptButton.Name = "OptButton"
-					OptButton.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
-					OptButton.Text = ""
-					OptButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-					OptButton.TextSize = Library.FSize
-					OptButton.AutoButtonColor = false
-					OptButton.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-					OptButton.BackgroundTransparency = 1
-					OptButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
-					OptButton.BorderSizePixel = 0
-					OptButton.Size = UDim2.new(1, 0, 0, 20)
-					OptButton.TextWrapped = true
-					OptButton.Parent = ContentOutline
-
-					local Disabled = Instance.new("TextLabel")
-					Disabled.Name = "Disabled"
-					Disabled.FontFace = realfont
-					Disabled.Text = option
-					Disabled.TextColor3 = Color3.fromRGB(255, 255, 255)
-					Disabled.TextSize = Library.FSize
-					Disabled.TextStrokeTransparency = 0
-					Disabled.TextXAlignment = Enum.TextXAlignment.Left
-					Disabled.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-					Disabled.BackgroundTransparency = 1
-					Disabled.BorderColor3 = Color3.fromRGB(0, 0, 0)
-					Disabled.BorderSizePixel = 0
-					Disabled.Position = UDim2.new(0, 4, 0, 0)
-					Disabled.Size = UDim2.new(1, -8, 1, 0)
-					Disabled.ClipsDescendants = true
-					Disabled.Parent = OptButton
-
-					local Enabled = Library:NewInstance("TextLabel", true)
-					Enabled.Name = "Enabled"
-					Enabled.FontFace = realfont
-					Enabled.Text = option
-					Enabled.TextColor3 = Library.Accent
-					Enabled.TextSize = Library.FSize
-					Enabled.TextStrokeTransparency = 0
-					Enabled.TextXAlignment = Enum.TextXAlignment.Left
-					Enabled.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-					Enabled.BackgroundTransparency = 1
-					Enabled.BorderColor3 = Color3.fromRGB(0, 0, 0)
-					Enabled.BorderSizePixel = 0
-					Enabled.Position = UDim2.new(0, 4, 0, 0)
-					Enabled.Size = UDim2.new(1, -8, 1, 0)
-					Enabled.TextWrapped = true
-					Enabled.Parent = OptButton
-					Enabled.Visible = false
-
-					OptButton.Parent = ContentOutline
-
-					Dropdown.OptionInsts[option].text = Enabled
-					Dropdown.OptionInsts[option].button = OptButton
-
-					Count = Count + 1
-
-					if Dropdown.ScrollMax then
-						ContentOutline.AutomaticSize = Enum.AutomaticSize.None
-						if Count < Dropdown.ScrollMax then
+						if table.find(Dropdown.Options, option) then
+							chosen = option
+							Dropdown.OptionInsts[option].text.Visible = true
+							Value.Text = option
+							Library.Flags[Dropdown.Flag] = chosen
+							Dropdown.Callback(chosen)
 						else
-							ContentOutline.Size = UDim2.new(1,0, 0, 20*Dropdown.ScrollMax)
+							chosen = nil
+							Value.Text = "None"
+							Library.Flags[Dropdown.Flag] = chosen
+							Dropdown.Callback(chosen)
 						end
-					else
-						ContentOutline.AutomaticSize = Enum.AutomaticSize.Y
 					end
-
-					handleoptionclick(option, OptButton, Enabled)
 				end
-			end
-			createoptions(Dropdown.Options)
-			--
-			local set
-			set = function(option)
-				if Dropdown.Max then
-					table.clear(chosen)
-					option = type(option) == "table" and option or {}
-
-					for opt, tbl in next, Dropdown.OptionInsts do
-						if not table.find(option, opt) then
-							tbl.text.Visible = false
-						end
+				--
+				function Dropdown:Refresh(tbl)
+					for _, opt in next, Dropdown.OptionInsts do
+						coroutine.wrap(function()
+							opt.button:Destroy()
+						end)()
 					end
+					table.clear(Dropdown.OptionInsts)
 
-					for i, opt in next, option do
-						if table.find(Dropdown.Options, opt) and #chosen < Dropdown.Max then
-							table.insert(chosen, opt)
-							Dropdown.OptionInsts[opt].text.Visible = true
-						end
+					createoptions(tbl)
+
+					if Dropdown.Max then
+						table.clear(chosen)
+					else
+						chosen = nil
 					end
-
-					local textchosen = {}
-					local cutobject = false
-
-					for _, opt in next, chosen do
-						table.insert(textchosen, opt)
-					end
-
-					Value.Text = #chosen == 0 and "" or table.concat(textchosen, ", ") .. (cutobject and ", ..." or "")
 
 					Library.Flags[Dropdown.Flag] = chosen
 					Dropdown.Callback(chosen)
 				end
-			end
-			--
-			function Dropdown:Set(option)
+
+				-- // Returning
 				if Dropdown.Max then
-					set(option)
+					Flags[Dropdown.Flag] = set
 				else
-					for opt, tbl in next, Dropdown.OptionInsts do
-						if opt ~= option then
-							tbl.text.Visible = false
-						end
-					end
-					if table.find(Dropdown.Options, option) then
-						chosen = option
-						Dropdown.OptionInsts[option].text.Visible = true
-						Value.Text = option
-						Library.Flags[Dropdown.Flag] = chosen
-						Dropdown.Callback(chosen)
-					else
-						chosen = nil
-						Value.Text = "None"
-						Library.Flags[Dropdown.Flag] = chosen
-						Dropdown.Callback(chosen)
-					end
+					Flags[Dropdown.Flag] = Dropdown
 				end
+				Dropdown:Set(Dropdown.State)
+				return Dropdown
 			end
 			--
-			function Dropdown:Refresh(tbl)
-				for _, opt in next, Dropdown.OptionInsts do
-					coroutine.wrap(function()
-						opt.button:Destroy()
-					end)()
+			function Sections:Keybind(Properties)
+				local Properties = Properties or {}
+				local Keybind = {
+					Section = self,
+					Page = self.Page,
+					Name = Properties.name or Properties.Name or "Keybind",
+					State = (
+						Properties.state
+							or Properties.State
+							or Properties.def
+							or Properties.Def
+							or Properties.default
+							or Properties.Default
+							or nil
+					),
+					Mode = (Properties.mode or Properties.Mode or "Toggle"),
+					UseKey = (Properties.UseKey or false),
+					Ignore = (Properties.ignore or Properties.Ignore or false),
+					Callback = (
+						Properties.callback
+							or Properties.Callback
+							or Properties.callBack
+							or Properties.CallBack
+							or function() end
+					),
+					Flag = (
+						Properties.flag
+							or Properties.Flag
+							or Properties.pointer
+							or Properties.Pointer
+							or Library.NextFlag()
+					),
+					Binding = nil,
+				}
+				local Key
+				local State = false
+				local ModeBox = Instance.new("Frame")
+				local Hold = Instance.new("TextButton")
+				local Toggle = Instance.new("TextButton")
+				local Always = Instance.new("TextButton")
+				local ListValue;
+				if not Keybind.Ignore then
+					ListValue = Library.KeyList:NewKey(Keybind.Name, Keybind.Page.Name)
 				end
-				table.clear(Dropdown.OptionInsts)
+				--
+				local NewKey = Instance.new("Frame")
+				NewKey.Name = "NewKey"
+				NewKey.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				NewKey.BackgroundTransparency = 1
+				NewKey.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				NewKey.BorderSizePixel = 0
+				NewKey.Size = UDim2.new(1, 0, 0, 8)
+				NewKey.Parent = Keybind.Section.Elements.SectionContent
 
-				createoptions(tbl)
+				local KeyFrame = Instance.new("TextButton")
+				KeyFrame.Name = "KeyFrame"
+				KeyFrame.AnchorPoint = Vector2.new(1, 0.5)
+				KeyFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+				KeyFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				KeyFrame.Position = UDim2.new(1, -4, 0.5, 0)
+				KeyFrame.Size = UDim2.new(0, 40, 0, 12)
+				KeyFrame.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
+				KeyFrame.Text = ""
+				KeyFrame.TextColor3 = Color3.fromRGB(0, 0, 0)
+				KeyFrame.TextSize = 14
+				KeyFrame.AutoButtonColor = false
 
-				if Dropdown.Max then
-					table.clear(chosen)
-				else
-					chosen = nil
-				end
+				local UIStroke = Instance.new("UIStroke")
+				UIStroke.Name = "UIStroke"
+				UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+				UIStroke.LineJoinMode = Enum.LineJoinMode.Miter
+				UIStroke.Thickness = 2
+				UIStroke.Transparency = 0.8
+				UIStroke.Parent = KeyFrame
 
-				Library.Flags[Dropdown.Flag] = chosen
-				Dropdown.Callback(chosen)
-			end
+				local Value = Instance.new("TextLabel")
+				Value.Name = "Value"
+				Value.FontFace = realfont
+				Value.Text = "..."
+				Value.TextColor3 = Color3.fromRGB(255, 255, 255)
+				Value.TextSize = Library.FSize
+				Value.TextStrokeTransparency = 0
+				Value.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Value.BackgroundTransparency = 1
+				Value.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Value.BorderSizePixel = 0
+				Value.Size = UDim2.new(1, 0, 1, 0)
+				Value.Parent = KeyFrame
 
-			-- // Returning
-			if Dropdown.Max then
-				Flags[Dropdown.Flag] = set
-			else
-				Flags[Dropdown.Flag] = Dropdown
-			end
-			Dropdown:Set(Dropdown.State)
-			return Dropdown
-		end
-		--
-		function Sections:Keybind(Properties)
-			local Properties = Properties or {}
-			local Keybind = {
-				Section = self,
-				Page = self.Page,
-				Name = Properties.name or Properties.Name or "Keybind",
-				State = (
-					Properties.state
-						or Properties.State
-						or Properties.def
-						or Properties.Def
-						or Properties.default
-						or Properties.Default
-						or nil
-				),
-				Mode = (Properties.mode or Properties.Mode or "Toggle"),
-				UseKey = (Properties.UseKey or false),
-				Ignore = (Properties.ignore or Properties.Ignore or false),
-				Callback = (
-					Properties.callback
-						or Properties.Callback
-						or Properties.callBack
-						or Properties.CallBack
-						or function() end
-				),
-				Flag = (
-					Properties.flag
-						or Properties.Flag
-						or Properties.pointer
-						or Properties.Pointer
-						or Library.NextFlag()
-				),
-				Binding = nil,
-			}
-			local Key
-			local State = false
-			local ModeBox = Instance.new("Frame")
-			local Hold = Instance.new("TextButton")
-			local Toggle = Instance.new("TextButton")
-			local Always = Instance.new("TextButton")
-			local ListValue;
-			if not Keybind.Ignore then
-				ListValue = Library.KeyList:NewKey(Keybind.Name, Keybind.Page.Name)
-			end
-			--
-			local NewKey = Instance.new("Frame")
-			NewKey.Name = "NewKey"
-			NewKey.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-			NewKey.BackgroundTransparency = 1
-			NewKey.BorderColor3 = Color3.fromRGB(0, 0, 0)
-			NewKey.BorderSizePixel = 0
-			NewKey.Size = UDim2.new(1, 0, 0, 8)
-			NewKey.Parent = Keybind.Section.Elements.SectionContent
+				KeyFrame.Parent = NewKey
 
-			local KeyFrame = Instance.new("TextButton")
-			KeyFrame.Name = "KeyFrame"
-			KeyFrame.AnchorPoint = Vector2.new(0, 0.5)
-			KeyFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-			KeyFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-			KeyFrame.Position = UDim2.new(1, -40, 0.5, 0)
-			KeyFrame.Size = UDim2.new(0, 40, 0, 12)
-			KeyFrame.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")
-			KeyFrame.Text = ""
-			KeyFrame.TextColor3 = Color3.fromRGB(0, 0, 0)
-			KeyFrame.TextSize = 14
-			KeyFrame.AutoButtonColor = false
+				local Title = Instance.new("TextLabel")
+				Title.Name = "Title"
+				Title.FontFace = realfont
+				Title.Text = Keybind.Name
+				Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+				Title.TextSize = Library.FSize
+				Title.TextStrokeTransparency = 0
+				Title.TextXAlignment = Enum.TextXAlignment.Left
+				Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Title.BackgroundTransparency = 1
+				Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Title.BorderSizePixel = 0
+				Title.Size = UDim2.new(1, 0, 1, 0)
+				Title.Parent = NewKey
 
-			local UIStroke = Instance.new("UIStroke")
-			UIStroke.Name = "UIStroke"
-			UIStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-			UIStroke.LineJoinMode = Enum.LineJoinMode.Miter
-			UIStroke.Thickness = 2
-			UIStroke.Transparency = 0.8
-			UIStroke.Parent = KeyFrame
+				ModeBox.Name = "ModeBox"
+				ModeBox.Parent = KeyFrame
+				ModeBox.AnchorPoint = Vector2.new(0,0.5)
+				ModeBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+				ModeBox.BorderColor3 = Color3.fromRGB(0,0,0)
+				ModeBox.BorderSizePixel = 1
+				ModeBox.Size = UDim2.new(0, 55, 0, 60)
+				ModeBox.Position = UDim2.new(0,48,0.5,0)
+				ModeBox.Visible = false
+				ModeBox.ZIndex = 2
 
-			local Value = Instance.new("TextLabel")
-			Value.Name = "Value"
-			Value.FontFace = realfont
-			Value.Text = "..."
-			Value.TextColor3 = Color3.fromRGB(255, 255, 255)
-			Value.TextSize = Library.FSize
-			Value.TextStrokeTransparency = 0
-			Value.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-			Value.BackgroundTransparency = 1
-			Value.BorderColor3 = Color3.fromRGB(0, 0, 0)
-			Value.BorderSizePixel = 0
-			Value.Size = UDim2.new(1, 0, 1, 0)
-			Value.Parent = KeyFrame
+				local UIStroke1 = Instance.new("UIStroke")
+				UIStroke1.Name = "UIStroke"
+				UIStroke1.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+				UIStroke1.LineJoinMode = Enum.LineJoinMode.Miter
+				UIStroke1.Thickness = 2
+				UIStroke1.Transparency = 0.8
+				UIStroke1.Parent = ModeBox
 
-			KeyFrame.Parent = NewKey
+				Hold.Name = "Hold"
+				Hold.Parent = ModeBox
+				Hold.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Hold.BackgroundTransparency = 1.000
+				Hold.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Hold.BorderSizePixel = 0
+				Hold.Size = UDim2.new(1, 0, 0.333000004, 0)
+				Hold.ZIndex = 2
+				Hold.FontFace = realfont
+				Hold.Text = "Hold"
+				Hold.TextColor3 = Keybind.Mode == "Hold" and Color3.fromRGB(255,255,255) or Color3.fromRGB(145,145,145)
+				Hold.TextSize = Library.FSize
+				Hold.TextStrokeTransparency = 0
 
-			local Title = Instance.new("TextLabel")
-			Title.Name = "Title"
-			Title.FontFace = realfont
-			Title.Text = Keybind.Name
-			Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-			Title.TextSize = Library.FSize
-			Title.TextStrokeTransparency = 0
-			Title.TextXAlignment = Enum.TextXAlignment.Left
-			Title.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-			Title.BackgroundTransparency = 1
-			Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
-			Title.BorderSizePixel = 0
-			Title.Size = UDim2.new(1, 0, 1, 0)
-			Title.Parent = NewKey
+				Toggle.Name = "Toggle"
+				Toggle.Parent = ModeBox
+				Toggle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Toggle.BackgroundTransparency = 1.000
+				Toggle.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Toggle.BorderSizePixel = 0
+				Toggle.Position = UDim2.new(0, 0, 0.333000004, 0)
+				Toggle.Size = UDim2.new(1, 0, 0.333000004, 0)
+				Toggle.ZIndex = 2
+				Toggle.FontFace = realfont
+				Toggle.Text = "Toggle"
+				Toggle.TextColor3 = Keybind.Mode == "Toggle" and Color3.fromRGB(255,255,255) or Color3.fromRGB(145,145,145)
+				Toggle.TextSize = Library.FSize
+				Toggle.TextStrokeTransparency = 0
 
-			ModeBox.Name = "ModeBox"
-			ModeBox.Parent = KeyFrame
-			ModeBox.AnchorPoint = Vector2.new(0,0.5)
-			ModeBox.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-			ModeBox.BorderColor3 = Color3.fromRGB(0,0,0)
-			ModeBox.BorderSizePixel = 1
-			ModeBox.Size = UDim2.new(0, 55, 0, 60)
-			ModeBox.Position = UDim2.new(0,48,0.5,0)
-			ModeBox.Visible = false
-			ModeBox.ZIndex = 2
+				Always.Name = "Always"
+				Always.Parent = ModeBox
+				Always.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+				Always.BackgroundTransparency = 1.000
+				Always.BorderColor3 = Color3.fromRGB(0, 0, 0)
+				Always.BorderSizePixel = 0
+				Always.Position = UDim2.new(0, 0, 0.666999996, 0)
+				Always.Size = UDim2.new(1, 0, 0.333000004, 0)
+				Always.ZIndex = 2
+				Always.FontFace = realfont
+				Always.Text = "Always"
+				Always.TextColor3 = Keybind.Mode == "Always" and Color3.fromRGB(255,255,255) or Color3.fromRGB(145,145,145)
+				Always.TextSize = Library.FSize
+				Always.TextStrokeTransparency = 0
 
-			local UIStroke1 = Instance.new("UIStroke")
-			UIStroke1.Name = "UIStroke"
-			UIStroke1.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-			UIStroke1.LineJoinMode = Enum.LineJoinMode.Miter
-			UIStroke1.Thickness = 2
-			UIStroke1.Transparency = 0.8
-			UIStroke1.Parent = ModeBox
-
-			Hold.Name = "Hold"
-			Hold.Parent = ModeBox
-			Hold.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-			Hold.BackgroundTransparency = 1.000
-			Hold.BorderColor3 = Color3.fromRGB(0, 0, 0)
-			Hold.BorderSizePixel = 0
-			Hold.Size = UDim2.new(1, 0, 0.333000004, 0)
-			Hold.ZIndex = 2
-			Hold.FontFace = realfont
-			Hold.Text = "Hold"
-			Hold.TextColor3 = Keybind.Mode == "Hold" and Color3.fromRGB(255,255,255) or Color3.fromRGB(145,145,145)
-			Hold.TextSize = Library.FSize
-			Hold.TextStrokeTransparency = 0
-
-			Toggle.Name = "Toggle"
-			Toggle.Parent = ModeBox
-			Toggle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-			Toggle.BackgroundTransparency = 1.000
-			Toggle.BorderColor3 = Color3.fromRGB(0, 0, 0)
-			Toggle.BorderSizePixel = 0
-			Toggle.Position = UDim2.new(0, 0, 0.333000004, 0)
-			Toggle.Size = UDim2.new(1, 0, 0.333000004, 0)
-			Toggle.ZIndex = 2
-			Toggle.FontFace = realfont
-			Toggle.Text = "Toggle"
-			Toggle.TextColor3 = Keybind.Mode == "Toggle" and Color3.fromRGB(255,255,255) or Color3.fromRGB(145,145,145)
-			Toggle.TextSize = Library.FSize
-			Toggle.TextStrokeTransparency = 0
-
-			Always.Name = "Always"
-			Always.Parent = ModeBox
-			Always.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-			Always.BackgroundTransparency = 1.000
-			Always.BorderColor3 = Color3.fromRGB(0, 0, 0)
-			Always.BorderSizePixel = 0
-			Always.Position = UDim2.new(0, 0, 0.666999996, 0)
-			Always.Size = UDim2.new(1, 0, 0.333000004, 0)
-			Always.ZIndex = 2
-			Always.FontFace = realfont
-			Always.Text = "Always"
-			Always.TextColor3 = Keybind.Mode == "Always" and Color3.fromRGB(255,255,255) or Color3.fromRGB(145,145,145)
-			Always.TextSize = Library.FSize
-			Always.TextStrokeTransparency = 0
-
-			-- // Functions
-			local function set(newkey)
-				if string.find(tostring(newkey), "Enum") then
-					if c then
-						c:Disconnect()
-						if Keybind.Flag then
-							Library.Flags[Keybind.Flag] = false
-						end
-						Keybind.Callback(false)
-					end
-					if tostring(newkey):find("Enum.KeyCode.") then
-						newkey = Enum.KeyCode[tostring(newkey):gsub("Enum.KeyCode.", "")]
-					elseif tostring(newkey):find("Enum.UserInputType.") then
-						newkey = Enum.UserInputType[tostring(newkey):gsub("Enum.UserInputType.", "")]
-					end
-					if newkey == Enum.KeyCode.Backspace then
-						Key = nil
-						if Keybind.UseKey then
+				-- // Functions
+				local function set(newkey)
+					if string.find(tostring(newkey), "Enum") then
+						if c then
+							c:Disconnect()
 							if Keybind.Flag then
-								Library.Flags[Keybind.Flag] = Key
-							end
-							Keybind.Callback(Key)
-						end
-						local text = "None"
-
-						Value.Text = text
-					elseif newkey ~= nil then
-						Key = newkey
-						if Keybind.UseKey then
-							if Keybind.Flag then
-								Library.Flags[Keybind.Flag] = Key
-							end
-							Keybind.Callback(Key)
-						end
-						local text = (Library.Keys[newkey] or tostring(newkey):gsub("Enum.KeyCode.", ""))
-
-						Value.Text = text
-					end
-
-					Library.Flags[Keybind.Flag .. "_KEY"] = newkey
-				elseif table.find({ "Always", "Toggle", "Hold" }, newkey) then
-					if not Keybind.UseKey then
-						Library.Flags[Keybind.Flag .. "_KEY STATE"] = newkey
-						Keybind.Mode = newkey
-						if Keybind.Mode == "Always" then
-							State = true
-							if Keybind.Flag then
-								Library.Flags[Keybind.Flag] = State
-							end
-							Keybind.Callback(true)
-							if not Keybind.Ignore then
-								ListValue:SetVisible(true)
-							end
-						elseif Keybind.Mode == "Hold" then
-							State = false
-							if Keybind.Flag then
-								Library.Flags[Keybind.Flag] = State
+								Library.Flags[Keybind.Flag] = false
 							end
 							Keybind.Callback(false)
-							if not Keybind.Ignore then
-								ListValue:SetVisible(false)
-							end
 						end
-					end
-				else
-					State = newkey
-					if Keybind.Flag then
-						Library.Flags[Keybind.Flag] = newkey
-					end
-					Keybind.Callback(newkey)
-				end
-			end
-			--
-			set(Keybind.State)
-			set(Keybind.Mode)
-			KeyFrame.MouseButton1Click:Connect(function()
-				if not Keybind.Binding then
-
-					Value.Text = "..."
-
-					Keybind.Binding = Library:Connection(
-						game:GetService("UserInputService").InputBegan,
-						function(input, gpe)
-							set(
-								input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode
-									or input.UserInputType
-							)
-							Library:Disconnect(Keybind.Binding)
-							task.wait()
-							Keybind.Binding = nil
+						if tostring(newkey):find("Enum.KeyCode.") then
+							newkey = Enum.KeyCode[tostring(newkey):gsub("Enum.KeyCode.", "")]
+						elseif tostring(newkey):find("Enum.UserInputType.") then
+							newkey = Enum.UserInputType[tostring(newkey):gsub("Enum.UserInputType.", "")]
 						end
-					)
-				end
-			end)
-			--
-			Library:Connection(game:GetService("UserInputService").InputBegan, function(inp)
-				if (inp.KeyCode == Key or inp.UserInputType == Key) and not Keybind.Binding and not Keybind.UseKey then
-					if Keybind.Mode == "Hold" then
-						if Keybind.Flag then
-							Library.Flags[Keybind.Flag] = true
-						end
-						c = Library:Connection(game:GetService("RunService").RenderStepped, function()
-							if Keybind.Callback then
-								Keybind.Callback(true)
-							end
-						end)
-						if not Keybind.Ignore then
-							ListValue:SetVisible(true)
-						end
-					elseif Keybind.Mode == "Toggle" then
-						State = not State
-						if Keybind.Flag then
-							Library.Flags[Keybind.Flag] = State
-						end
-						Keybind.Callback(State)
-						if not Keybind.Ignore then
-							ListValue:SetVisible(State)
-						end
-					end
-				end
-			end)
-			--
-			Library:Connection(game:GetService("UserInputService").InputEnded, function(inp)
-				if Keybind.Mode == "Hold" and not Keybind.UseKey then
-					if Key ~= "" or Key ~= nil then
-						if inp.KeyCode == Key or inp.UserInputType == Key then
-							if c then
-								c:Disconnect()
+						if newkey == Enum.KeyCode.Backspace then
+							Key = nil
+							if Keybind.UseKey then
 								if Keybind.Flag then
-									Library.Flags[Keybind.Flag] = false
+									Library.Flags[Keybind.Flag] = Key
 								end
-								if Keybind.Callback then
-									Keybind.Callback(false)
+								Keybind.Callback(Key)
+							end
+							local text = "None"
+
+							Value.Text = text
+						elseif newkey ~= nil then
+							Key = newkey
+							if Keybind.UseKey then
+								if Keybind.Flag then
+									Library.Flags[Keybind.Flag] = Key
 								end
+								Keybind.Callback(Key)
+							end
+							local text = (Library.Keys[newkey] or tostring(newkey):gsub("Enum.KeyCode.", ""))
+
+							Value.Text = text
+						end
+
+						Library.Flags[Keybind.Flag .. "_KEY"] = newkey
+					elseif table.find({ "Always", "Toggle", "Hold" }, newkey) then
+						if not Keybind.UseKey then
+							Library.Flags[Keybind.Flag .. "_KEY STATE"] = newkey
+							Keybind.Mode = newkey
+							if Keybind.Mode == "Always" then
+								State = true
+								if Keybind.Flag then
+									Library.Flags[Keybind.Flag] = State
+								end
+								Keybind.Callback(true)
+								if not Keybind.Ignore then
+									ListValue:SetVisible(true)
+								end
+							elseif Keybind.Mode == "Hold" then
+								State = false
+								if Keybind.Flag then
+									Library.Flags[Keybind.Flag] = State
+								end
+								Keybind.Callback(false)
 								if not Keybind.Ignore then
 									ListValue:SetVisible(false)
 								end
 							end
 						end
+					else
+						State = newkey
+						if Keybind.Flag then
+							Library.Flags[Keybind.Flag] = newkey
+						end
+						Keybind.Callback(newkey)
 					end
 				end
-			end)
-			--
-			Library:Connection(KeyFrame.MouseButton2Down, function()
-				ModeBox.Visible = true
-				NewKey.ZIndex = 5
-			end)
-			--
-			Library:Connection(Hold.MouseButton1Down, function()
-				set("Hold")
-				Hold.TextColor3 = Color3.fromRGB(255,255,255)
-				Toggle.TextColor3 = Color3.fromRGB(145,145,145)
-				Always.TextColor3 = Color3.fromRGB(145,145,145)
-				ModeBox.Visible = false
-				NewKey.ZIndex = 1
-			end)
-			--
-			Library:Connection(Toggle.MouseButton1Down, function()
-				set("Toggle")
-				Hold.TextColor3 = Color3.fromRGB(145,145,145)
-				Toggle.TextColor3 = Color3.fromRGB(255,255,255)
-				Always.TextColor3 = Color3.fromRGB(145,145,145)
-				ModeBox.Visible = false
-				NewKey.ZIndex = 1
-			end)
-			--
-			Library:Connection(Always.MouseButton1Down, function()
-				set("Always")
-				Hold.TextColor3 = Color3.fromRGB(145,145,145)
-				Toggle.TextColor3 = Color3.fromRGB(145,145,145)
-				Always.TextColor3 = Color3.fromRGB(255,255,255)
-				ModeBox.Visible = false
-				NewKey.ZIndex = 1
-			end)
-			--
-			Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
-				if ModeBox.Visible and (Input.UserInputType == Enum.UserInputType.MouseButton1) then
-					if not Library:IsMouseOverFrame(ModeBox) then
-						ModeBox.Visible = false
-						NewKey.ZIndex = 1
+				--
+				set(Keybind.State)
+				set(Keybind.Mode)
+				KeyFrame.MouseButton1Click:Connect(function()
+					if not Keybind.Binding then
+
+						Value.Text = "..."
+
+						Keybind.Binding = Library:Connection(
+							game:GetService("UserInputService").InputBegan,
+							function(input, gpe)
+								set(
+									input.UserInputType == Enum.UserInputType.Keyboard and input.KeyCode
+										or input.UserInputType
+								)
+								Library:Disconnect(Keybind.Binding)
+								task.wait()
+								Keybind.Binding = nil
+							end
+						)
 					end
+				end)
+				--
+				Library:Connection(game:GetService("UserInputService").InputBegan, function(inp)
+					if (inp.KeyCode == Key or inp.UserInputType == Key) and not Keybind.Binding and not Keybind.UseKey then
+						if Keybind.Mode == "Hold" then
+							if Keybind.Flag then
+								Library.Flags[Keybind.Flag] = true
+							end
+							c = Library:Connection(game:GetService("RunService").RenderStepped, function()
+								if Keybind.Callback then
+									Keybind.Callback(true)
+								end
+							end)
+							if not Keybind.Ignore then
+								ListValue:SetVisible(true)
+							end
+						elseif Keybind.Mode == "Toggle" then
+							State = not State
+							if Keybind.Flag then
+								Library.Flags[Keybind.Flag] = State
+							end
+							Keybind.Callback(State)
+							if not Keybind.Ignore then
+								ListValue:SetVisible(State)
+							end
+						end
+					end
+				end)
+				--
+				Library:Connection(game:GetService("UserInputService").InputEnded, function(inp)
+					if Keybind.Mode == "Hold" and not Keybind.UseKey then
+						if Key ~= "" or Key ~= nil then
+							if inp.KeyCode == Key or inp.UserInputType == Key then
+								if c then
+									c:Disconnect()
+									if Keybind.Flag then
+										Library.Flags[Keybind.Flag] = false
+									end
+									if Keybind.Callback then
+										Keybind.Callback(false)
+									end
+									if not Keybind.Ignore then
+										ListValue:SetVisible(false)
+									end
+								end
+							end
+						end
+					end
+				end)
+				--
+				Library:Connection(KeyFrame.MouseButton2Down, function()
+					ModeBox.Visible = true
+					NewKey.ZIndex = 5
+				end)
+				--
+				Library:Connection(Hold.MouseButton1Down, function()
+					set("Hold")
+					Hold.TextColor3 = Color3.fromRGB(255,255,255)
+					Toggle.TextColor3 = Color3.fromRGB(145,145,145)
+					Always.TextColor3 = Color3.fromRGB(145,145,145)
+					ModeBox.Visible = false
+					NewKey.ZIndex = 1
+				end)
+				--
+				Library:Connection(Toggle.MouseButton1Down, function()
+					set("Toggle")
+					Hold.TextColor3 = Color3.fromRGB(145,145,145)
+					Toggle.TextColor3 = Color3.fromRGB(255,255,255)
+					Always.TextColor3 = Color3.fromRGB(145,145,145)
+					ModeBox.Visible = false
+					NewKey.ZIndex = 1
+				end)
+				--
+				Library:Connection(Always.MouseButton1Down, function()
+					set("Always")
+					Hold.TextColor3 = Color3.fromRGB(145,145,145)
+					Toggle.TextColor3 = Color3.fromRGB(145,145,145)
+					Always.TextColor3 = Color3.fromRGB(255,255,255)
+					ModeBox.Visible = false
+					NewKey.ZIndex = 1
+				end)
+				--
+				Library:Connection(game:GetService("UserInputService").InputBegan, function(Input)
+					if ModeBox.Visible and (Input.UserInputType == Enum.UserInputType.MouseButton1) then
+						if not Library:IsMouseOverFrame(ModeBox) then
+							ModeBox.Visible = false
+							NewKey.ZIndex = 1
+						end
+					end
+				end)
+				--
+				Library.Flags[Keybind.Flag .. "_KEY"] = Keybind.State
+				Library.Flags[Keybind.Flag .. "_KEY STATE"] = Keybind.Mode
+				Flags[Keybind.Flag] = set
+				Flags[Keybind.Flag .. "_KEY"] = set
+				Flags[Keybind.Flag .. "_KEY STATE"] = set
+				--
+				function Keybind:Set(key)
+					set(key)
 				end
-			end)
-			--
-			Library.Flags[Keybind.Flag .. "_KEY"] = Keybind.State
-			Library.Flags[Keybind.Flag .. "_KEY STATE"] = Keybind.Mode
-			Flags[Keybind.Flag] = set
-			Flags[Keybind.Flag .. "_KEY"] = set
-			Flags[Keybind.Flag .. "_KEY STATE"] = set
-			--
-			function Keybind:Set(key)
-				set(key)
+
+				-- // Returning
+				return Keybind
 			end
 
+			-- // Misc Functions
+			function Toggle.Set(bool)
+				bool = type(bool) == "boolean" and bool or false
+				if Toggle.Toggled ~= bool then
+					SetState()
+				end
+			end
+			Toggle.Set(Toggle.State)
+			Library.Flags[Toggle.Flag] = Toggle.State
+			Flags[Toggle.Flag] = Toggle.Set
+
 			-- // Returning
-			return Keybind
+			return Toggle
 		end
 		--
 		function Sections:Colorpicker(Properties)
@@ -3518,6 +3539,7 @@ do
 			Value.TextSize = Library.FSize
 			Value.TextStrokeTransparency = 0
 			Value.TextXAlignment = Enum.TextXAlignment.Center
+			Value.TextYAlignment = Enum.TextYAlignment.Center
 			Value.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			Value.BackgroundTransparency = 1
 			Value.BorderColor3 = Color3.fromRGB(0, 0, 0)
