@@ -2510,8 +2510,8 @@ do
 			Value.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Value.BorderSizePixel = 0
 			Value.Position = UDim2.new(0, 4, 0, 0)
-			Value.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
-			Value.TextWrapped = true -- Added text wrapping
+			Value.Size = UDim2.new(1, -8, 1, 0)
+			Value.ClipsDescendants = true
 			Value.Parent = ToggleFrame
 
 			local ContentOutline = Instance.new("ScrollingFrame")
@@ -2564,8 +2564,9 @@ do
 			Title.BackgroundTransparency = 1
 			Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Title.BorderSizePixel = 0
-			Title.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
-			Title.TextWrapped = true -- Added text wrapping
+			Title.Size = UDim2.new(1, -4, 1, 0)
+			Title.TextXAlignment = Enum.TextXAlignment.Left
+			Title.TextWrapped = false
 			Title.Parent = NewList
 
 			-- // Connections
@@ -2660,8 +2661,8 @@ do
 					OptButton.BackgroundTransparency = 1
 					OptButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
 					OptButton.BorderSizePixel = 0
-					OptButton.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
-					OptButton.TextWrapped = true -- Added text wrapping
+					OptButton.Size = UDim2.new(1, 0, 0, 20)
+					OptButton.TextWrapped = true
 					OptButton.Parent = ContentOutline
 
 					local Disabled = Instance.new("TextLabel")
@@ -2677,8 +2678,8 @@ do
 					Disabled.BorderColor3 = Color3.fromRGB(0, 0, 0)
 					Disabled.BorderSizePixel = 0
 					Disabled.Position = UDim2.new(0, 4, 0, 0)
-					Disabled.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
-					Disabled.TextWrapped = true -- Added text wrapping
+					Disabled.Size = UDim2.new(1, -8, 1, 0)
+					Disabled.ClipsDescendants = true
 					Disabled.Parent = OptButton
 
 					local Enabled = Library:NewInstance("TextLabel", true)
@@ -2694,8 +2695,8 @@ do
 					Enabled.BorderColor3 = Color3.fromRGB(0, 0, 0)
 					Enabled.BorderSizePixel = 0
 					Enabled.Position = UDim2.new(0, 4, 0, 0)
-					Enabled.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
-					Enabled.TextWrapped = true -- Added text wrapping
+					Enabled.Size = UDim2.new(1, -8, 1, 0)
+					Enabled.TextWrapped = true
 					Enabled.Parent = OptButton
 					Enabled.Visible = false
 
@@ -3373,6 +3374,7 @@ do
 			ToggleFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			ToggleFrame.Position = UDim2.new(0, 0, 1, -18)
 			ToggleFrame.Size = UDim2.new(1, 0, 0, 18)
+			ToggleFrame.ClipsDescendants = true
 
 			local DisabledGradient = Instance.new("UIGradient")
 			DisabledGradient.Name = "DisabledGradient"
@@ -3404,8 +3406,8 @@ do
 			Value.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Value.BorderSizePixel = 0
 			Value.Position = UDim2.new(0, 4, 0, 0)
-			Value.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
-			Value.TextWrapped = true -- Added text wrapping
+			Value.Size = UDim2.new(1, -8, 1, 0)
+			Value.ClipsDescendants = true
 			Value.Parent = ToggleFrame
 			Value.ClearTextOnFocus = false
 
@@ -3423,8 +3425,9 @@ do
 			Title.BackgroundTransparency = 1
 			Title.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Title.BorderSizePixel = 0
-			Title.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
-			Title.TextWrapped = true -- Added text wrapping
+			Title.Size = UDim2.new(1, -4, 1, 0)
+			Title.TextXAlignment = Enum.TextXAlignment.Left
+			Title.TextWrapped = false
 			Title.Parent = NewBox
 			Title.Visible = Textbox.Name ~= nil and true or false
 
@@ -3476,8 +3479,7 @@ do
 			NewButton.BackgroundTransparency = 1
 			NewButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			NewButton.BorderSizePixel = 0
-			NewButton.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
-			NewButton.TextWrapped = true -- Added text wrapping
+			NewButton.Size = UDim2.new(1, 0, 0, 18)
 			NewButton.Parent = Button.Section.Elements.SectionContent
 
 			local ToggleFrame = Instance.new("Frame")
@@ -3486,6 +3488,7 @@ do
 			ToggleFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			ToggleFrame.Position = UDim2.new(0, 0, 1, -18)
 			ToggleFrame.Size = UDim2.new(1, 0, 0, 18)
+			ToggleFrame.ClipsDescendants = true
 
 			local DisabledGradient = Instance.new("UIGradient")
 			DisabledGradient.Name = "DisabledGradient"
@@ -3515,8 +3518,8 @@ do
 			Value.BackgroundTransparency = 1
 			Value.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			Value.BorderSizePixel = 0
-			Value.Size = UDim2.new(1, -8, 1, 0) -- Adjusted sizing
-			Value.TextWrapped = true -- Added text wrapping
+			Value.Size = UDim2.new(1, 0, 1, 0)
+			Value.ClipsDescendants = true
 			Value.Parent = ToggleFrame
 
 			ToggleFrame.Parent = NewButton
