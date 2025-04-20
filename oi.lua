@@ -1,5 +1,5 @@
 --[[
-    Monolith LEAKED BY DESKTOP FUCK U FINOBE POOR ELY ENGLAND POLISH IMIGRANT
+    Monolith
 ]]
 
 if getgenv().loaded then 
@@ -178,9 +178,48 @@ getgenv().loaded = true
 -- Library functions 
     -- Misc functions
         function library:tween(obj, properties, easing_style, time) 
-            local tween = tween_service:Create(obj, TweenInfo.new(time or 0.25, easing_style or Enum.EasingStyle.Quint, Enum.EasingDirection.InOut, 0, false, 0), properties):Play()
+            local tween = tween_service:Create(obj, TweenInfo.new(time or 0.25, easing_style or Enum.EasingStyle.Quint, Enum.EasingDirection.InOut, 0, false, 0), properties)
+            tween:Play()
                 
             return tween
+        end
+
+        function library:get_transparency(obj)
+            if obj:IsA("Frame") then
+                return {"BackgroundTransparency"}
+            elseif obj:IsA("TextLabel") or obj:IsA("TextButton") then
+                return { "TextTransparency", "BackgroundTransparency" }
+            elseif obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
+                return { "BackgroundTransparency", "ImageTransparency" }
+            elseif obj:IsA("ScrollingFrame") then
+                return { "BackgroundTransparency", "ScrollBarImageTransparency" }
+            elseif obj:IsA("TextBox") then
+                return { "TextTransparency", "BackgroundTransparency" }
+            elseif obj:IsA("UIStroke") then 
+                return { "Transparency" }
+            end
+            
+            return nil
+        end
+
+        function library:fade(obj, prop, vis, speed)
+            if not (obj and prop) then
+                return
+            end
+
+            local OldTransparency = obj[prop]
+            obj[prop] = vis and 1 or OldTransparency
+
+            local Tween = library:tween(obj, { [prop] = vis and OldTransparency or 1 })
+
+            library:connection(Tween.Completed, function()
+                if not vis then
+                    task.wait()
+                    obj[prop] = OldTransparency
+                end
+            end)
+
+            return Tween
         end
 
         function library:resizify(frame) 
@@ -438,7 +477,7 @@ getgenv().loaded = true
 
                 selected_tab;
                 items = {};
-                tween;
+                tweening;
             }
             
             library[ "items" ] = library:create( "ScreenGui" , {
@@ -461,13 +500,14 @@ getgenv().loaded = true
                 items[ "window" ] = library:create( "Frame" , {
                     Parent = library.items;
                     Name = "\0";
+                    Visible = false;
                     Position = dim2(0.5, -cfg.size.X.Offset / 2, 0.5, -cfg.size.Y.Offset / 2);
                     BorderColor3 = rgb(0, 0, 0);
                     Size = cfg.size;
                     BorderSizePixel = 0;
                     BackgroundColor3 = rgb(0, 0, 0)
-                }); items[ "window" ].Position = dim2(0, items[ "window" ].AbsolutePosition.X, 0, items[ "window" ].AbsolutePosition.Y)
-                
+                }); items[ "window" ].Position = dim2(0, items[ "window" ].AbsolutePosition.X, 0, items[ "window" ].AbsolutePosition.Y)          
+
                 items[ "top_frame" ] = library:create( "Frame" , {
                     Name = "\0";
                     Parent = items[ "window" ];
@@ -550,9 +590,42 @@ getgenv().loaded = true
                 library:draggify(items[ "window" ])
                 library:resizify(items[ "window" ])
             end 
-
+            
             function cfg.toggle_menu(bool) 
-                items.window.Visible = bool
+                if cfg.tweening then 
+                    return 
+                end 
+
+                cfg.tweening = true 
+
+                if bool then 
+                    items[ "window" ].Visible = true
+                end
+
+                local Children = items[ "window" ]:GetDescendants()
+                table.insert(Children, items[ "window" ])
+
+                local Tween;
+                for _,obj in Children do
+                    local Index = library:get_transparency(obj)
+
+                    if not Index then 
+                        continue 
+                    end
+
+                    if type(Index) == "table" then
+                        for _,prop in Index do
+                            Tween = library:fade(obj, prop, bool)
+                        end
+                    else
+                        Tween = library:fade(obj, Index, bool)
+                    end
+                end
+
+                library:connection(Tween.Completed, function()
+                    cfg.tweening = false
+                    items[ "window" ].Visible = bool
+                end)
             end 
                 
             return setmetatable(cfg, library)
@@ -686,6 +759,7 @@ getgenv().loaded = true
             local items = cfg.items; do 
                 items[ "section_outline" ] = library:create( "Frame" , {
                     Name = "\0";
+                    BackgroundTransparency = 1;
                     Parent = self.items[ cfg.side ];
                     BorderColor3 = rgb(0, 0, 0);
                     Size = dim2(1, 0, 1, 0);
@@ -697,6 +771,7 @@ getgenv().loaded = true
                     Parent = items[ "section_outline" ];
                     Name = "\0";
                     Position = dim2(0, 1, 0, 1);
+                    BackgroundTransparency = 1;
                     BorderColor3 = rgb(0, 0, 0);
                     Size = dim2(1, -2, 1, -2);
                     BorderSizePixel = 0;
@@ -707,6 +782,7 @@ getgenv().loaded = true
                     Parent = items[ "section_shadow" ];
                     Name = "\0";
                     Position = dim2(0, 1, 0, 1);
+                    BackgroundTransparency = 1;
                     BorderColor3 = rgb(0, 0, 0);
                     Size = dim2(1, -2, 1, -2);
                     BorderSizePixel = 0;
@@ -716,6 +792,7 @@ getgenv().loaded = true
                 items[ "section_shadow_two" ] = library:create( "Frame" , {
                     Parent = items[ "section_shadow_one" ];
                     Name = "\0";
+                    BackgroundTransparency = 1;
                     Position = dim2(0, 1, 0, 1);
                     BorderColor3 = rgb(0, 0, 0);
                     Size = dim2(1, -2, 1, -2);
@@ -725,6 +802,7 @@ getgenv().loaded = true
                 
                 items[ "section_shadow_three" ] = library:create( "Frame" , {
                     Name = "\0";
+                    BackgroundTransparency = 1;
                     Parent = items[ "section_shadow_two" ];
                     BorderColor3 = rgb(0, 0, 0);
                     Size = dim2(1, 0, 1, 0);
@@ -785,9 +863,9 @@ getgenv().loaded = true
                     CornerRadius = dim(0, 0)
                 });
                 
-                library:create( "TextLabel" , {
+                items.text = library:create( "TextLabel" , {
                     FontFace = library.font;
-                    TextColor3 = rgb(255, 255, 255);
+                    TextColor3 = rgb(178, 178, 178);
                     BorderColor3 = rgb(0, 0, 0);
                     Text = cfg.name;
                     Parent = items[ "section_outline" ];
@@ -799,8 +877,17 @@ getgenv().loaded = true
                     BackgroundColor3 = rgb(255, 255, 255)
                 });
                 
+                items.line = library:create( "Frame" , {
+                    Parent = items.text;
+                    Position = dim2(0, 0, 1, 2);
+                    BorderColor3 = rgb(0, 0, 0);
+                    Size = dim2(0, 0, 0, 1);
+                    BorderSizePixel = 0;
+                    BackgroundColor3 = rgb(255, 255, 255)
+                });                
+
                 library:create( "UIStroke" , {
-                    Parent = items[ "TextLabel" ]
+                    Parent = items.text;
                 });
                 
                 library:create( "UICorner" , {
@@ -815,6 +902,13 @@ getgenv().loaded = true
                         library:tween(instance, {CornerRadius = dim(0, 8)})
                     end 
                 end 
+
+                for _,section in {"section_shadow_three", "section_shadow_two", "section_shadow_one", "section_shadow"} do 
+                    library:tween(items[ section ], {BackgroundTransparency = 0})
+                end 
+                
+                library:tween(items.line, {Size = dim2(1, 0, 0, 1)})
+                library:tween(items.text, {TextColor3 = rgb(255, 255, 255)})
             end)
 
             items[ "section_outline" ].MouseLeave:Connect(function()
@@ -823,6 +917,13 @@ getgenv().loaded = true
                         library:tween(instance, {CornerRadius = dim(0, 0)})
                     end 
                 end 
+
+                for _,section in {"section_shadow_three", "section_shadow_two", "section_shadow_one", "section_shadow"} do 
+                    library:tween(items[ section ], {BackgroundTransparency = 1})
+                end
+
+                library:tween(items.line, {Size = dim2(0, 0, 0, 1)})
+                library:tween(items.text, {TextColor3 = rgb(178, 178, 178)})
             end)
 
             return setmetatable(cfg, library)
@@ -922,7 +1023,7 @@ getgenv().loaded = true
                 library:tween(items[ "toggle_inline" ], {BackgroundColor3 = bool and rgb(255, 255, 255) or rgb(74, 74, 74)})
 
                 cfg.callback(bool)
-
+                
                 flags[cfg.flag] = bool
             end 
             
@@ -1261,7 +1362,7 @@ getgenv().loaded = true
                     Parent = items[ "dropdown_shading" ];
                     Size = dim2(1, 0, 0, 0);
                     BackgroundTransparency = 1;
-                    TextXAlignment = Enum.TextXAlignment.Left;
+                    TextXAlignment = Enum.TextXAlignment.Center;
                     BorderSizePixel = 0;
                     AutomaticSize = Enum.AutomaticSize.XY;
                     TextSize = 10;
@@ -1273,7 +1374,6 @@ getgenv().loaded = true
                 });
                 
                 library:create( "UIPadding" , {
-                    PaddingLeft = dim(0, 5);
                     Parent = button
                 });
 
@@ -1356,7 +1456,7 @@ getgenv().loaded = true
                     end
                 end
             end)
-
+            
             flags[cfg.flag] = {} 
             config_flags[cfg.flag] = cfg.set
             
@@ -2509,7 +2609,9 @@ getgenv().loaded = true
             section:Button({name = "Save", callback = function() writefile(library.directory .. "/configs/" .. flags["config_name_text"] .. ".cfg", library:get_config()) library:update_config_list() end}) 
             section:Button({name = "Load", callback = function() library:load_config(readfile(library.directory .. "/configs/" .. flags["config_name_text"] .. ".cfg"))  library:update_config_list() end})
             section:Button({name = "Delete", callback = function() delfile(library.directory .. "/configs/" .. flags["config_name_text"] .. ".cfg")  library:update_config_list() end})
-            section:Label({Name = "UI Bind"}):Keybind({callback = function(bool) window.toggle_menu(bool) end, default = true})
+            
+            window.tweening = true 
+            section:Label({Name = "UI Bind"}):Keybind({callback = function(bool) window.toggle_menu(bool) print(window.tweening) end, default = false})
         end
     --
 
@@ -2529,7 +2631,7 @@ getgenv().loaded = true
 			local fading = is_fading and 1 or 0 
 			
 			tween_service:Create(path, TweenInfo.new(1, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundTransparency = fading}):Play()
-            
+
 			for _, instance in path:GetDescendants() do 
 				if instance:IsA("UIStroke") then
 					tween_service:Create(instance, TweenInfo.new(1, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Transparency = fading}):Play()
@@ -2634,14 +2736,27 @@ getgenv().loaded = true
 			notifications:refresh_notifs()
 			tween_service:Create(outline, TweenInfo.new(1, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {AnchorPoint = vec2(0, 0)}):Play()
 			
-			notifications:fade(outline, false)
+			for _, obj in outline:GetDescendants() do
+                if obj:IsA("Frame") or obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
+                    library.fade(obj, "BackgroundTransparency", true)
+        
+                elseif obj:IsA("TextLabel") or obj:IsA("TextButton") then
+                    library.fade(obj, "TextTransparency", true)
+                    
+                elseif obj:IsA("UIStroke") then
+                    library.fade(obj, "Transparency", true)
+        
+                elseif obj:IsA("ScrollingFrame") then
+                    library.fade(obj, "ScrollBarImageTransparency", true)
+                end
+            end
+            print("fade1")
 
 			outline.Position = dim2(0, 20, 0, #notifications.notifs * 20);
 
 			if cfg.clickable then 
 				outline.MouseButton1Click:Connect(function()
 					notifications.notifs[index] = nil
-					notifications:fade(outline, true)
 					task.wait(1)
 					outline:Destroy() 
 					notifications:refresh_notifs()
@@ -2650,9 +2765,23 @@ getgenv().loaded = true
                 -- booty code
 				task.spawn(function()
 					tween_service:Create(line, TweenInfo.new(3, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = dim2(1, -1, 0, 1)}):Play()
-					task.wait(3)
+					task.wait(5)
+                    print("fade2")
 					notifications.notifs[index] = nil
-					notifications:fade(outline, true)
+					for _, obj in outline:GetDescendants() do
+                        if obj:IsA("Frame") or obj:IsA("ImageLabel") or obj:IsA("ImageButton") then
+                            library.fade(obj, "BackgroundTransparency", false)
+                
+                        elseif obj:IsA("TextLabel") or obj:IsA("TextButton") then
+                            library.fade(obj, "TextTransparency", false)
+                
+                        elseif obj:IsA("UIStroke") then
+                            library.fade(obj, "Transparency", false)
+                
+                        elseif obj:IsA("ScrollingFrame") then
+                            library.fade(obj, "ScrollBarImageTransparency", false)
+                        end
+                    end
 					task.wait(1)
 					outline:Destroy() 
 					notifications:refresh_notifs()
@@ -2703,9 +2832,6 @@ for i = 1, 3 do
     end
 end 
 
+window.toggle_menu(true)
+print("nigger")
 library:init_config(window) 
-
-for i = 1, 30  do 
-	task.wait(0.1)
-	notifications:create_notification({name = "notif abc"})
-end
