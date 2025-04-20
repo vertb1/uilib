@@ -253,9 +253,16 @@ do -- Library functions & Misc functions
         
         local list = {}
         
-        for idx, file in listfiles("syphon" .. "/configs") do
-            local name = file:gsub("syphon" .. "/configs\\", ""):gsub(".cfg", ""):gsub("syphon" .. "\\configs\\", "")
-            list[#list + 1] = name
+        for idx, file in pairs(listfiles("syphon" .. "/configs")) do
+            if file:sub(-4) == ".cfg" then
+                local name = file:gsub("syphon" .. "/configs\\", ""):gsub(".cfg", ""):gsub("syphon" .. "\\configs\\", "")
+                list[#list + 1] = name
+            end
+        end
+        
+        -- If no configs found, show a message
+        if #list == 0 then
+            list = {"No configs found"}
         end
 
         config_holder.refresh_options(list)
@@ -2466,9 +2473,9 @@ do -- Library element functions
         -- Create the config dropdown with additional functionality
         config_holder = section:Dropdown({
             Name = "Configs", 
-            options = {}, 
+            options = {"Loading configs..."}, 
             callback = function(option) 
-                if textbox then 
+                if textbox and option ~= "No configs found" and option ~= "Loading configs..." then 
                     textbox.set(option) 
                 end 
             end, 
@@ -2477,7 +2484,7 @@ do -- Library element functions
         
         -- Add highlight_autoload method to the config_holder
         function config_holder.highlight_autoload(autoload_name)
-            for _, option in config_holder.option_instances do
+            for _, option in pairs(config_holder.option_instances) do
                 if option.Text == autoload_name then
                     -- Add indicator for autoload config
                     if not option:FindFirstChild("AutoloadIndicator") then
@@ -2647,6 +2654,22 @@ do -- Library element functions
             end
         })
         
+        -- Add Unload button
+        section:Button({
+            name = "Unload UI", 
+            callback = function() 
+                library:Notify({
+                    name = "Unloading UI...",
+                    color = Color3.fromRGB(255, 165, 0) -- Orange color
+                })
+                
+                -- Give the notification a moment to appear
+                task.delay(1, function()
+                    library:unload_menu()
+                end)
+            end
+        })
+        
         -- UI Bind
         section:Label({Name = "UI Bind"}):Keybind({
             callback = function(bool) 
@@ -2756,7 +2779,7 @@ end
             Parent = outline
         });
 
-        -- Bottom progress line (red to green)
+        -- Progress line (starts red and gradually transitions to green)
         local line = library:create("Frame", {
             Parent = outline;
             Name = "\0";
@@ -2764,11 +2787,8 @@ end
             BorderColor3 = Color3.fromRGB(0, 0, 0);
             Size = UDim2.new(0, 0, 0, 1);
             BorderSizePixel = 0;
-            BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Start red
+            BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Start with red
         });
-        
-        -- Remove the left vertical line by not creating it
-        -- accent was here before
         
         local index = #notifications.notifs + 1
         notifications.notifs[index] = outline
@@ -2784,7 +2804,7 @@ end
             outline.MouseButton1Click:Connect(function()
                 notifications.notifs[index] = nil
                 
-                -- Change to green color when fading
+                -- Change to green when clicked
                 game:GetService("TweenService"):Create(line, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(0, 255, 0)}):Play()
                 
                 notifications:fade(outline, true)
@@ -2794,14 +2814,37 @@ end
             end)
         else 
             task.spawn(function()
-                -- Animate line from left to right (red)
-                game:GetService("TweenService"):Create(line, TweenInfo.new(2.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = UDim2.new(1, -1, 0, 1)}):Play()
+                -- First animate the line from left to right (red to yellow to green transition)
+                local timeElapsed = 0
+                local totalTime = 3 -- 3 seconds for the whole animation
+                local updateInterval = 0.05 -- Update color every 0.05 seconds
                 
-                -- Change color to green for the last 0.5 seconds
-                task.wait(2.5)
-                game:GetService("TweenService"):Create(line, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(0, 255, 0)}):Play()
+                -- Start line animation
+                game:GetService("TweenService"):Create(
+                    line, 
+                    TweenInfo.new(totalTime, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), 
+                    {Size = UDim2.new(1, -1, 0, 1)}
+                ):Play()
                 
-                task.wait(0.5)
+                -- Gradually change color from red to green
+                while timeElapsed < totalTime do
+                    local t = timeElapsed / totalTime -- Normalized time (0 to 1)
+                    
+                    -- Calculate color based on progress (red -> yellow -> green)
+                    local r = math.floor(255 * (1 - t))
+                    local g = math.floor(255 * t)
+                    local b = 0
+                    
+                    line.BackgroundColor3 = Color3.fromRGB(r, g, b)
+                    
+                    task.wait(updateInterval)
+                    timeElapsed = timeElapsed + updateInterval
+                end
+                
+                -- Ensure we end at green
+                line.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+                
+                -- Fade out notification
                 notifications.notifs[index] = nil
                 notifications:fade(outline, true)
                 task.wait(1)
