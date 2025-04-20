@@ -1,4 +1,3 @@
-
 -- Library init
 getgenv().library = {
     folders = {
@@ -260,6 +259,12 @@ do -- Library functions & Misc functions
         end
 
         config_holder.refresh_options(list)
+        
+        -- Check if there's an autoload config and highlight it
+        if isfile("syphon/configs/autoload.txt") then
+            local autoload_config = readfile("syphon/configs/autoload.txt")
+            config_holder.highlight_autoload(autoload_config)
+        end
     end 
 
     function library:get_config()
@@ -348,6 +353,37 @@ do -- Library functions & Misc functions
         end
         
         library = nil 
+    end
+
+    -- Save whether a config is set to autoload
+    function library:set_autoload_config(config_name)
+        writefile("syphon/configs/autoload.txt", config_name)
+        library:update_config_list()
+        
+        library:Notify({
+            name = "Set " .. config_name .. " as autoload config!",
+            color = Color3.fromRGB(0, 255, 0)
+        })
+    end
+
+    -- Load the autoload config if it exists
+    function library:load_autoload_config()
+        if isfile("syphon/configs/autoload.txt") then
+            local config_name = readfile("syphon/configs/autoload.txt")
+            
+            if isfile("syphon/configs/" .. config_name .. ".cfg") then
+                library:load_config(readfile("syphon/configs/" .. config_name .. ".cfg"))
+                
+                library:Notify({
+                    name = "Loaded autoload config: " .. config_name,
+                    color = Color3.fromRGB(0, 255, 0)
+                })
+                
+                return true
+            end
+        end
+        
+        return false
     end
 end
 
@@ -2426,14 +2462,205 @@ do -- Library element functions
         local textbox;
         local main = window:Page({name = "Configs", icon = "rbxassetid://72506063321241"})
         local section = main:Section({name = "Settings", side = "right", size = 1, default = true})
-        config_holder = section:Dropdown({Name = "Configs", options = {"Report", "This", "Error", "To", "Finobe"}, callback = function(option) if textbox then textbox.set(option) end end, flag = "config_name_list"}); library:update_config_list()
+        
+        -- Create the config dropdown with additional functionality
+        config_holder = section:Dropdown({
+            Name = "Configs", 
+            options = {}, 
+            callback = function(option) 
+                if textbox then 
+                    textbox.set(option) 
+                end 
+            end, 
+            flag = "config_name_list"
+        })
+        
+        -- Add highlight_autoload method to the config_holder
+        function config_holder.highlight_autoload(autoload_name)
+            for _, option in config_holder.option_instances do
+                if option.Text == autoload_name then
+                    -- Add indicator for autoload config
+                    if not option:FindFirstChild("AutoloadIndicator") then
+                        local indicator = library:create("TextLabel", {
+                            Name = "AutoloadIndicator",
+                            Text = "★",
+                            TextColor3 = Color3.fromRGB(255, 215, 0), -- Gold color
+                            BackgroundTransparency = 1,
+                            Size = UDim2.new(0, 20, 1, 0),
+                            Position = UDim2.new(1, -20, 0, 0),
+                            TextSize = 10,
+                            Parent = option,
+                            ZIndex = 2
+                        })
+                    end
+                else
+                    -- Remove indicator from non-autoload configs
+                    if option:FindFirstChild("AutoloadIndicator") then
+                        option.AutoloadIndicator:Destroy()
+                    end
+                end
+            end
+        end
+        
+        library:update_config_list()
+        
         textbox = section:Textbox({name = "Config name:", flag = "config_name_text"})
-        section:Button({name = "Save", callback = function() writefile("syphon" .. "/configs/" .. flags["config_name_text"] .. ".cfg", library:get_config()) library:update_config_list() end}) 
-        section:Button({name = "Load", callback = function() library:load_config(readfile("syphon" .. "/configs/" .. flags["config_name_text"] .. ".cfg"))  library:update_config_list() end})
-        section:Button({name = "Delete", callback = function() delfile("syphon" .. "/configs/" .. flags["config_name_text"] .. ".cfg")  library:update_config_list() end})
-        section:Label({Name = "UI Bind"}):Keybind({callback = function(bool) window.toggle_menu(bool) end, default = true})
+        
+        -- Regular save button
+        section:Button({
+            name = "Save", 
+            callback = function() 
+                local config_name = flags["config_name_text"]
+                if config_name and config_name ~= "" then
+                    writefile("syphon" .. "/configs/" .. config_name .. ".cfg", library:get_config()) 
+                    library:update_config_list()
+                    
+                    library:Notify({
+                        name = "Config saved: " .. config_name,
+                        color = Color3.fromRGB(0, 255, 0)
+                    })
+                else
+                    library:Notify({
+                        name = "Please enter a config name",
+                        color = Color3.fromRGB(255, 0, 0)
+                    })
+                end
+            end
+        })
+        
+        -- Overwrite button
+        section:Button({
+            name = "Overwrite", 
+            callback = function() 
+                local config_name = flags["config_name_text"]
+                if config_name and config_name ~= "" then
+                    if isfile("syphon" .. "/configs/" .. config_name .. ".cfg") then
+                        writefile("syphon" .. "/configs/" .. config_name .. ".cfg", library:get_config()) 
+                        library:update_config_list()
+                        
+                        library:Notify({
+                            name = "Config overwritten: " .. config_name,
+                            color = Color3.fromRGB(0, 255, 0)
+                        })
+                    else
+                        library:Notify({
+                            name = "Config doesn't exist: " .. config_name,
+                            color = Color3.fromRGB(255, 0, 0)
+                        })
+                    end
+                else
+                    library:Notify({
+                        name = "Please enter a config name",
+                        color = Color3.fromRGB(255, 0, 0)
+                    })
+                end
+            end
+        })
+        
+        -- Load button
+        section:Button({
+            name = "Load", 
+            callback = function() 
+                local config_name = flags["config_name_text"]
+                if config_name and config_name ~= "" then
+                    if isfile("syphon" .. "/configs/" .. config_name .. ".cfg") then
+                        library:load_config(readfile("syphon" .. "/configs/" .. config_name .. ".cfg"))
+                        library:update_config_list()
+                        
+                        library:Notify({
+                            name = "Config loaded: " .. config_name,
+                            color = Color3.fromRGB(0, 255, 0)
+                        })
+                    else
+                        library:Notify({
+                            name = "Config doesn't exist: " .. config_name,
+                            color = Color3.fromRGB(255, 0, 0)
+                        })
+                    end
+                else
+                    library:Notify({
+                        name = "Please enter a config name",
+                        color = Color3.fromRGB(255, 0, 0)
+                    })
+                end
+            end
+        })
+        
+        -- Delete button
+        section:Button({
+            name = "Delete", 
+            callback = function() 
+                local config_name = flags["config_name_text"]
+                if config_name and config_name ~= "" then
+                    if isfile("syphon" .. "/configs/" .. config_name .. ".cfg") then
+                        delfile("syphon" .. "/configs/" .. config_name .. ".cfg")
+                        
+                        -- Remove from autoload if it was the autoload config
+                        if isfile("syphon/configs/autoload.txt") then
+                            local autoload = readfile("syphon/configs/autoload.txt")
+                            if autoload == config_name then
+                                delfile("syphon/configs/autoload.txt")
+                            end
+                        end
+                        
+                        library:update_config_list()
+                        
+                        library:Notify({
+                            name = "Config deleted: " .. config_name,
+                            color = Color3.fromRGB(255, 0, 0)
+                        })
+                    else
+                        library:Notify({
+                            name = "Config doesn't exist: " .. config_name,
+                            color = Color3.fromRGB(255, 0, 0)
+                        })
+                    end
+                else
+                    library:Notify({
+                        name = "Please enter a config name",
+                        color = Color3.fromRGB(255, 0, 0)
+                    })
+                end
+            end
+        })
+        
+        -- Set as autoload button
+        section:Button({
+            name = "Set as Autoload", 
+            callback = function() 
+                local config_name = flags["config_name_text"]
+                if config_name and config_name ~= "" then
+                    if isfile("syphon" .. "/configs/" .. config_name .. ".cfg") then
+                        library:set_autoload_config(config_name)
+                    else
+                        library:Notify({
+                            name = "Config doesn't exist: " .. config_name,
+                            color = Color3.fromRGB(255, 0, 0)
+                        })
+                    end
+                else
+                    library:Notify({
+                        name = "Please enter a config name",
+                        color = Color3.fromRGB(255, 0, 0)
+                    })
+                end
+            end
+        })
+        
+        -- UI Bind
+        section:Label({Name = "UI Bind"}):Keybind({
+            callback = function(bool) 
+                window.toggle_menu(bool) 
+            end, 
+            default = true
+        })
+        
+        -- Add an autoload initializer to be called after UI creation
+        if library:load_autoload_config() then
+            window.toggle_menu(true)
+        end
     end
---
+end
 
 -- Notification library
     local notifications = library.notifications
@@ -2466,89 +2693,82 @@ do -- Library element functions
     function library:Notify(options)
         local cfg = {
             name = options.name or "Hit: q3sm (finobe) in the Head for 100 Damage!",
-            color = options.color or Color3.fromRGB(255, 255, 255);
+            color = options.color or Color3.fromRGB(255, 0, 0); -- Default to red
             clickable = options.click or false;
         }
         
         -- Instances
-            local outline = library:create("TextButton", {
-                Parent = library.items;
-                Size = UDim2.new(0, 0, 0, 0);
-                BorderColor3 = Color3.fromRGB(0, 0, 0);
-                BorderSizePixel = 0;
-                AutoButtonColor = false;
-                Text = "";
-                AutomaticSize = Enum.AutomaticSize.XY;
-                BackgroundColor3 = Color3.fromRGB(46, 46, 46)
-            });
+        local outline = library:create("TextButton", {
+            Parent = library.items;
+            Size = UDim2.new(0, 0, 0, 0);
+            BorderColor3 = Color3.fromRGB(0, 0, 0);
+            BorderSizePixel = 0;
+            AutoButtonColor = false;
+            Text = "";
+            AutomaticSize = Enum.AutomaticSize.XY;
+            BackgroundColor3 = Color3.fromRGB(46, 46, 46)
+        });
 
-            local inline = library:create("Frame", {
-                Parent = outline;
-                Position = UDim2.new(0, 1, 0, 1);
-                BorderColor3 = Color3.fromRGB(0, 0, 0);
-                BorderSizePixel = 0;
-                AutomaticSize = Enum.AutomaticSize.XY;
-                BackgroundColor3 = Color3.fromRGB(21, 21, 21)
-            });	
-            
-            local uigradient = library:create("UIGradient", {
-                Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)), ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)), ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)), ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 0, 255)), ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0, 255)), ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))};
-                Transparency = NumberSequence.new{NumberSequenceKeypoint.new(0, -1), NumberSequenceKeypoint.new(1, -1)};
-                Parent = menu_title
-            });
-            
-            library:create("UIPadding", {
-                PaddingTop = UDim.new(0, 7);
-                PaddingBottom = UDim.new(0, 6);
-                Parent = inline;
-                PaddingRight = UDim.new(0, 8);
-                PaddingLeft = UDim.new(0, 4)
-            });
-            
-            local misc_text = library:create("TextLabel", {
-                FontFace = library.font;
-                Parent = inline;
-                LineHeight = 1.75;
-                TextColor3 = Color3.fromRGB(255, 255, 255);
-                BorderColor3 = Color3.fromRGB(0, 0, 0);
-                Text = cfg.name; -- string.format("[ cht name ] %s", cfg.name);
-                AutomaticSize = Enum.AutomaticSize.XY;
-                Size = UDim2.new(1, -4, 1, 0);
-                Position = UDim2.new(0, 4, 0, -2);
-                BackgroundTransparency = 1;
-                TextXAlignment = Enum.TextXAlignment.Left;
-                BorderSizePixel = 0;
-                ZIndex = 2;
-                TextSize = 10;
-                BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            });
-            
-            library:create("UIPadding", {
-                PaddingBottom = UDim.new(0, 1);
-                PaddingRight = UDim.new(0, 1);
-                Parent = outline
-            });
+        local inline = library:create("Frame", {
+            Parent = outline;
+            Position = UDim2.new(0, 1, 0, 1);
+            BorderColor3 = Color3.fromRGB(0, 0, 0);
+            BorderSizePixel = 0;
+            AutomaticSize = Enum.AutomaticSize.XY;
+            BackgroundColor3 = Color3.fromRGB(21, 21, 21)
+        });	
+        
+        local uigradient = library:create("UIGradient", {
+            Color = ColorSequence.new{ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 0, 0)), ColorSequenceKeypoint.new(0.17, Color3.fromRGB(255, 255, 0)), ColorSequenceKeypoint.new(0.33, Color3.fromRGB(0, 255, 0)), ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 255)), ColorSequenceKeypoint.new(0.67, Color3.fromRGB(0, 0, 255)), ColorSequenceKeypoint.new(0.83, Color3.fromRGB(255, 0, 255)), ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))};
+            Transparency = NumberSequence.new{NumberSequenceKeypoint.new(0, -1), NumberSequenceKeypoint.new(1, -1)};
+            Parent = menu_title
+        });
+        
+        library:create("UIPadding", {
+            PaddingTop = UDim.new(0, 7);
+            PaddingBottom = UDim.new(0, 6);
+            Parent = inline;
+            PaddingRight = UDim.new(0, 8);
+            PaddingLeft = UDim.new(0, 4)
+        });
+        
+        local misc_text = library:create("TextLabel", {
+            FontFace = library.font;
+            Parent = inline;
+            LineHeight = 1.75;
+            TextColor3 = Color3.fromRGB(255, 255, 255);
+            BorderColor3 = Color3.fromRGB(0, 0, 0);
+            Text = cfg.name;
+            AutomaticSize = Enum.AutomaticSize.XY;
+            Size = UDim2.new(1, -4, 1, 0);
+            Position = UDim2.new(0, 4, 0, -2);
+            BackgroundTransparency = 1;
+            TextXAlignment = Enum.TextXAlignment.Left;
+            BorderSizePixel = 0;
+            ZIndex = 2;
+            TextSize = 10;
+            BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        });
+        
+        library:create("UIPadding", {
+            PaddingBottom = UDim.new(0, 1);
+            PaddingRight = UDim.new(0, 1);
+            Parent = outline
+        });
 
-            local line = library:create( "Frame" , {
-                Parent = outline;
-                Name = "\0";
-                Position = UDim2.new(0, 1, 1, -1);
-                BorderColor3 = Color3.fromRGB(0, 0, 0);
-                Size = UDim2.new(0, 0, 0, 1);
-                BorderSizePixel = 0;
-                BackgroundColor3 = cfg.color
-            });
-            
-            local accent = library:create( "Frame" , {
-                Parent = outline;
-                Name = "\0";
-                Position = UDim2.new(0, 1, 0, 1);
-                BorderColor3 = Color3.fromRGB(0, 0, 0);
-                Size = UDim2.new(0, 1, 1, -1);
-                BorderSizePixel = 0;
-                BackgroundColor3 = cfg.color
-            });
-        -- 
+        -- Bottom progress line (red to green)
+        local line = library:create("Frame", {
+            Parent = outline;
+            Name = "\0";
+            Position = UDim2.new(0, 1, 1, -1);
+            BorderColor3 = Color3.fromRGB(0, 0, 0);
+            Size = UDim2.new(0, 0, 0, 1);
+            BorderSizePixel = 0;
+            BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Start red
+        });
+        
+        -- Remove the left vertical line by not creating it
+        -- accent was here before
         
         local index = #notifications.notifs + 1
         notifications.notifs[index] = outline
@@ -2563,16 +2783,25 @@ do -- Library element functions
         if cfg.clickable then 
             outline.MouseButton1Click:Connect(function()
                 notifications.notifs[index] = nil
+                
+                -- Change to green color when fading
+                game:GetService("TweenService"):Create(line, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(0, 255, 0)}):Play()
+                
                 notifications:fade(outline, true)
                 task.wait(1)
                 outline:Destroy() 
                 notifications:refresh_notifs()
             end)
         else 
-            -- booty code (yes finobe we know u paste...)
             task.spawn(function()
-                game:GetService("TweenService"):Create(line, TweenInfo.new(3, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = UDim2.new(1, -1, 0, 1)}):Play()
-                task.wait(3)
+                -- Animate line from left to right (red)
+                game:GetService("TweenService"):Create(line, TweenInfo.new(2.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Size = UDim2.new(1, -1, 0, 1)}):Play()
+                
+                -- Change color to green for the last 0.5 seconds
+                task.wait(2.5)
+                game:GetService("TweenService"):Create(line, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(0, 255, 0)}):Play()
+                
+                task.wait(0.5)
                 notifications.notifs[index] = nil
                 notifications:fade(outline, true)
                 task.wait(1)
@@ -2581,4 +2810,3 @@ do -- Library element functions
             end)
         end
     end
-end
